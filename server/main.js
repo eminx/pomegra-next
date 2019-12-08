@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Books } from '/imports/api/collections';
+import { Accounts } from 'meteor/accounts-base';
 
 function insertLink(title, url) {
   Books.insert({ title, url, createdAt: new Date() });
@@ -19,4 +20,27 @@ Meteor.startup(() => {
 
     insertLink('Discussions', 'https://forums.meteor.com');
   }
+});
+
+Meteor.methods({
+  registerUser(user) {
+    Accounts.createUser(
+      {
+        email: user.email,
+        username: user.username,
+        password: user.password,
+      },
+      (error,
+      respond => {
+        console.log(error, respond);
+      })
+    );
+  },
+
+  loginWithPassword(user, password) {
+    console.log(user, password);
+    Meteor.loginWithPassword(user, password, (error, respond) => {
+      console.log(error, respond);
+    });
+  },
 });
