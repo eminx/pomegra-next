@@ -10,13 +10,12 @@ import Framework7 from 'framework7/framework7-lite.esm.bundle.js';
 import Framework7React from 'framework7-react';
 // Init F7-React Plugin
 Framework7.use(Framework7React);
+
 import 'framework7/css/framework7.bundle.min.css';
 
 Meteor.startup(() => {
-  console.log('gotsdf');
   render(
     <App params={{ theme: 'auto', name: 'Pomegra', id: 'com.pomegra.test' }}>
-      {/* Your main view, should have "main" prop */}
       <View main>{renderRoutes()}</View>
     </App>,
     document.getElementById('react-target')

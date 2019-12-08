@@ -6,10 +6,12 @@ import BooksContainer from '../imports/containers/BooksContainer';
 
 const browserHistory = createBrowserHistory();
 
-export const renderRoutes = () => (
-  <Router history={browserHistory}>
-    <Switch>
-      <Route path="/" component={BooksContainer} />
-    </Switch>
-  </Router>
-);
+export const renderRoutes = () => {
+  return (
+    <Router history={browserHistory}>
+      <Switch>
+        <Route path="/" component={BooksContainer} />
+      </Switch>
+    </Router>
+  );
+};

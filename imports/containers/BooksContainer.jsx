@@ -18,7 +18,6 @@ import { Books } from '../api/collections';
 
 class Info extends Component {
   render() {
-    console.log('ccicici');
     const books = this.props.books.map(book => this.makeLink(book));
 
     return (
