@@ -71,7 +71,7 @@ class CreateAccount extends Component {
         <Appbar title="Create an account" />
         <Navbar>
           <Link href="/add/">Add book</Link>
-          <Link href="/books/">See books</Link>
+          <Link href="/my-books/">See books</Link>
         </Navbar>
         <LoginScreen opened={false}>
           <LoginScreenTitle>Create an Account</LoginScreenTitle>

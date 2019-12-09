@@ -44,6 +44,15 @@ class AddBook extends Component {
       });
   };
 
+  viewBookInDetail = result => {
+    console.log(result);
+    this.$f7router.navigate('/book-detail-tobe-added/', {
+      props: {
+        bookInfo: result,
+      },
+    });
+  };
+
   render() {
     const {
       searchResults,
@@ -73,11 +82,12 @@ class AddBook extends Component {
         </Block>
 
         <List mediaList>
-          {searchResults.length > 0 &&
+          {searchResults &&
+            searchResults.length > 0 &&
             searchResults.map(result => (
               <ListItem
                 mediaItem
-                key={result.id}
+                key={result.id || result.volumeInfo.title}
                 link="#"
                 after={
                   result.volumeInfo.categories &&
@@ -86,9 +96,10 @@ class AddBook extends Component {
                 title={result.volumeInfo.title}
                 subtitle={
                   result.volumeInfo.authors &&
-                  result.volumeInfo.authors.map(author => author)
+                  result.volumeInfo.authors.map(author => <span>{author}</span>)
                 }
                 text={result.volumeInfo.description}
+                onClick={() => this.viewBookInDetail(result)}
               >
                 <img
                   slot="media"

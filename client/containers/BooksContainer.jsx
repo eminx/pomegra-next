@@ -117,16 +117,6 @@ class Info extends Component {
       </Page>
     );
   }
-
-  makeLink(book) {
-    return (
-      <li key={book._id}>
-        <a href={book.url} target="_blank">
-          {book.title}
-        </a>
-      </li>
-    );
-  }
 }
 
 export default BooksContainer = withTracker(props => {

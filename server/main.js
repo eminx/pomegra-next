@@ -31,10 +31,38 @@ Meteor.methods({
     });
   },
 
-  // loginWithPassword(user, password) {
-  //   console.log(user, password);
-  //   Meteor.loginWithPassword(user, password, (error, respond) => {
-  //     console.log(error, respond);
-  //   });
-  // },
+  insertBook: theBook => {
+    console.log(theBook);
+    const user = Meteor.user();
+    if (!user) {
+      return false;
+    }
+    const currentUserId = user._id;
+
+    const myBook = {
+      date_added: new Date(),
+      b_title: theBook.title,
+      b_title_lowercase: theBook.title.toLowerCase(),
+      b_author: theBook.authors[0],
+      b_author_lowercase: theBook.authors[0].toLowerCase(),
+      b_lang: theBook.language || '',
+      image_url: theBook.imageLinks && theBook.imageLinks.thumbnail,
+      b_cat: (theBook.categories && theBook.categories[0]) || '',
+      b_ISBN: theBook.industryIdentifiers[0],
+      selfLinkGoogle: theBook.selfLink,
+      added_by: currentUserId,
+      owner_name: user.username,
+      // owner_profile_image_url: user.profile.image_url,
+      x_times: 0,
+      is_available: 1,
+    };
+
+    const bookId = Books.insert(myBook, function(error, result) {
+      if (error) {
+        console.log(error, 'error!');
+      } else {
+        return bookId;
+      }
+    });
+  },
 });

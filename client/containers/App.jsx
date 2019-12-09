@@ -3,31 +3,40 @@ import { App, View } from 'framework7-react';
 import CreateAccountContainer from './CreateAccountContainer';
 import BooksContainer from './BooksContainer';
 import AddBookContainer from './AddBookContainer';
+import BookDetailTobeAdded from './BookDetailTobeAdded';
+import MyBookContainer from './MyBookContainer';
+import MyBooksContainer from './MyBooksContainer';
 
 const routes = [
   {
     name: 'add',
     path: '/add/',
     component: AddBookContainer,
-    options: {
-      history: true,
-    },
   },
   {
     name: 'books',
     path: '/books/',
     component: BooksContainer,
-    options: {
-      history: true,
-    },
+  },
+  {
+    name: 'my-books',
+    path: '/my-books/',
+    component: MyBooksContainer,
   },
   {
     name: 'create-account',
     path: '/',
     component: CreateAccountContainer,
-    options: {
-      history: true,
-    },
+  },
+  {
+    name: 'book-detail-tobe-added',
+    path: '/book-detail-tobe-added/',
+    component: BookDetailTobeAdded,
+  },
+  {
+    name: 'book-detail',
+    path: '/book-detail/',
+    component: MyBookContainer,
   },
 ];
 
