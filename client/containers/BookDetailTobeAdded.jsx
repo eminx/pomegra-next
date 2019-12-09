@@ -29,7 +29,7 @@ class BookDetailTobeAdded extends Component {
   insertBook = book => {
     Meteor.call('insertBook', book, (error, respond) => {
       if (!error) {
-        console.log(respond);
+        this.$f7router.back();
       }
     });
   };
@@ -39,12 +39,20 @@ class BookDetailTobeAdded extends Component {
     const volumeInfo = bookInfo.volumeInfo;
 
     const authors = (
-      <div style={{ textAlign: 'right', fontWeight: 'lighter' }}>
+      <div
+        style={{
+          padddingTop: 12,
+          fontWeight: 'lighter',
+          wordBreak: 'break-all',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}
+      >
         {volumeInfo.authors &&
           volumeInfo.authors.map((author, index) => (
             <span key={author}>
-              {author}
-              {volumeInfo.authors.length !== index + 1 && ', '}
+              {author + (volumeInfo.authors.length !== index + 1 ? ', ' : '')}
             </span>
           ))}
       </div>

@@ -120,7 +120,6 @@ class CreateAccount extends Component {
 export default CreateAccountContainer = withTracker(props => {
   const meSub = Meteor.subscribe('me');
   const currentUser = Meteor.user();
-  console.log('currentUser', currentUser);
   return {
     currentUser,
   };

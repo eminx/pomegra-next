@@ -43,7 +43,9 @@ class Info extends Component {
     };
 
     Meteor.loginWithPassword(usernameOrEmail, password, (error, respond) => {
-      console.log(error, respond);
+      if (error) {
+        console.log(error);
+      }
     });
 
     // app.dialog.alert(

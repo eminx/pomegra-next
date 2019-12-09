@@ -45,7 +45,6 @@ class AddBook extends Component {
   };
 
   viewBookInDetail = result => {
-    console.log(result);
     this.$f7router.navigate('/book-detail-tobe-added/', {
       props: {
         bookInfo: result,
