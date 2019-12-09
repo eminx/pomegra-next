@@ -24,23 +24,17 @@ Meteor.startup(() => {
 
 Meteor.methods({
   registerUser(user) {
-    Accounts.createUser(
-      {
-        email: user.email,
-        username: user.username,
-        password: user.password,
-      },
-      (error,
-      respond => {
-        console.log(error, respond);
-      })
-    );
-  },
-
-  loginWithPassword(user, password) {
-    console.log(user, password);
-    Meteor.loginWithPassword(user, password, (error, respond) => {
-      console.log(error, respond);
+    Accounts.createUser({
+      email: user.email,
+      username: user.username,
+      password: user.password,
     });
   },
+
+  // loginWithPassword(user, password) {
+  //   console.log(user, password);
+  //   Meteor.loginWithPassword(user, password, (error, respond) => {
+  //     console.log(error, respond);
+  //   });
+  // },
 });

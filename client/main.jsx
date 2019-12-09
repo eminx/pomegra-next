@@ -1,8 +1,6 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
-import { renderRoutes } from './routes';
-import { App, View } from 'framework7-react';
 
 // Import F7 Bundle
 import Framework7 from 'framework7/framework7-lite.esm.bundle.js';
@@ -12,12 +10,10 @@ import Framework7React from 'framework7-react';
 Framework7.use(Framework7React);
 
 import 'framework7/css/framework7.bundle.min.css';
+import './main.css';
+
+import F7App from './containers/App';
 
 Meteor.startup(() => {
-  render(
-    <App params={{ theme: 'auto', name: 'Pomegra', id: 'com.pomegra.test' }}>
-      <View main>{renderRoutes()}</View>
-    </App>,
-    document.getElementById('react-target')
-  );
+  render(React.createElement(F7App), document.getElementById('react-target'));
 });
