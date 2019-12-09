@@ -34,20 +34,15 @@ class Info extends Component {
   }
 
   signIn() {
-    const self = this;
-    const app = self.$f7;
     const { usernameOrEmail, password } = this.state;
-    const user = {
-      usernameOrEmail,
-      password,
-    };
-
     Meteor.loginWithPassword(usernameOrEmail, password, (error, respond) => {
       if (error) {
-        console.log(error);
+        console.log(errpr);
       }
     });
 
+    // const self = this;
+    // const app = self.$f7;
     // app.dialog.alert(
     //   `Username: ${self.state.username}<br>Password: ${self.state.password}`,
     //   () => {

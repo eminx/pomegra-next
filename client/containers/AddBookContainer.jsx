@@ -6,11 +6,7 @@ import {
   Page,
   Navbar,
   Block,
-  Button,
-  Subnavbar,
   Searchbar,
-  NavRight,
-  Link,
   List,
   ListItem,
   Preloader,
@@ -39,7 +35,7 @@ class AddBook extends Component {
         this.setState({
           isLoading: false,
           searchResults: parsedResults.items,
-          searchbarFocused: false,
+          // searchbarFocused: false,
         });
       });
   };
@@ -53,16 +49,12 @@ class AddBook extends Component {
   };
 
   render() {
-    const {
-      searchResults,
-      searchbarInput,
-      searchbarFocused,
-      isLoading,
-    } = this.state;
+    const { searchResults, searchbarInput, isLoading } = this.state;
     return (
       <Page name="add">
         <Navbar title="Add new book to your shelf" backLink />
         <Searchbar
+          form
           placeholder="title, author, ISBN etc"
           customSearch
           noShadow
@@ -70,13 +62,11 @@ class AddBook extends Component {
           onChange={event =>
             this.setState({ searchbarInput: event.target.value })
           }
-          onFocus={() => this.setState({ searchbarFocused: true })}
+          onSubmit={() => this.searchbarSearch()}
+          onClear={() => console.log('shsh')}
         ></Searchbar>
 
         <Block className="text-align-center">
-          {!isLoading && searchbarFocused && (
-            <Button onClick={() => this.searchbarSearch()}>Search</Button>
-          )}
           {isLoading && <Preloader />}
         </Block>
 
@@ -113,7 +103,11 @@ class AddBook extends Component {
             ))}
         </List>
 
-        <Block center>Type and press enter</Block>
+        {searchResults.length === 0 && !isLoading && (
+          <Block style={{ display: 'flex', justifyContent: 'center' }}>
+            Type and press enter
+          </Block>
+        )}
       </Page>
     );
   }

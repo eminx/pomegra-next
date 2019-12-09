@@ -1,27 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import {
-  AccordionContent,
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  Appbar,
-  Block,
-  Page,
-  Navbar,
-  Toolbar,
-  Button,
-  Link,
-  List,
-  ListItem,
-  LoginScreen,
-  LoginScreenTitle,
-  BlockFooter,
-  ListButton,
-  ListInput,
-} from 'framework7-react';
+import { Page, Navbar, List, ListItem } from 'framework7-react';
 
 class MyBooks extends Component {
   state = {};
@@ -71,7 +51,8 @@ class MyBooks extends Component {
 export default MyBooksContainer = withTracker(props => {
   const currentUser = Meteor.user();
   Meteor.subscribe('myBooks');
-  const myBooks = Books.find({ added_by: currentUser._id }).fetch();
+  const myBooks =
+    currentUser && Books.find({ added_by: currentUser._id }).fetch();
   return {
     currentUser,
     myBooks,

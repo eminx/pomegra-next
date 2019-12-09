@@ -6,8 +6,19 @@ import AddBookContainer from './AddBookContainer';
 import BookDetailTobeAdded from './BookDetailTobeAdded';
 import MyBookContainer from './MyBookContainer';
 import MyBooksContainer from './MyBooksContainer';
+import FindContainer from './FindContainer';
 
 const routes = [
+  {
+    name: 'find',
+    path: '/find/',
+    component: FindContainer,
+  },
+  {
+    name: 'create-account',
+    path: '/',
+    component: CreateAccountContainer,
+  },
   {
     name: 'add',
     path: '/add/',
@@ -22,11 +33,6 @@ const routes = [
     name: 'my-books',
     path: '/my-books/',
     component: MyBooksContainer,
-  },
-  {
-    name: 'create-account',
-    path: '/',
-    component: CreateAccountContainer,
   },
   {
     name: 'book-detail-tobe-added',

@@ -25,6 +25,7 @@ import { Books } from '../../imports/api/collections';
 
 class CreateAccount extends Component {
   state = {
+    loginScreenOpen: false,
     username: '',
     email: '',
     password: '',
@@ -60,20 +61,28 @@ class CreateAccount extends Component {
 
   render() {
     const { currentUser } = this.props;
-    const { isLoading } = this.state;
+    const { isLoading, loginScreenOpen } = this.state;
 
     return (
       <Page name="create-account">
-        <Block strong>
-          {isLoading && <Progressbar infinite color="multi"></Progressbar>}
+        <Navbar title={currentUser ? 'Welcome' : 'Create an account'} />
+
+        <Block>
+          {!currentUser && (
+            <Button
+              round
+              large
+              fill
+              raised
+              outline
+              onClick={() => this.setState({ loginScreenOpen: true })}
+            >
+              Create Account
+            </Button>
+          )}
         </Block>
 
-        <Appbar title="Create an account" />
-        <Navbar>
-          <Link href="/add/">Add book</Link>
-          <Link href="/my-books/">See books</Link>
-        </Navbar>
-        <LoginScreen opened={false}>
+        <LoginScreen opened={loginScreenOpen}>
           <LoginScreenTitle>Create an Account</LoginScreenTitle>
           <List form>
             <ListInput
@@ -108,17 +117,26 @@ class CreateAccount extends Component {
             <ListButton onClick={this.createAccount.bind(this)}>
               Sign In
             </ListButton>
-            <BlockFooter>Viva libra</BlockFooter>
+            <BlockFooter>
+              Viva libra
+              <Link onClick={() => this.setState({ loginScreenOpen: false })}>
+                Close
+              </Link>
+            </BlockFooter>
           </List>
         </LoginScreen>
-        {/* Page Content */}
+
+        <Toolbar position="bottom">
+          <Link href="/add/">Add book</Link>
+          <Link href="/my-books/">My books</Link>
+        </Toolbar>
       </Page>
     );
   }
 }
 
 export default CreateAccountContainer = withTracker(props => {
-  const meSub = Meteor.subscribe('me');
+  Meteor.subscribe('me');
   const currentUser = Meteor.user();
   return {
     currentUser,

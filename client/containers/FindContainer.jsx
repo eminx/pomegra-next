@@ -14,11 +14,11 @@ import {
   ListItem,
 } from 'framework7-react';
 
-class MyBook extends Component {
+class Find extends Component {
   state = {};
 
   render() {
-    const { currentUser, myBook } = this.props;
+    const { currentUser, aBook } = this.props;
 
     const detailListItemStyle = {
       justifyContent: 'flex-end',
@@ -26,19 +26,19 @@ class MyBook extends Component {
       fontSize: 12,
     };
 
-    if (!myBook) {
+    if (!aBook) {
       return;
     }
 
     return (
       <Page name="books">
         <Navbar title="Details" backLink></Navbar>
-        <Card className="demo-card-header-pic" title={myBook.b_title}>
+        <Card className="demo-card-header-pic" title={aBook.b_title}>
           <CardHeader
             className="no-border"
             valign="bottom"
             style={{
-              backgroundImage: myBook.image_url && `url(${myBook.image_url})`,
+              backgroundImage: aBook.image_url && `url(${aBook.image_url})`,
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               backgroundColor: '#010101',
@@ -53,16 +53,14 @@ class MyBook extends Component {
                 style={{ paddingTop: 12, paddingBottom: 12 }}
                 noHairlinesBetween
               >
-                <ListItem style={{ paddingLeft: 0 }}>
-                  {myBook.b_author}
-                </ListItem>
+                <ListItem style={{ paddingLeft: 0 }}>{aBook.b_author}</ListItem>
                 <ListItem style={detailListItemStyle}>
-                  {myBook.b_lang.toUpperCase()},{' '}
+                  {aBook.b_lang.toUpperCase()},{' '}
                 </ListItem>
-                <ListItem style={detailListItemStyle}>{myBook.b_cat}</ListItem>
+                <ListItem style={detailListItemStyle}>{aBook.b_cat}</ListItem>
               </List>
             </Block>
-            <p>{myBook.b_description}</p>
+            <p>{aBook.b_description}</p>
           </CardContent>
           <CardFooter style={{ display: 'flex', justifyContent: 'center' }}>
             {/* <Link>Close</Link> */}
@@ -74,9 +72,10 @@ class MyBook extends Component {
   }
 }
 
-export default MyBookContainer = withTracker(props => {
+export default FindContainer = withTracker(props => {
   const currentUser = Meteor.user();
+
   return {
     currentUser,
   };
-})(MyBook);
+})(Find);
