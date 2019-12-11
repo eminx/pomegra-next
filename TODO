@@ -1,13 +1,18 @@
 POMEGRA NEXT TODO:
 
-- Requests, messages etc.
-- See other books in town
-- 
-- Search
+- Build Requests, messages etc.
+- Build user profile
+- Search better - not just freaking mongo one word
 - Revise naming convention
 - Fix authors etc
 - Fix categories etc
+- Organisation linkage - Ambassador/Umbrella or whatever killer concept we're after
+- 
 
-NEw FEATURES
-- Maps for neighbors etc.
+NEW FEATURES
+- GPS + Maps...
 - Add Wishlist feature
+- Follow people kind of shit
+- Recommendations, cute and nice
+- Chatbot to check what you can perhaps read later
+- 

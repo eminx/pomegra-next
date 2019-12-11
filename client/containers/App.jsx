@@ -1,60 +1,66 @@
-import React from 'react';
-import { App, View } from 'framework7-react';
-import CreateAccountContainer from './CreateAccountContainer';
-import BooksContainer from './BooksContainer';
-import AddBookContainer from './AddBookContainer';
-import BookDetailTobeAdded from './BookDetailTobeAdded';
-import MyBookContainer from './MyBookContainer';
-import MyBooksContainer from './MyBooksContainer';
-import FindContainer from './FindContainer';
+import React from 'react'
+import { App, View } from 'framework7-react'
+import CreateAccountContainer from './CreateAccountContainer'
+import BooksContainer from './BooksContainer'
+import AddBookContainer from './AddBookContainer'
+import BookDetailTobeAdded from './BookDetailTobeAdded'
+import BookDetailTobeRequested from './BookDetailTobeRequested'
+import MyBookContainer from './MyBookContainer'
+import MyBooksContainer from './MyBooksContainer'
+import FindContainer from './FindContainer'
 
 const routes = [
   {
-    name: 'find',
-    path: '/find/',
-    component: FindContainer,
-  },
-  {
     name: 'create-account',
     path: '/',
-    component: CreateAccountContainer,
+    component: CreateAccountContainer
+  },
+  {
+    name: 'find',
+    path: '/find/',
+    component: FindContainer
   },
   {
     name: 'add',
     path: '/add/',
-    component: AddBookContainer,
+    component: AddBookContainer
   },
   {
     name: 'books',
     path: '/books/',
-    component: BooksContainer,
+    component: BooksContainer
   },
   {
     name: 'my-books',
     path: '/my-books/',
-    component: MyBooksContainer,
+    component: MyBooksContainer
   },
   {
     name: 'book-detail-tobe-added',
     path: '/book-detail-tobe-added/',
-    component: BookDetailTobeAdded,
+    component: BookDetailTobeAdded
+  },
+  {
+    name: 'book-detail-tobe-requested',
+    path: '/book-detail-tobe-requested/',
+    component: BookDetailTobeRequested
   },
   {
     name: 'book-detail',
     path: '/book-detail/',
-    component: MyBookContainer,
-  },
-];
+    component: MyBookContainer
+  }
+]
 
 const f7params = {
   routes,
   name: 'My App',
   id: 'com.myapp.test',
-  theme: 'aurora',
-};
+  theme: 'aurora'
+}
 
 export default () => (
   <App params={f7params}>
-    <View main url="/" />
+    <View main url='/' />
   </App>
-);
+)

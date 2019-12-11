@@ -1,45 +1,37 @@
-import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import { Meteor } from 'meteor/meteor'
+import React, { Component } from 'react'
+import { withTracker } from 'meteor/react-meteor-data'
 import {
-  Appbar,
   Block,
   Page,
   Navbar,
   Toolbar,
   Button,
   Link,
-  BlockTitle,
   List,
   LoginScreen,
   LoginScreenTitle,
   BlockFooter,
   ListButton,
-  Range,
-  ListItem,
-  ListInput,
-} from 'framework7-react';
+  ListInput
+} from 'framework7-react'
 
-import { Books } from '../../imports/api/collections';
+import { Books } from '../../imports/api/collections'
 
 class Info extends Component {
   state = {
     loginScreenOpened: false,
     usernameOrEmail: '',
-    password: '',
-  };
-
-  componentDidMount() {
-    this.$f7router.navigate('/cc/');
+    password: ''
   }
 
-  signIn() {
-    const { usernameOrEmail, password } = this.state;
+  signIn () {
+    const { usernameOrEmail, password } = this.state
     Meteor.loginWithPassword(usernameOrEmail, password, (error, respond) => {
       if (error) {
-        console.log(errpr);
+        console.log(errpr)
       }
-    });
+    })
 
     // const self = this;
     // const app = self.$f7;
@@ -51,11 +43,11 @@ class Info extends Component {
     // );
   }
 
-  render() {
-    const { books, currentUser } = this.props;
+  render () {
+    const { books, currentUser } = this.props
     return (
-      <Page name="books">
-        <Navbar title="My books" backLink></Navbar>
+      <Page name='books'>
+        <Navbar title='My books' backLink />
 
         <Block>
           <Button
@@ -63,7 +55,7 @@ class Info extends Component {
             large
             fill
             onClick={() => {
-              this.setState({ loginScreenOpened: true });
+              this.setState({ loginScreenOpened: true })
             }}
           >
             Open Via Prop Change
@@ -73,27 +65,27 @@ class Info extends Component {
         <LoginScreen
           opened={this.state.loginScreenOpened}
           onLoginScreenClosed={() => {
-            this.setState({ loginScreenOpened: false });
+            this.setState({ loginScreenOpened: false })
           }}
         >
           <LoginScreenTitle>Login</LoginScreenTitle>
           <List form>
             <ListInput
-              label="Username or Email"
-              type="text"
-              placeholder="Your username or email address"
+              label='Username or Email'
+              type='text'
+              placeholder='Your username or email address'
               value={this.state.usernameOrEmail}
               onInput={e => {
-                this.setState({ usernameOrEmail: e.target.value });
+                this.setState({ usernameOrEmail: e.target.value })
               }}
             />
             <ListInput
-              label="Password"
-              type="password"
-              placeholder="Your password"
+              label='Password'
+              type='password'
+              placeholder='Your password'
               value={this.state.password}
               onInput={e => {
-                this.setState({ password: e.target.value });
+                this.setState({ password: e.target.value })
               }}
             />
           </List>
@@ -112,15 +104,15 @@ class Info extends Component {
         </Toolbar>
         {/* Page Content */}
       </Page>
-    );
+    )
   }
 }
 
-export default BooksContainer = withTracker(props => {
-  const currentUser = Meteor.user();
-  const books = Books.find().fetch();
+export default (BooksContainer = withTracker(props => {
+  const currentUser = Meteor.user()
+  const books = Books.find().fetch()
   return {
     books,
-    currentUser,
-  };
-})(Info);
+    currentUser
+  }
+})(Info))

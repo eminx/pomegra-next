@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import { Meteor } from 'meteor/meteor'
+import React, { Component } from 'react'
+import { withTracker } from 'meteor/react-meteor-data'
 
 import {
   Page,
@@ -9,53 +9,53 @@ import {
   Searchbar,
   List,
   ListItem,
-  Preloader,
-} from 'framework7-react';
+  Preloader
+} from 'framework7-react'
 
-const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
+const googleApi = 'https://www.googleapis.com/books/v1/volumes?q='
 
 class AddBook extends Component {
   state = {
     isLoading: false,
     searchResults: [],
     searchbarInput: '',
-    searchbarFocused: false,
-  };
+    searchbarFocused: false
+  }
 
   searchbarSearch = () => {
     this.setState({
-      isLoading: true,
-    });
-    const keyword = this.state.searchbarInput;
+      isLoading: true
+    })
+    const keyword = this.state.searchbarInput
     fetch(googleApi + keyword)
       .then(results => {
-        return results.json();
+        return results.json()
       })
       .then(parsedResults => {
         this.setState({
           isLoading: false,
-          searchResults: parsedResults.items,
+          searchResults: parsedResults.items
           // searchbarFocused: false,
-        });
-      });
-  };
+        })
+      })
+  }
 
   viewBookInDetail = result => {
     this.$f7router.navigate('/book-detail-tobe-added/', {
       props: {
-        bookInfo: result,
-      },
-    });
-  };
+        bookInfo: result
+      }
+    })
+  }
 
-  render() {
-    const { searchResults, searchbarInput, isLoading } = this.state;
+  render () {
+    const { searchResults, searchbarInput, isLoading } = this.state
     return (
-      <Page name="add">
-        <Navbar title="Add new book to your shelf" backLink />
+      <Page name='add'>
+        <Navbar title='Add new book to your shelf' backLink />
         <Searchbar
           form
-          placeholder="title, author, ISBN etc"
+          placeholder='title, author, ISBN etc'
           customSearch
           noShadow
           value={searchbarInput}
@@ -64,9 +64,9 @@ class AddBook extends Component {
           }
           onSubmit={() => this.searchbarSearch()}
           onClear={() => console.log('shsh')}
-        ></Searchbar>
+        />
 
-        <Block className="text-align-center">
+        <Block className='text-align-center'>
           {isLoading && <Preloader />}
         </Block>
 
@@ -77,7 +77,7 @@ class AddBook extends Component {
               <ListItem
                 mediaItem
                 key={result.id || result.volumeInfo.title}
-                link="#"
+                link='#'
                 after={
                   result.volumeInfo.categories &&
                   result.volumeInfo.categories[0]
@@ -91,7 +91,7 @@ class AddBook extends Component {
                 onClick={() => this.viewBookInDetail(result)}
               >
                 <img
-                  slot="media"
+                  slot='media'
                   src={
                     result.volumeInfo.imageLinks &&
                     result.volumeInfo.imageLinks.smallThumbnail
@@ -103,17 +103,23 @@ class AddBook extends Component {
             ))}
         </List>
 
-        {searchResults.length === 0 && !isLoading && (
+        {searchResults && searchResults.length === 0 && !isLoading && (
           <Block style={{ display: 'flex', justifyContent: 'center' }}>
             Type and press enter
           </Block>
         )}
+
+        {!searchResults && searchResults.length === 0 && (
+          <Block>
+            <p>No books found with this keyword. Please try another way.</p>
+          </Block>
+        )}
       </Page>
-    );
+    )
   }
 }
 
-export default AddBookContainer = withTracker(props => {
-  const meSub = Meteor.subscribe('me');
-  const currentUser = Meteor.user();
-})(AddBook);
+export default (AddBookContainer = withTracker(props => {
+  const meSub = Meteor.subscribe('me')
+  const currentUser = Meteor.user()
+})(AddBook))

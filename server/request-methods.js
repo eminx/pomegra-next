@@ -1,76 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 import { Books, Requests, Messages } from '/imports/api/collections';
-import { Accounts } from 'meteor/accounts-base';
-
-function insertLink(title, url) {
-  Books.insert({ title, url, createdAt: new Date() });
-}
-
-Meteor.startup(() => {
-  // If the Links collection is empty, add some data.
-  if (Books.find().count() === 0) {
-    insertLink(
-      'Do the Tutorial',
-      'https://www.meteor.com/tutorials/react/creating-an-app'
-    );
-
-    insertLink('Follow the Guide', 'http://guide.meteor.com');
-
-    insertLink('Read the Docs', 'https://docs.meteor.com');
-
-    insertLink('Discussions', 'https://forums.meteor.com');
-  }
-});
 
 Meteor.methods({
-  registerUser(user) {
-    Accounts.createUser({
-      email: user.email,
-      username: user.username,
-      password: user.password,
-    });
-  },
-
-  insertBook: theBook => {
-    const user = Meteor.user();
-    if (!user) {
-      return false;
-    }
-    const currentUserId = user._id;
-
-    const myBook = {
-      date_added: new Date(),
-      b_title: theBook.title,
-      b_title_lowercase: theBook.title.toLowerCase(),
-      b_author: theBook.authors && theBook.authors[0],
-      b_author_lowercase: theBook.authors && theBook.authors[0].toLowerCase(),
-      b_lang: theBook.language || '',
-      image_url: theBook.imageLinks && theBook.imageLinks.thumbnail,
-      b_cat: (theBook.categories && theBook.categories[0]) || '',
-      b_ISBN: theBook.industryIdentifiers[0],
-      selfLinkGoogle: theBook.selfLink,
-      added_by: currentUserId,
-      owner_name: user.username,
-      // owner_profile_image_url: user.profile.image_url,
-      x_times: 0,
-      is_available: 1,
-    };
-
-    const bookId = Books.insert(myBook, function(error, result) {
-      if (error) {
-        console.log(error, 'error!');
-      } else {
-        return bookId;
-      }
-    });
-  },
-
   makeRequest: (bookId, ownerId, bName, bAuthor, ownerName, bookImage) => {
     if (!Meteor.userId()) {
       return false;
     }
-
-    console.log(bookId, ownerId, bName, bAuthor, ownerName, bookImage);
 
     try {
       var currentUserId = Meteor.userId();
@@ -79,7 +14,6 @@ Meteor.methods({
       } else {
         const currentUser = Meteor.user();
         const owner = Meteor.users.findOne({ username: ownerName });
-        console.log('owner', owner);
         const reqId = Requests.insert({
           req_b_id: bookId,
           req_by: currentUserId,
@@ -89,11 +23,10 @@ Meteor.methods({
           book_author: bAuthor,
           owner_name: ownerName,
           requester_name: currentUser.username,
-          // owner_profile_image: owner.profile.image_url,
-          // requester_profile_image: currentUser.profile.image_url,
+          owner_profile_image: owner.profile.image_url,
+          requester_profile_image: currentUser.profile.image_url,
           date_requested: new Date(),
         });
-        console.log(reqId);
 
         Messages.insert({
           req_id: reqId,
@@ -109,11 +42,7 @@ Meteor.methods({
             is_available: 0,
           },
         });
-
         var subjectEmail = 'Someone is interested in reading your book';
-
-        return reqId;
-
         var textEmail =
           'Hi ' +
           ownerName +
@@ -121,7 +50,6 @@ Meteor.methods({
           requesterName +
           ' has requested to borrow a book from you. Please go ahead and reply at: https://app.pomegra.org/my-requests/';
         Meteor.call('sendEmail', ownerId, subjectEmail, textEmail);
-        return 'success';
       }
     } catch (e) {
       return e;
