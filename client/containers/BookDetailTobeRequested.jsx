@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor'
-import React, { Component } from 'react'
-import { withTracker } from 'meteor/react-meteor-data'
+import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import {
   Block,
   Page,
@@ -14,30 +14,31 @@ import {
   List,
   ListItem,
   Popup,
-  Progressbar
-} from 'framework7-react'
+  Progressbar,
+} from 'framework7-react';
 
 // import BookCard from '../../imports/ui/BookCard'
 
 const detailListItemStyle = {
   justifyContent: 'flex-end',
   height: 18,
-  fontSize: 12
-}
+  fontSize: 12,
+};
 
 class BookDetailTobeRequested extends Component {
   state = {
     requestPopupOpened: false,
     progressOn: false,
-    requestSuccess: false
-  }
+    requestSuccess: false,
+  };
 
   requestBook = () => {
     this.setState({
       requestPopupOpened: true,
-      progressOn: true
-    })
-    const { bookInfo, currentUser } = this.props
+      progressOn: true,
+    });
+    const { bookInfo, currentUser } = this.props;
+
     Meteor.call(
       'makeRequest',
       bookInfo._id,
@@ -47,33 +48,33 @@ class BookDetailTobeRequested extends Component {
       bookInfo.owner_name,
       bookInfo.image_url,
       (error, respond) => {
-        console.log(error, respond)
+        if (error) {
+          console.log(error);
+        }
       }
-    )
+    );
     setTimeout(
       () => this.setState({ progressOn: false, requestSuccess: true }),
       3000
-    )
-    console.log('request book')
-  }
+    );
+  };
 
-  render () {
-    const { requestPopupOpened, progressOn, requestSuccess } = this.state
-    const { currentUser, bookInfo } = this.props
-    console.log('received', bookInfo)
+  render() {
+    const { requestPopupOpened, progressOn, requestSuccess } = this.state;
+    const { currentUser, bookInfo } = this.props;
 
     if (!bookInfo) {
-      return
+      return;
     }
 
     return (
-      <Page name='books'>
-        <Navbar title='Request to Borrow' backLink />
+      <Page name="books">
+        <Navbar title="Request to Borrow" backLink />
 
-        <Card className='demo-card-header-pic' title={bookInfo.b_title}>
+        <Card className="demo-card-header-pic" title={bookInfo.b_title}>
           <CardHeader
-            className='no-border'
-            valign='bottom'
+            className="no-border"
+            valign="bottom"
             style={
               bookInfo.image_url && {
                 backgroundImage: `url(${bookInfo.image_url})`,
@@ -81,7 +82,7 @@ class BookDetailTobeRequested extends Component {
                 backgroundPosition: 'center',
                 backgroundColor: '#010101',
                 height: 120,
-                backgroundSize: 'contain'
+                backgroundSize: 'contain',
               }
             }
           />
@@ -113,7 +114,7 @@ class BookDetailTobeRequested extends Component {
         </Card>
 
         <Popup opened={requestPopupOpened}>
-          <Navbar title='Request Handling'>
+          <Navbar title="Request Handling">
             <NavRight>
               <Link
                 onClick={() => this.setState({ requestPopupOpened: false })}
@@ -127,7 +128,7 @@ class BookDetailTobeRequested extends Component {
               display: 'flex',
               justifyContent: 'center',
               flexDirection: 'column',
-              height: '100%'
+              height: '100%',
             }}
           >
             {progressOn && <Progressbar infinite />}
@@ -135,13 +136,13 @@ class BookDetailTobeRequested extends Component {
           </div>
         </Popup>
       </Page>
-    )
+    );
   }
 }
 
-export default (BookDetailTobeRequestedContainer = withTracker(props => {
-  const currentUser = Meteor.user()
+export default BookDetailTobeRequestedContainer = withTracker(props => {
+  const currentUser = Meteor.user();
   return {
-    currentUser
-  }
-})(BookDetailTobeRequested))
+    currentUser,
+  };
+})(BookDetailTobeRequested);

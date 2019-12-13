@@ -1,26 +1,48 @@
-import { Meteor } from 'meteor/meteor'
-import React, { Component } from 'react'
-import { withTracker } from 'meteor/react-meteor-data'
-import { Block, Page, Navbar, Link } from 'framework7-react'
+import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import { Block, Page, Navbar, Link } from 'framework7-react';
 
-import BookCard from '../../imports/ui/BookCard'
+import BookCard from '../../imports/ui/BookCard';
 
 class BookDetailTobeAdded extends Component {
-  state = {}
+  state = {};
 
   insertBook = book => {
-    console.log(book)
+    const { currentUser } = this.props;
+    const bookExists = Books.findOne({
+      b_title: book.b_title,
+      added_by: currentUser._id,
+    });
+
+    console.log(bookExists);
+
+    if (bookExists) {
+      const app = this.$f7;
+      const notification = app.notification.create({
+        icon: '<i class="icon demo-icon"></i>',
+        title: 'Book already added',
+        subtitle:
+          'A book with same title is already added to your virtual shelf',
+        closeButton: true,
+        closeTimeout: 10000,
+        opened: true,
+      });
+      notification.open();
+      this.$f7router.back();
+    }
+
     Meteor.call('insertBook', book, (error, respond) => {
       if (!error) {
         // Create notification with click to close
-        this.showSuccessNotification()
-        this.$f7router.back()
+        this.showSuccessNotification();
+        this.$f7router.back();
       }
-    })
-  }
+    });
+  };
 
   showSuccessNotification = () => {
-    const app = this.$f7
+    const app = this.$f7;
     const notification = app.notification.create({
       icon: '<i class="icon demo-icon"></i>',
       title: 'Book added',
@@ -28,14 +50,14 @@ class BookDetailTobeAdded extends Component {
       text: 'Close',
       closeButton: true,
       closeTimeout: 10000,
-      opened: true
-    })
-    notification.open()
-  }
+      opened: true,
+    });
+    notification.open();
+  };
 
-  render () {
-    const { currentUser, bookInfo } = this.props
-    const volumeInfo = bookInfo.volumeInfo
+  render() {
+    const { currentUser, bookInfo } = this.props;
+    const volumeInfo = bookInfo.volumeInfo;
 
     const authors = (
       <div
@@ -45,7 +67,7 @@ class BookDetailTobeAdded extends Component {
           wordBreak: 'break-all',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
-          textOverflow: 'ellipsis'
+          textOverflow: 'ellipsis',
         }}
       >
         {volumeInfo.authors &&
@@ -55,11 +77,11 @@ class BookDetailTobeAdded extends Component {
             </span>
           ))}
       </div>
-    )
+    );
 
     return (
-      <Page name='books'>
-        <Navbar title='Do you own a copy of this book?' backLink />
+      <Page name="books">
+        <Navbar title="Do you own a copy of this book?" backLink />
         <Block style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Link>Add to my Wishlist</Link>
           <Link onClick={() => this.insertBook(volumeInfo)}>Yes I do</Link>
@@ -74,13 +96,13 @@ class BookDetailTobeAdded extends Component {
           }
         />
       </Page>
-    )
+    );
   }
 }
 
-export default (BookDetailTobeAddedContainer = withTracker(props => {
-  const currentUser = Meteor.user()
+export default BookDetailTobeAddedContainer = withTracker(props => {
+  const currentUser = Meteor.user();
   return {
-    currentUser
-  }
-})(BookDetailTobeAdded))
+    currentUser,
+  };
+})(BookDetailTobeAdded);

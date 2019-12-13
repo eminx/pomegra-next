@@ -38,6 +38,15 @@ Meteor.methods({
     }
     const currentUserId = user._id;
 
+    const bookExists = Books.findOne({
+      b_title_lowercase: theBook.b_title_lowercase,
+      added_by: currentUserId,
+    });
+
+    if (bookExists) {
+      throw new Meteor.Error('You have already added a book with same title');
+    }
+
     const myBook = {
       date_added: new Date(),
       b_title: theBook.title,
@@ -47,7 +56,7 @@ Meteor.methods({
       b_lang: theBook.language || '',
       image_url: theBook.imageLinks && theBook.imageLinks.thumbnail,
       b_cat: (theBook.categories && theBook.categories[0]) || '',
-      b_ISBN: theBook.industryIdentifiers[0],
+      b_ISBN: theBook.industryIdentifiers && theBook.industryIdentifiers[0],
       selfLinkGoogle: theBook.selfLink,
       added_by: currentUserId,
       owner_name: user.username,
@@ -70,16 +79,13 @@ Meteor.methods({
       return false;
     }
 
-    console.log(bookId, ownerId, bName, bAuthor, ownerName, bookImage);
-
     try {
-      var currentUserId = Meteor.userId();
+      const currentUserId = Meteor.userId();
       if (Requests.findOne({ req_b_id: bookId, req_by: currentUserId })) {
         throw new Meteor.Error('You have already requested this item');
       } else {
         const currentUser = Meteor.user();
         const owner = Meteor.users.findOne({ username: ownerName });
-        console.log('owner', owner);
         const reqId = Requests.insert({
           req_b_id: bookId,
           req_by: currentUserId,
@@ -93,7 +99,6 @@ Meteor.methods({
           // requester_profile_image: currentUser.profile.image_url,
           date_requested: new Date(),
         });
-        console.log(reqId);
 
         Messages.insert({
           req_id: reqId,

@@ -1,6 +1,6 @@
-import { Meteor } from 'meteor/meteor'
-import React, { Component } from 'react'
-import { withTracker } from 'meteor/react-meteor-data'
+import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import {
   Appbar,
   Block,
@@ -18,10 +18,10 @@ import {
   Range,
   ListItem,
   Progressbar,
-  ListInput
-} from 'framework7-react'
+  ListInput,
+} from 'framework7-react';
 
-import { Books } from '../../imports/api/collections'
+import { Books } from '../../imports/api/collections';
 
 class CreateAccount extends Component {
   state = {
@@ -29,27 +29,27 @@ class CreateAccount extends Component {
     username: '',
     email: '',
     password: '',
-    isLoading: false
-  }
+    isLoading: false,
+  };
 
-  createAccount () {
-    const self = this
-    const app = self.$f7
-    const { username, email, password } = this.state
+  createAccount() {
+    const self = this;
+    const app = self.$f7;
+    const { username, email, password } = this.state;
     const newUser = {
       username,
       email,
-      password
-    }
-    this.setState({ isLoading: true })
+      password,
+    };
+    this.setState({ isLoading: true });
     Meteor.call('registerUser', newUser, (error, respond) => {
-      console.log(error, respond)
+      console.log(error, respond);
       if (!error) {
         this.setState({
-          isLoading: false
-        })
+          isLoading: false,
+        });
       }
-    })
+    });
 
     // app.dialog.alert(
     //   `Username: ${self.state.username}<br>Password: ${self.state.password}`,
@@ -59,12 +59,12 @@ class CreateAccount extends Component {
     // );
   }
 
-  render () {
-    const { currentUser } = this.props
-    const { isLoading, loginScreenOpen } = this.state
+  render() {
+    const { currentUser } = this.props;
+    const { isLoading, loginScreenOpen } = this.state;
 
     return (
-      <Page name='create-account'>
+      <Page name="create-account">
         <Navbar title={currentUser ? 'Welcome' : 'Create an account'} />
 
         <Block>
@@ -86,30 +86,30 @@ class CreateAccount extends Component {
           <LoginScreenTitle>Create an Account</LoginScreenTitle>
           <List form>
             <ListInput
-              label='Username'
-              type='text'
-              placeholder='Your username'
+              label="Username"
+              type="text"
+              placeholder="Your username"
               value={this.state.username}
               onInput={e => {
-                this.setState({ username: e.target.value })
+                this.setState({ username: e.target.value });
               }}
             />
             <ListInput
-              label='Email'
-              type='email'
-              placeholder='Your email address'
+              label="Email"
+              type="email"
+              placeholder="Your email address"
               value={this.state.email}
               onInput={e => {
-                this.setState({ email: e.target.value })
+                this.setState({ email: e.target.value });
               }}
             />
             <ListInput
-              label='Password'
-              type='password'
-              placeholder='Your password'
+              label="Password"
+              type="password"
+              placeholder="Your password"
               value={this.state.password}
               onInput={e => {
-                this.setState({ password: e.target.value })
+                this.setState({ password: e.target.value });
               }}
             />
           </List>
@@ -126,20 +126,21 @@ class CreateAccount extends Component {
           </List>
         </LoginScreen>
 
-        <Toolbar position='bottom'>
-          <Link href='/add/'>Add book</Link>
-          <Link href='/find/'>Find</Link>
-          <Link href='/my-books/'>My books</Link>
+        <Toolbar position="bottom">
+          <Link href="/add/">Add book</Link>
+          <Link href="/find/">Find</Link>
+          <Link href="/my-books/">My books</Link>
+          <Link href="/requests/">Requests</Link>
         </Toolbar>
       </Page>
-    )
+    );
   }
 }
 
-export default (CreateAccountContainer = withTracker(props => {
-  Meteor.subscribe('me')
-  const currentUser = Meteor.user()
+export default CreateAccountContainer = withTracker(props => {
+  Meteor.subscribe('me');
+  const currentUser = Meteor.user();
   return {
-    currentUser
-  }
-})(CreateAccount))
+    currentUser,
+  };
+})(CreateAccount);
