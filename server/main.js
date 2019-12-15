@@ -38,14 +38,14 @@ Meteor.methods({
     }
     const currentUserId = user._id;
 
-    const bookExists = Books.findOne({
-      b_title_lowercase: theBook.b_title_lowercase,
-      added_by: currentUserId,
-    });
+    // const bookExists = Books.findOne({
+    //   b_title_lowercase: theBook.b_title_lowercase,
+    //   added_by: currentUserId,
+    // });
 
-    if (bookExists) {
-      throw new Meteor.Error('You have already added a book with same title');
-    }
+    // if (bookExists) {
+    //   throw new Meteor.Error('You have already added a book with same title');
+    // }
 
     const myBook = {
       date_added: new Date(),

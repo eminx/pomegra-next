@@ -1,7 +1,7 @@
 import React from 'react';
 import { App, View } from 'framework7-react';
 import CreateAccountContainer from './CreateAccountContainer';
-import BooksContainer from './BooksContainer';
+// import BooksContainer from './BooksContainer';
 import AddBookContainer from './AddBookContainer';
 import BookDetailTobeAdded from './BookDetailTobeAdded';
 import BookDetailTobeRequested from './BookDetailTobeRequested';
@@ -27,11 +27,11 @@ const routes = [
     path: '/add/',
     component: AddBookContainer,
   },
-  {
-    name: 'books',
-    path: '/books/',
-    component: BooksContainer,
-  },
+  // {
+  //   name: 'books',
+  //   path: '/books/',
+  //   component: BooksContainer,
+  // },
   {
     name: 'my-books',
     path: '/my-books/',

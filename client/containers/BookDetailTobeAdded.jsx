@@ -15,8 +15,6 @@ class BookDetailTobeAdded extends Component {
       added_by: currentUser._id,
     });
 
-    console.log(bookExists);
-
     if (bookExists) {
       const app = this.$f7;
       const notification = app.notification.create({
@@ -47,7 +45,6 @@ class BookDetailTobeAdded extends Component {
       icon: '<i class="icon demo-icon"></i>',
       title: 'Book added',
       subtitle: 'Your book is now added to your shelf',
-      text: 'Close',
       closeButton: true,
       closeTimeout: 10000,
       opened: true,
