@@ -19,6 +19,15 @@ class RequestsList extends Component {
   render() {
     const { requests, currentUser } = this.props;
 
+    if (!requests || !currentUser) {
+      return (
+        <Page>
+          <Navbar title="No account" backLink />
+          <div style={{ textAlign: 'center' }}>Please create an account</div>
+        </Page>
+      );
+    }
+
     return (
       <Page name="requests">
         <Navbar backLink title="Requests"></Navbar>

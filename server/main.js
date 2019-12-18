@@ -214,7 +214,7 @@ Meteor.methods({
     );
   },
 
-  isReturned: function(reqId, bookId) {
+  isReturned: (reqId, bookId) => {
     if (!Meteor.userId()) {
       return false;
     }
@@ -243,7 +243,7 @@ Meteor.methods({
     );
   },
 
-  abortRequest: function(reqId, bookId) {
+  abortRequest: (reqId, bookId) => {
     if (!Meteor.userId()) {
       return false;
     }
@@ -266,5 +266,56 @@ Meteor.methods({
         },
       }
     );
+  },
+
+  addMessage: (requestId, message) => {
+    const currentUserId = Meteor.userId();
+    if (!currentUserId) {
+      return false;
+    }
+    const theMessage = Messages.findOne({
+      req_id: requestId,
+    });
+    if (
+      currentUserId !== theMessage.lender_id &&
+      currentUserId !== theMessage.borrower_id
+    ) {
+      return;
+    }
+    Messages.update(
+      { req_id: requestId },
+      {
+        $push: {
+          messages: {
+            text: message,
+            from: currentUserId,
+            date: new Date(),
+          },
+        },
+        $set: {
+          is_seen_by_other: 0,
+          last_msg_by: currentUserId,
+        },
+      }
+    );
+    let othersId;
+    const theRequest = Requests.findOne(requestId);
+    if (theRequest.owner_name === Meteor.user().username) {
+      othersId = theRequest.req_by;
+    } else {
+      othersId = theRequest.req_from;
+    }
+
+    if (
+      Messages.findOne({
+        is_seen_by_other: 0,
+        req_id: requestId,
+      })
+    ) {
+      const myName = Meteor.user().username;
+      const subjectEmail = 'You have a new message!';
+      const textEmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
+      // Meteor.call('sendEmail', othersId, subjectEmail, textEmail);
+    }
   },
 });

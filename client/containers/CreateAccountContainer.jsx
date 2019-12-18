@@ -33,27 +33,8 @@ class CreateAccount extends Component {
     loginScreenType: null,
   };
 
-  createAccount = () => {
-    const { username, email, password } = this.state;
-    const newUser = {
-      username,
-      email,
-      password,
-    };
-    console.log(username, email, password);
-    this.setState({ isLoading: true });
-    Meteor.call('registerUser', newUser, (error, respond) => {
-      console.log(error);
-      console.log(respond);
-      if (!error) {
-        this.setState({
-          isLoading: false,
-        });
-      }
-    });
-  };
-
-  handleAuth = () => {
+  handleAuth = event => {
+    event.preventDefault();
     const { loginScreenType } = this.state;
     if (loginScreenType === 'login') {
       this.signIn();
@@ -62,6 +43,26 @@ class CreateAccount extends Component {
     } else {
       return;
     }
+  };
+
+  createAccount = () => {
+    const { username, email, password } = this.state;
+    const newUser = {
+      username,
+      email,
+      password,
+    };
+    this.setState({ isLoading: true });
+    Meteor.call('registerUser', newUser, (error, respond) => {
+      console.log(error);
+      console.log(respond);
+      if (!error) {
+        this.setState({
+          isLoading: false,
+          loginScreenOpen: false,
+        });
+      }
+    });
   };
 
   signIn = () => {
@@ -93,6 +94,8 @@ class CreateAccount extends Component {
     const { currentUser } = this.props;
     const { isLoading, loginScreenOpen, loginScreenType } = this.state;
 
+    console.log('currentUser:', currentUser);
+
     return (
       <Page name="create-account">
         <Navbar title={currentUser ? 'Welcome' : 'Create an account'} />
@@ -105,39 +108,45 @@ class CreateAccount extends Component {
           </Block>
         )}
 
-        <Block>
-          {!currentUser && (
-            <Fragment>
-              <Button
-                round
-                large
-                fill
-                raised
-                outline
-                onClick={() =>
-                  this.setState({
-                    loginScreenOpen: true,
-                    loginScreenType: 'signup',
-                  })
-                }
-              >
-                Create an Account
-              </Button>
-              <Button
-                style={{ marginTop: 24 }}
-                large
-                onClick={() =>
-                  this.setState({
-                    loginScreenOpen: true,
-                    loginScreenType: 'login',
-                  })
-                }
-              >
-                Login
-              </Button>
-            </Fragment>
-          )}
-        </Block>
+        {!currentUser && (
+          <div
+            style={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              padding: 16,
+            }}
+          >
+            <Button
+              round
+              large
+              fill
+              raised
+              outline
+              onClick={() =>
+                this.setState({
+                  loginScreenOpen: true,
+                  loginScreenType: 'signup',
+                })
+              }
+            >
+              Create an Account
+            </Button>
+            <Button
+              style={{ marginTop: 16 }}
+              large
+              onClick={() =>
+                this.setState({
+                  loginScreenOpen: true,
+                  loginScreenType: 'login',
+                })
+              }
+            >
+              Login
+            </Button>
+          </div>
+        )}
 
         <LoginScreen opened={loginScreenOpen}>
           {loginScreenType === 'signup' ? (
@@ -173,20 +182,25 @@ class CreateAccount extends Component {
                 />
               </List>
               <List>
-                <ListButton onClick={this.handleAuth.bind(this)}>
+                <Button
+                  onClick={this.handleAuth.bind(this)}
+                  fill
+                  style={{ margin: '0 16px' }}
+                >
                   Sign Up
-                </ListButton>
+                </Button>
                 <BlockFooter>
-                  <Link
+                  <Button
                     onClick={() =>
                       this.setState({
                         loginScreenOpen: false,
                         loginScreenType: null,
                       })
                     }
+                    style={{ marginTop: 16 }}
                   >
                     Close
-                  </Link>
+                  </Button>
                 </BlockFooter>
               </List>
             </Fragment>
@@ -212,34 +226,43 @@ class CreateAccount extends Component {
                     this.setState({ password: e.target.value });
                   }}
                 />
-              </List>
-              <List>
-                <ListButton onClick={this.handleAuth.bind(this)}>
-                  Login
-                </ListButton>
+                <ListItem>
+                  <Button
+                    type="submit"
+                    fill
+                    onClick={this.handleAuth.bind(this)}
+                    style={{ margin: '0 16px' }}
+                  >
+                    Login
+                  </Button>
+                </ListItem>
+
                 <BlockFooter>
-                  <Link
+                  <Button
                     onClick={() =>
                       this.setState({
                         loginScreenOpen: false,
                         loginScreenType: null,
                       })
                     }
+                    style={{ marginTop: 16 }}
                   >
                     Close
-                  </Link>
+                  </Button>
                 </BlockFooter>
               </List>
             </Fragment>
           )}
         </LoginScreen>
 
-        <Toolbar position="bottom">
-          <Link href="/add/">Add book</Link>
-          <Link href="/find/">Find</Link>
-          <Link href="/my-books/">My books</Link>
-          <Link href="/requests/">Requests</Link>
-        </Toolbar>
+        {currentUser && (
+          <Toolbar position="bottom">
+            <Link href="/add/">Add book</Link>
+            <Link href="/find/">Find</Link>
+            <Link href="/my-books/">My books</Link>
+            <Link href="/requests/">Requests</Link>
+          </Toolbar>
+        )}
       </Page>
     );
   }
