@@ -2,10 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
+  Icon,
   Block,
   Page,
   Navbar,
@@ -79,12 +76,6 @@ class Request extends Component {
     const { currentUser, request, messages } = this.props;
     const { sheetVisible } = this.state;
 
-    const detailListItemStyle = {
-      justifyContent: 'flex-end',
-      height: 18,
-      fontSize: 12
-    };
-
     if (!request || !currentUser) {
       return (
         <Page>
@@ -96,37 +87,34 @@ class Request extends Component {
 
     return (
       <Page name="books">
-        <Navbar title="Messages" backLink></Navbar>
-        {/* <Card className="demo-card-header-pic" title={request.book_title}> */}
-        <CardHeader
-          className="no-border"
-          valign="bottom"
-          style={{
-            backgroundImage:
-              request.book_image_url && `url(${request.book_image_url})`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center',
-            backgroundColor: '#010101',
-            height: 120,
-            backgroundSize: 'contain'
-          }}
-        ></CardHeader>
+        <Navbar title={request.book_name} backLink></Navbar>
 
         <Block>
-          <List
-            simpleList
-            style={{ paddingTop: 12, paddingBottom: 12 }}
-            noHairlinesBetween
-            form
-          >
-            <ListItem style={{ paddingLeft: 0 }}>{request.owner_name}</ListItem>
-            <ListItem style={detailListItemStyle}>
-              {request.requester_name}
-            </ListItem>
-          </List>
-        </Block>
+          <p style={{ textAlign: 'center' }}>
+            <em>by {request.book_author}</em>
+          </p>
 
-        <p>{request.book_author}</p>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div
+              style={{
+                backgroundImage:
+                  request.book_image_url && `url(${request.book_image_url})`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+                height: 120,
+                backgroundSize: 'contain',
+                flexGrow: 1
+              }}
+            ></div>
+            <List simpleList noHairlinesBetween style={{ flexGrow: 1 }}>
+              <ListItem>{request.owner_name}</ListItem>
+              <ListItem>{request.requester_name}</ListItem>
+            </List>
+          </div>
+          <Icon icon="md:camera_fill"></Icon>
+          <Icon icon="ios:camera_fill"></Icon>
+          <Icon icon="f7:camera_fill"></Icon>
+        </Block>
 
         <Messagebar
           placeholder={'Message'}
@@ -151,7 +139,9 @@ class Request extends Component {
             iconMd="material:send"
             slot="inner-end"
             onClick={event => this.sendMessage(event)}
-          ></Link>
+          >
+            <Icon icon="f7:arrow_up_circle_fill" />
+          </Link>
           {/* <MessagebarAttachments>
                 {this.state.attachments.map((image, index) => (
                   <MessagebarAttachment

@@ -11,21 +11,23 @@ import FindContainer from './FindContainer';
 import RequestsList from './RequestsList';
 import RequestContainer from './RequestContainer';
 
+import 'framework7-icons';
+
 const routes = [
   {
     name: 'create-account',
     path: '/',
-    component: CreateAccountContainer,
+    component: CreateAccountContainer
   },
   {
     name: 'find',
     path: '/find/',
-    component: FindContainer,
+    component: FindContainer
   },
   {
     name: 'add',
     path: '/add/',
-    component: AddBookContainer,
+    component: AddBookContainer
   },
   // {
   //   name: 'books',
@@ -35,40 +37,40 @@ const routes = [
   {
     name: 'my-books',
     path: '/my-books/',
-    component: MyBooksContainer,
+    component: MyBooksContainer
   },
   {
     name: 'book-detail-tobe-added',
     path: '/book-detail-tobe-added/',
-    component: BookDetailTobeAdded,
+    component: BookDetailTobeAdded
   },
   {
     name: 'book-detail-tobe-requested',
     path: '/book-detail-tobe-requested/',
-    component: BookDetailTobeRequested,
+    component: BookDetailTobeRequested
   },
   {
     name: 'book-detail',
     path: '/book-detail/',
-    component: MyBookContainer,
+    component: MyBookContainer
   },
   {
     name: 'requests-list',
     path: '/requests/',
-    component: RequestsList,
+    component: RequestsList
   },
   {
     name: 'request',
     path: '/request/',
-    component: RequestContainer,
-  },
+    component: RequestContainer
+  }
 ];
 
 const f7params = {
   routes,
   name: 'My App',
   id: 'com.myapp.test',
-  theme: 'aurora',
+  theme: 'aurora'
 };
 
 export default () => (
