@@ -139,9 +139,7 @@ class Request extends Component {
             iconMd="material:send"
             slot="inner-end"
             onClick={event => this.sendMessage(event)}
-          >
-            <Icon icon="f7:arrow_up_circle_fill" />
-          </Link>
+          ></Link>
           {/* <MessagebarAttachments>
                 {this.state.attachments.map((image, index) => (
                   <MessagebarAttachment
