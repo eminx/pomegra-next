@@ -9,48 +9,80 @@ import {
   Block,
   Page,
   Navbar,
-  Input,
+  Messagebar,
+  MessagebarAttachment,
+  MessagebarAttachments,
+  MessagebarSheet,
+  MessagebarSheetImage,
+  MessagesTitle,
+  Messages as Messages7,
+  Message,
   Button,
+  Link,
   List,
   ListItem,
-  ListInput,
+  ListInput
 } from 'framework7-react';
+
 import { Requests } from '../../imports/api/collections';
 
 class Request extends Component {
   state = {
     messageInput: '',
+    attachments: [],
+    sheetVisible: false,
+    typingMessage: null
   };
+
+  componentDidMount() {
+    const self = this;
+    self.$f7ready(() => {
+      self.messagebar = self.messagebarComponent.f7Messagebar;
+      self.messages = self.messagesComponent.f7Messages;
+    });
+  }
 
   sendMessage = event => {
     event.preventDefault();
     const { request } = this.props;
-    const { messageInput } = this.state;
+
+    const self = this;
+    const messageInput = self.messagebar
+      .getValue()
+      .replace(/\n/g, '<br>')
+      .trim();
+
     if (messageInput === '') {
       return;
     }
 
-    console.log(messageInput);
-
     Meteor.call('addMessage', request._id, messageInput, (error, respond) => {
       if (error) {
         console.log(error);
-      } else {
-        console.log(respond);
-        this.setState({
-          messageInput: '',
-        });
+        return;
       }
     });
+
+    self.setState({
+      // Reset attachments
+      attachments: [],
+      // Hide sheet
+      sheetVisible: false
+    });
+    self.messagebar.clear();
+
+    // Focus area
+    if (messageInput.length) self.messagebar.focus();
   };
 
   render() {
     const { currentUser, request, messages } = this.props;
+    const { sheetVisible } = this.state;
 
     const detailListItemStyle = {
       justifyContent: 'flex-end',
       height: 18,
-      fontSize: 12,
+      fontSize: 12
     };
 
     if (!request || !currentUser) {
@@ -64,49 +96,126 @@ class Request extends Component {
 
     return (
       <Page name="books">
-        <Navbar title="Details" backLink></Navbar>
-        <Card className="demo-card-header-pic" title={request.book_title}>
-          <CardHeader
-            className="no-border"
-            valign="bottom"
-            style={{
-              backgroundImage:
-                request.book_image_url && `url(${request.book_image_url})`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              backgroundColor: '#010101',
-              height: 120,
-              backgroundSize: 'contain',
+        <Navbar title="Messages" backLink></Navbar>
+        {/* <Card className="demo-card-header-pic" title={request.book_title}> */}
+        <CardHeader
+          className="no-border"
+          valign="bottom"
+          style={{
+            backgroundImage:
+              request.book_image_url && `url(${request.book_image_url})`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundColor: '#010101',
+            height: 120,
+            backgroundSize: 'contain'
+          }}
+        ></CardHeader>
+
+        <Block>
+          <List
+            simpleList
+            style={{ paddingTop: 12, paddingBottom: 12 }}
+            noHairlinesBetween
+            form
+          >
+            <ListItem style={{ paddingLeft: 0 }}>{request.owner_name}</ListItem>
+            <ListItem style={detailListItemStyle}>
+              {request.requester_name}
+            </ListItem>
+          </List>
+        </Block>
+
+        <p>{request.book_author}</p>
+
+        <Messagebar
+          placeholder={'Message'}
+          ref={el => {
+            this.messagebarComponent = el;
+          }}
+          attachmentsVisible={false}
+          sheetVisible={sheetVisible}
+        >
+          <Link
+            iconIos="f7:camera_fill"
+            iconAurora="f7:camera_fill"
+            iconMd="material:camera_alt"
+            slot="inner-start"
+            onClick={() => {
+              this.setState({ sheetVisible: !this.state.sheetVisible });
             }}
-          ></CardHeader>
-          <CardContent>
-            <Block>
-              <List
-                simpleList
-                style={{ paddingTop: 12, paddingBottom: 12 }}
-                noHairlinesBetween
-                form
-              >
-                <ListItem style={{ paddingLeft: 0 }}>
-                  {request.owner_name}
-                </ListItem>
-                <ListItem style={detailListItemStyle}>
-                  {request.requester_name}
-                </ListItem>
-              </List>
-            </Block>
-
-            <p>{request.book_author}</p>
-
-            <Block>
-              <List>
-                {messages.messages.map(message => (
-                  <ListItem>{message.text}</ListItem>
+          ></Link>
+          <Link
+            iconIos="f7:arrow_up_circle_fill"
+            iconAurora="f7:arrow_up_circle_fill"
+            iconMd="material:send"
+            slot="inner-end"
+            onClick={event => this.sendMessage(event)}
+          ></Link>
+          {/* <MessagebarAttachments>
+                {this.state.attachments.map((image, index) => (
+                  <MessagebarAttachment
+                    key={index}
+                    image={image}
+                    onAttachmentDelete={() => this.deleteAttachment(image)}
+                  ></MessagebarAttachment>
                 ))}
-              </List>
-            </Block>
+              </MessagebarAttachments> */}
+          {/* <MessagebarSheet>
+                {this.state.images.map((image, index) => (
+                  <MessagebarSheetImage
+                    key={index}
+                    image={image}
+                    checked={this.state.attachments.indexOf(image) >= 0}
+                    onChange={this.handleAttachment.bind(this)}
+                  ></MessagebarSheetImage>
+                ))}
+              </MessagebarSheet> */}
+        </Messagebar>
 
-            <Block>
+        <Messages7
+          ref={el => {
+            this.messagesComponent = el;
+          }}
+        >
+          <MessagesTitle>
+            <b>Sunday, Feb 9,</b> 12:58
+          </MessagesTitle>
+
+          {messages.messages.map((message, index) => (
+            <Message
+              key={index}
+              // type={message.type}
+              // image={message.image}
+              name={message.name}
+              // avatar={message.avatar}
+              // first={this.isFirstMessage(message, index)}
+              // last={this.isLastMessage(message, index)}
+              // tail={this.isTailMessage(message, index)}
+              tail
+            >
+              {message.text && (
+                <span
+                  slot="text"
+                  dangerouslySetInnerHTML={{ __html: message.text }}
+                />
+              )}
+            </Message>
+          ))}
+          {this.state.typingMessage && (
+            <Message
+              type="received"
+              typing={true}
+              // first={true}
+              // last={true}
+              // tail={true}
+              header={`${this.state.typingMessage.name} is typing`}
+              avatar={this.state.typingMessage.avatar}
+            ></Message>
+          )}
+        </Messages7>
+
+        {/* <Block>
               <List form>
                 <ListInput
                   onInput={e => this.setState({ messageInput: e.target.value })}
@@ -124,12 +233,7 @@ class Request extends Component {
                   </Button>
                 </ListItem>
               </List>
-            </Block>
-          </CardContent>
-          <CardFooter style={{ display: 'flex', justifyContent: 'center' }}>
-            {/* <Link>Close</Link> */}
-          </CardFooter>
-        </Card>
+            </Block> */}
       </Page>
     );
   }
@@ -146,6 +250,6 @@ export default RequestContainer = withTracker(props => {
   return {
     currentUser,
     request,
-    messages,
+    messages
   };
 })(Request);

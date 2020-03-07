@@ -1,23 +1,23 @@
-import { Meteor } from 'meteor/meteor'
+import { Meteor } from 'meteor/meteor';
 
 Meteor.methods({
   insertBook: theBook => {
-    console.log(theBook)
-    const user = Meteor.user()
+    console.log(theBook);
+    const user = Meteor.user();
     if (!user) {
-      return false
+      return false;
     }
-    const currentUserId = user._id
-    const myHoods = user.profile.neighborhoods
+    const currentUserId = user._id;
+    const myHoods = user.profile.neighborhoods;
     const myLocation = {
       countryCode: 'XX',
       regionName: 'N/A'
-    }
+    };
     if (user.location_info) {
       myLocation = {
         countryCode: user.location_info.countryCode,
         regionName: user.location_info.regionName
-      }
+      };
     }
 
     const myBook = {
@@ -38,35 +38,35 @@ Meteor.methods({
       is_available: 1,
       hoods: myHoods,
       location: myLocation
-    }
+    };
 
-    const bookId = Books.insert(myBook, function (error, result) {
+    const bookId = Books.insert(myBook, function(error, result) {
       if (error) {
-        console.log(error, 'error!')
+        console.log(error, 'error!');
       } else {
-        return bookId
+        return bookId;
       }
-    })
+    });
   },
 
   removeBook: bookId => {
     if (!Meteor.userId()) {
-      return
+      return;
     }
-    const theBook = Books.findOne(bookId)
+    const theBook = Books.findOne(bookId);
     if (theBook.added_by !== Meteor.userId()) {
-      return
+      return;
     }
-    Books.remove({ _id: bookId })
+    Books.remove({ _id: bookId });
   },
 
-  updateBook: function (bTitle, bAuthor, bLang, bCat, bDesc, bookId) {
+  updateBook: function(bTitle, bAuthor, bLang, bCat, bDesc, bookId) {
     if (!Meteor.userId()) {
-      return false
+      return false;
     }
-    const theBook = Books.findOne(bookId)
+    const theBook = Books.findOne(bookId);
     if (theBook.added_by !== Meteor.userId()) {
-      return
+      return;
     }
     Books.update(
       { _id: bookId },
@@ -79,35 +79,34 @@ Meteor.methods({
           b_description: bDesc
         }
       }
-    )
+    );
   },
 
-  addLocationInfo: function (locationInfo) {
+  addLocationInfo: function(locationInfo) {
     if (!Meteor.userId()) {
-      return false
+      return false;
     }
-    const user = Meteor.user() || null
+    const user = Meteor.user() || null;
     user && user.location_info
       ? null
       : Meteor.users.update(
-        { _id: user._id },
-        {
-          $set: {
-            location_info: locationInfo,
-            'profile.isLocationRegistered': true
-          },
-          $addToSet: {
-            'profile.neighborhoods': locationInfo.city
+          { _id: user._id },
+          {
+            $set: {
+              location_info: locationInfo,
+              'profile.isLocationRegistered': true
+            },
+            $addToSet: {
+              'profile.neighborhoods': locationInfo.city
+            }
           }
-        }
-      )
+        );
   }
-})
+});
 
-Meteor.publish('myBooks', function () {
-  const currentUserId = this.userId
+Meteor.publish('myBooks', function() {
+  const currentUserId = this.userId;
   return Books.find({
     added_by: currentUserId
-  })
-})
-1
+  });
+});

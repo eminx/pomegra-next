@@ -14,7 +14,7 @@ import {
   List,
   ListItem,
   Popup,
-  Progressbar,
+  Progressbar
 } from 'framework7-react';
 
 // import BookCard from '../../imports/ui/BookCard'
@@ -22,20 +22,20 @@ import {
 const detailListItemStyle = {
   justifyContent: 'flex-end',
   height: 18,
-  fontSize: 12,
+  fontSize: 12
 };
 
 class BookDetailTobeRequested extends Component {
   state = {
     requestPopupOpened: false,
     progressOn: false,
-    requestSuccess: false,
+    requestSuccess: false
   };
 
   requestBook = () => {
     this.setState({
       requestPopupOpened: true,
-      progressOn: true,
+      progressOn: true
     });
     const { bookInfo, currentUser } = this.props;
 
@@ -61,7 +61,7 @@ class BookDetailTobeRequested extends Component {
 
   render() {
     const { requestPopupOpened, progressOn, requestSuccess } = this.state;
-    const { currentUser, bookInfo } = this.props;
+    const { bookInfo } = this.props;
 
     if (!bookInfo) {
       return;
@@ -82,7 +82,7 @@ class BookDetailTobeRequested extends Component {
                 backgroundPosition: 'center',
                 backgroundColor: '#010101',
                 height: 120,
-                backgroundSize: 'contain',
+                backgroundSize: 'contain'
               }
             }
           />
@@ -128,7 +128,7 @@ class BookDetailTobeRequested extends Component {
               display: 'flex',
               justifyContent: 'center',
               flexDirection: 'column',
-              height: '100%',
+              height: '100%'
             }}
           >
             {progressOn && <Progressbar infinite />}
@@ -140,9 +140,9 @@ class BookDetailTobeRequested extends Component {
   }
 }
 
-export default BookDetailTobeRequestedContainer = withTracker(props => {
+export default (BookDetailTobeRequestedContainer = withTracker(props => {
   const currentUser = Meteor.user();
   return {
-    currentUser,
+    currentUser
   };
-})(BookDetailTobeRequested);
+})(BookDetailTobeRequested));

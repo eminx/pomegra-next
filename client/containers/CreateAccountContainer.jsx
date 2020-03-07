@@ -2,26 +2,19 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-  Appbar,
   Block,
   Page,
   Navbar,
   Toolbar,
   Button,
   Link,
-  BlockTitle,
   List,
   LoginScreen,
   LoginScreenTitle,
   BlockFooter,
-  ListButton,
-  Range,
   ListItem,
-  Progressbar,
-  ListInput,
+  ListInput
 } from 'framework7-react';
-
-import { Books } from '../../imports/api/collections';
 
 class CreateAccount extends Component {
   state = {
@@ -30,7 +23,7 @@ class CreateAccount extends Component {
     email: '',
     password: '',
     isLoading: false,
-    loginScreenType: null,
+    loginScreenType: null
   };
 
   handleAuth = event => {
@@ -50,16 +43,17 @@ class CreateAccount extends Component {
     const newUser = {
       username,
       email,
-      password,
+      password
     };
     this.setState({ isLoading: true });
     Meteor.call('registerUser', newUser, (error, respond) => {
       console.log(error);
       console.log(respond);
       if (!error) {
+        this.signIn();
         this.setState({
           isLoading: false,
-          loginScreenOpen: false,
+          loginScreenOpen: false
         });
       }
     });
@@ -76,11 +70,10 @@ class CreateAccount extends Component {
 
     Meteor.loginWithPassword(username, password, error => {
       if (error) {
+        console.log('error!!');
         console.log(error);
-        app.dialog.alert('Please enter valid credentials', () => {
-          this.setState({
-            loginScreenOpen: false,
-          });
+        app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
+          console.log(error.reason);
         });
       }
     });
@@ -94,12 +87,9 @@ class CreateAccount extends Component {
     const { currentUser } = this.props;
     const { isLoading, loginScreenOpen, loginScreenType } = this.state;
 
-    console.log('currentUser:', currentUser);
-
     return (
       <Page name="create-account">
         <Navbar title={currentUser ? 'Welcome' : 'Create an account'} />
-
         {currentUser && (
           <Block>
             <Button large onClick={() => this.signOut()}>
@@ -107,7 +97,6 @@ class CreateAccount extends Component {
             </Button>
           </Block>
         )}
-
         {!currentUser && (
           <div
             style={{
@@ -115,7 +104,7 @@ class CreateAccount extends Component {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              padding: 16,
+              padding: 16
             }}
           >
             <Button
@@ -127,7 +116,7 @@ class CreateAccount extends Component {
               onClick={() =>
                 this.setState({
                   loginScreenOpen: true,
-                  loginScreenType: 'signup',
+                  loginScreenType: 'signup'
                 })
               }
             >
@@ -139,7 +128,7 @@ class CreateAccount extends Component {
               onClick={() =>
                 this.setState({
                   loginScreenOpen: true,
-                  loginScreenType: 'login',
+                  loginScreenType: 'login'
                 })
               }
             >
@@ -148,112 +137,116 @@ class CreateAccount extends Component {
           </div>
         )}
 
-        <LoginScreen opened={loginScreenOpen}>
-          {loginScreenType === 'signup' ? (
-            <Fragment>
-              <LoginScreenTitle>Create an Account</LoginScreenTitle>
-              <List form>
-                <ListInput
-                  label="Username"
-                  type="text"
-                  placeholder="Your username"
-                  value={this.state.username}
-                  onInput={e => {
-                    this.setState({ username: e.target.value });
-                  }}
-                />
-                <ListInput
-                  label="Email"
-                  type="email"
-                  placeholder="Your email address"
-                  value={this.state.email}
-                  onInput={e => {
-                    this.setState({ email: e.target.value });
-                  }}
-                />
-                <ListInput
-                  label="Password"
-                  type="password"
-                  placeholder="Your password"
-                  value={this.state.password}
-                  onInput={e => {
-                    this.setState({ password: e.target.value });
-                  }}
-                />
-              </List>
-              <List>
-                <Button
-                  onClick={this.handleAuth.bind(this)}
-                  fill
-                  style={{ margin: '0 16px' }}
-                >
-                  Sign Up
-                </Button>
-                <BlockFooter>
+        {!currentUser && (
+          <LoginScreen opened={loginScreenOpen}>
+            {loginScreenType === 'signup' && (
+              <Fragment>
+                <LoginScreenTitle>Create an Account</LoginScreenTitle>
+                <List form>
+                  <ListInput
+                    label="Username"
+                    type="text"
+                    placeholder="Your username"
+                    value={this.state.username}
+                    onInput={e => {
+                      this.setState({ username: e.target.value });
+                    }}
+                  />
+                  <ListInput
+                    label="Email"
+                    type="email"
+                    placeholder="Your email address"
+                    value={this.state.email}
+                    onInput={e => {
+                      this.setState({ email: e.target.value });
+                    }}
+                  />
+                  <ListInput
+                    label="Password"
+                    type="password"
+                    placeholder="Your password"
+                    value={this.state.password}
+                    onInput={e => {
+                      this.setState({ password: e.target.value });
+                    }}
+                  />
+                </List>
+                <List>
                   <Button
-                    onClick={() =>
-                      this.setState({
-                        loginScreenOpen: false,
-                        loginScreenType: null,
-                      })
-                    }
-                    style={{ marginTop: 16 }}
-                  >
-                    Close
-                  </Button>
-                </BlockFooter>
-              </List>
-            </Fragment>
-          ) : (
-            <Fragment>
-              <LoginScreenTitle>Login to Your Account</LoginScreenTitle>
-              <List form>
-                <ListInput
-                  label="Username or email"
-                  type="text"
-                  placeholder="username or email"
-                  value={this.state.username}
-                  onInput={e => {
-                    this.setState({ username: e.target.value });
-                  }}
-                />
-                <ListInput
-                  label="Password"
-                  type="password"
-                  placeholder="Your password"
-                  value={this.state.password}
-                  onInput={e => {
-                    this.setState({ password: e.target.value });
-                  }}
-                />
-                <ListItem>
-                  <Button
-                    type="submit"
-                    fill
                     onClick={this.handleAuth.bind(this)}
+                    fill
                     style={{ margin: '0 16px' }}
                   >
-                    Login
+                    Sign Up
                   </Button>
-                </ListItem>
+                  <BlockFooter>
+                    <Button
+                      onClick={() =>
+                        this.setState({
+                          loginScreenOpen: false,
+                          loginScreenType: null
+                        })
+                      }
+                      style={{ marginTop: 16 }}
+                    >
+                      Close
+                    </Button>
+                  </BlockFooter>
+                </List>
+              </Fragment>
+            )}
 
-                <BlockFooter>
-                  <Button
-                    onClick={() =>
-                      this.setState({
-                        loginScreenOpen: false,
-                        loginScreenType: null,
-                      })
-                    }
-                    style={{ marginTop: 16 }}
-                  >
-                    Close
-                  </Button>
-                </BlockFooter>
-              </List>
-            </Fragment>
-          )}
-        </LoginScreen>
+            {loginScreenType === 'login' && (
+              <Fragment>
+                <LoginScreenTitle>Login to Your Account</LoginScreenTitle>
+                <List form>
+                  <ListInput
+                    label="Username or email"
+                    type="text"
+                    placeholder="username or email"
+                    value={this.state.username}
+                    onInput={e => {
+                      this.setState({ username: e.target.value });
+                    }}
+                  />
+                  <ListInput
+                    label="Password"
+                    type="password"
+                    placeholder="Your password"
+                    value={this.state.password}
+                    onInput={e => {
+                      this.setState({ password: e.target.value });
+                    }}
+                  />
+                  <ListItem>
+                    <Button
+                      type="submit"
+                      fill
+                      onClick={this.handleAuth.bind(this)}
+                      style={{ margin: '0 16px' }}
+                    >
+                      Login
+                    </Button>
+                  </ListItem>
+
+                  <BlockFooter>
+                    <Button
+                      onClick={() =>
+                        this.setState({
+                          loginScreenOpen: false,
+                          loginScreenType: null
+                        })
+                      }
+                      style={{ marginTop: 16 }}
+                    >
+                      Close
+                    </Button>
+                  </BlockFooter>
+                </List>
+              </Fragment>
+            )}
+          </LoginScreen>
+        )}
 
         {currentUser && (
           <Toolbar position="bottom">
@@ -271,7 +264,8 @@ class CreateAccount extends Component {
 export default CreateAccountContainer = withTracker(props => {
   Meteor.subscribe('me');
   const currentUser = Meteor.user();
+
   return {
-    currentUser,
+    currentUser
   };
 })(CreateAccount);

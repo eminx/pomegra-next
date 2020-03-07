@@ -2,32 +2,12 @@ import { Meteor } from 'meteor/meteor';
 import { Books, Requests, Messages } from '/imports/api/collections';
 import { Accounts } from 'meteor/accounts-base';
 
-function insertLink(title, url) {
-  Books.insert({ title, url, createdAt: new Date() });
-}
-
-Meteor.startup(() => {
-  // If the Links collection is empty, add some data.
-  if (Books.find().count() === 0) {
-    insertLink(
-      'Do the Tutorial',
-      'https://www.meteor.com/tutorials/react/creating-an-app'
-    );
-
-    insertLink('Follow the Guide', 'http://guide.meteor.com');
-
-    insertLink('Read the Docs', 'https://docs.meteor.com');
-
-    insertLink('Discussions', 'https://forums.meteor.com');
-  }
-});
-
 Meteor.methods({
   registerUser(user) {
     Accounts.createUser({
       email: user.email,
       username: user.username,
-      password: user.password,
+      password: user.password
     });
   },
 
@@ -62,7 +42,7 @@ Meteor.methods({
       owner_name: user.username,
       // owner_profile_image_url: user.profile.image_url,
       x_times: 0,
-      is_available: 1,
+      is_available: 1
     };
 
     const bookId = Books.insert(myBook, function(error, result) {
@@ -97,7 +77,7 @@ Meteor.methods({
           requester_name: currentUser.username,
           // owner_profile_image: owner.profile.image_url,
           // requester_profile_image: currentUser.profile.image_url,
-          date_requested: new Date(),
+          date_requested: new Date()
         });
 
         Messages.insert({
@@ -105,14 +85,14 @@ Meteor.methods({
           borrower_id: currentUserId,
           lender_id: ownerId,
           is_seen_by_other: 0,
-          messages: new Array(),
+          messages: new Array()
         });
 
         Books.update(bookId, {
           $set: {
             on_request: 1,
-            is_available: 0,
-          },
+            is_available: 0
+          }
         });
 
         var subjectEmail = 'Someone is interested in reading your book';
@@ -144,8 +124,8 @@ Meteor.methods({
       {
         $set: {
           is_confirmed: new Date(),
-          is_replied_and_not_seen: 1,
-        },
+          is_replied_and_not_seen: 1
+        }
       }
     );
 
@@ -154,8 +134,8 @@ Meteor.methods({
       {
         $set: {
           on_request: 0,
-          on_acceptance: 1,
-        },
+          on_acceptance: 1
+        }
       }
     );
     const subjectEmail = 'Your request has been accepted!';
@@ -173,8 +153,8 @@ Meteor.methods({
       { _id: reqId },
       {
         $set: {
-          is_denied: new Date(),
-        },
+          is_denied: new Date()
+        }
       }
     );
 
@@ -183,8 +163,8 @@ Meteor.methods({
       {
         $set: {
           on_request: 0,
-          is_available: 1,
-        },
+          is_available: 1
+        }
       }
     );
   },
@@ -198,8 +178,8 @@ Meteor.methods({
       { _id: reqId },
       {
         $set: {
-          is_handed: new Date(),
-        },
+          is_handed: new Date()
+        }
       }
     );
 
@@ -208,8 +188,8 @@ Meteor.methods({
       {
         $set: {
           on_acceptance: 0,
-          on_lend: 1,
-        },
+          on_lend: 1
+        }
       }
     );
   },
@@ -223,8 +203,8 @@ Meteor.methods({
       { _id: reqId },
       {
         $set: {
-          is_returned: new Date(),
-        },
+          is_returned: new Date()
+        }
       }
     );
 
@@ -234,11 +214,11 @@ Meteor.methods({
         $set: {
           on_lend: 0,
           returned: 1,
-          is_available: 1,
+          is_available: 1
         },
         $inc: {
-          x_times: 1,
-        },
+          x_times: 1
+        }
       }
     );
   },
@@ -253,8 +233,8 @@ Meteor.methods({
       {
         $set: {
           is_archived: true,
-          is_aborted: true,
-        },
+          is_aborted: true
+        }
       }
     );
 
@@ -262,8 +242,8 @@ Meteor.methods({
       { _id: bookId },
       {
         $set: {
-          is_available: 1,
-        },
+          is_available: 1
+        }
       }
     );
   },
@@ -274,7 +254,7 @@ Meteor.methods({
       return false;
     }
     const theMessage = Messages.findOne({
-      req_id: requestId,
+      req_id: requestId
     });
     if (
       currentUserId !== theMessage.lender_id &&
@@ -289,13 +269,13 @@ Meteor.methods({
           messages: {
             text: message,
             from: currentUserId,
-            date: new Date(),
-          },
+            date: new Date()
+          }
         },
         $set: {
           is_seen_by_other: 0,
-          last_msg_by: currentUserId,
-        },
+          last_msg_by: currentUserId
+        }
       }
     );
     let othersId;
@@ -309,7 +289,7 @@ Meteor.methods({
     if (
       Messages.findOne({
         is_seen_by_other: 0,
-        req_id: requestId,
+        req_id: requestId
       })
     ) {
       const myName = Meteor.user().username;
@@ -317,5 +297,5 @@ Meteor.methods({
       const textEmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
       // Meteor.call('sendEmail', othersId, subjectEmail, textEmail);
     }
-  },
+  }
 });
