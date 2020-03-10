@@ -12,7 +12,7 @@ import {
   MessagebarSheet,
   MessagebarSheetImage,
   MessagesTitle,
-  Messages as Messages7,
+  Messages as MessagesF7,
   Message,
   Button,
   Link,
@@ -34,11 +34,11 @@ class Request extends Component {
 
   componentDidMount() {
     const self = this;
-    self.$f7ready(() => {
-      self.messagebar =
-        self.messagebarComponent && self.messagebarComponent.f7Messagebar;
-      self.messages =
-        self.messagesComponent && self.messagesComponent.f7Messages;
+
+    self.$f7ready(f7 => {
+      // weird this isn't working
+      // self.messagebar = self.messagebarComponent.f7Messagebar;
+      // self.messages = self.messagesComponent.f7Messages;
     });
   }
 
@@ -47,7 +47,7 @@ class Request extends Component {
     const { request } = this.props;
 
     const self = this;
-    const messageInput = self.messagebar
+    const messageInput = self.messagebarComponent.f7Messagebar
       .getValue()
       .replace(/\n/g, '<br>')
       .trim();
@@ -69,10 +69,10 @@ class Request extends Component {
       // Hide sheet
       sheetVisible: false
     });
-    self.messagebar.clear();
+    self.messagebarComponent.f7Messagebar.clear();
 
     // Focus area
-    if (messageInput.length) self.messagebar.focus();
+    if (messageInput.length) self.messagebarComponent.f7Messagebar.focus();
   };
 
   getMessageSender = message => {
@@ -89,7 +89,6 @@ class Request extends Component {
   acceptRequest = () => {
     const { currentUser, request } = this.props;
     if (currentUser._id !== request.req_from) {
-      console.log('is not the owner');
       return;
     }
 
@@ -306,7 +305,7 @@ class Request extends Component {
             )}
         </Block>
 
-        <Messages7
+        <MessagesF7
           ref={el => {
             this.messagesComponent = el;
           }}
@@ -344,7 +343,7 @@ class Request extends Component {
               avatar={this.state.typingMessage.avatar}
             ></Message>
           )}
-        </Messages7>
+        </MessagesF7>
 
         <Messagebar
           placeholder={'Message'}
