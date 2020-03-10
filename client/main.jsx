@@ -11,6 +11,7 @@ Framework7.use(Framework7React);
 
 import 'framework7/css/framework7.bundle.min.css';
 import './main.css';
+import 'framework7-icons';
 
 import F7App from './containers/App';
 

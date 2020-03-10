@@ -13,7 +13,8 @@ import {
   LoginScreenTitle,
   BlockFooter,
   ListItem,
-  ListInput
+  ListInput,
+  Preloader
 } from 'framework7-react';
 
 class CreateAccount extends Component {
@@ -46,10 +47,18 @@ class CreateAccount extends Component {
       password
     };
     this.setState({ isLoading: true });
+
+    const self = this;
+    const app = self.$f7;
+
     Meteor.call('registerUser', newUser, (error, respond) => {
-      console.log(error);
-      console.log(respond);
-      if (!error) {
+      if (error) {
+        console.log('error!!');
+        console.log(error);
+        app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
+          console.log(error.reason);
+        });
+      } else {
         this.signIn();
         this.setState({
           isLoading: false,
@@ -84,8 +93,12 @@ class CreateAccount extends Component {
   };
 
   render() {
-    const { currentUser } = this.props;
-    const { isLoading, loginScreenOpen, loginScreenType } = this.state;
+    const { currentUser, isLoading } = this.props;
+    const { loginScreenOpen, loginScreenType } = this.state;
+
+    // if (isLoading && !currentUser) {
+    //   return <Preloader color="multi"></Preloader>;
+    // }
 
     return (
       <Page name="create-account">
@@ -262,10 +275,12 @@ class CreateAccount extends Component {
 }
 
 export default CreateAccountContainer = withTracker(props => {
-  Meteor.subscribe('me');
+  const currentUserSub = Meteor.subscribe('me');
   const currentUser = Meteor.user();
+  const isLoading = !currentUserSub.ready();
 
   return {
-    currentUser
+    currentUser,
+    isLoading
   };
 })(CreateAccount);

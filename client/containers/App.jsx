@@ -11,8 +11,6 @@ import FindContainer from './FindContainer';
 import RequestsList from './RequestsList';
 import RequestContainer from './RequestContainer';
 
-import 'framework7-icons';
-
 const routes = [
   {
     name: 'create-account',
@@ -68,8 +66,8 @@ const routes = [
 
 const f7params = {
   routes,
-  name: 'My App',
-  id: 'com.myapp.test',
+  name: 'Librella',
+  id: 'com.librella.alpha',
   theme: 'aurora'
 };
 
