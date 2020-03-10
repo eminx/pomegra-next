@@ -95,20 +95,20 @@ class CreateAccount extends Component {
     const { currentUser, isLoading } = this.props;
     const { loginScreenOpen, loginScreenType } = this.state;
 
-    if (isLoading) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            height: '100vh',
-            marginTop: 'calc(50vh - 24px)'
-          }}
-        >
-          <Preloader size={48} color="multi"></Preloader>
-        </div>
-      );
-    }
+    // if (isLoading) {
+    //   return (
+    //     <div
+    //       style={{
+    //         display: 'flex',
+    //         justifyContent: 'center',
+    //         height: '100vh',
+    //         marginTop: 'calc(50vh - 24px)'
+    //       }}
+    //     >
+    //       <Preloader size={48} color="multi"></Preloader>
+    //     </div>
+    //   );
+    // }
 
     return (
       <Page name="create-account">
