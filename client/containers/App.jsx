@@ -68,7 +68,7 @@ const f7params = {
   routes,
   name: 'Librella',
   id: 'com.librella.alpha',
-  theme: 'aurora'
+  theme: 'ios'
 };
 
 export default () => (

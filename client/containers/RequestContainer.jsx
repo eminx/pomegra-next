@@ -75,13 +75,10 @@ class Request extends Component {
   getMessageSender = message => {
     const { currentUser, request } = this.props;
     if (currentUser._id === message.from) {
-      console.log('me');
-      return null;
+      return 'me';
     } else if (request.requester_name === currentUser.username) {
-      console.log(request.owner_name);
       return request.owner_name;
     } else {
-      console.log(request.requester_name);
       return request.requester_name;
     }
   };
