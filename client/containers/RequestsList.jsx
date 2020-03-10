@@ -1,13 +1,18 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Page, Navbar, List, ListItem } from 'framework7-react';
+import {
+  Page,
+  Navbar,
+  List,
+  ListItem,
+  Subnavbar,
+  Searchbar
+} from 'framework7-react';
 
 import { Requests } from '../../imports/api/collections';
 
 class RequestsList extends Component {
-  state = {};
-
   viewRequestInDetail = request => {
     this.$f7router.navigate('/request/', {
       props: {
@@ -30,16 +35,28 @@ class RequestsList extends Component {
 
     return (
       <Page name="requests">
-        <Navbar backLink title="Requests"></Navbar>
-        <List mediaList>
+        <Navbar backLink title="Requests">
+          <Subnavbar inner={false}>
+            <Searchbar
+              searchContainer=".search-list"
+              searchIn=".item-title, .item-subtitle, .item-extra"
+              disableButton={!this.$theme.aurora}
+              placeholder="Filter"
+            ></Searchbar>
+          </Subnavbar>
+        </Navbar>
+
+        <List className="searchbar-not-found">
+          <ListItem title="Nothing found" />
+        </List>
+
+        <List mediaList className="search-list searchbar-found">
           {requests &&
-            requests.length > 0 &&
             requests.map(request => (
               <ListItem
                 mediaItem
                 key={request._id}
                 link="#"
-                // after={request.  }
                 title={request.book_name}
                 subtitle={
                   currentUser.username === request.owner_name
@@ -55,6 +72,9 @@ class RequestsList extends Component {
                   width={40}
                   height={60}
                 />
+                <span style={{ visibility: 'hidden' }} className="item-extra">
+                  {request.book_author}
+                </span>
               </ListItem>
             ))}
         </List>

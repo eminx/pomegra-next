@@ -1,11 +1,16 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Page, Navbar, List, ListItem } from 'framework7-react';
+import {
+  Page,
+  Navbar,
+  List,
+  ListItem,
+  Subnavbar,
+  Searchbar
+} from 'framework7-react';
 
 class MyBooks extends Component {
-  state = {};
-
   viewBookInDetail = myBook => {
     this.$f7router.navigate('/book-detail/', {
       props: {
@@ -19,8 +24,22 @@ class MyBooks extends Component {
 
     return (
       <Page name="books">
-        <Navbar backLink title="My Books"></Navbar>
-        <List mediaList>
+        <Navbar backLink title="My Books">
+          <Subnavbar inner={false}>
+            <Searchbar
+              searchContainer=".search-list"
+              searchIn=".item-title, .item-subtitle"
+              disableButton={!this.$theme.aurora}
+              placeholder="Filter"
+            ></Searchbar>
+          </Subnavbar>
+        </Navbar>
+
+        <List className="searchbar-not-found">
+          <ListItem title="Nothing found" />
+        </List>
+
+        <List mediaList className="search-list searchbar-found">
           {myBooks &&
             myBooks.length > 0 &&
             myBooks.map(myBook => (
@@ -53,8 +72,6 @@ export default MyBooksContainer = withTracker(props => {
   Meteor.subscribe('myBooks');
   const myBooks =
     currentUser && Books.find({ added_by: currentUser._id }).fetch();
-
-  console.log(myBooks);
 
   return {
     currentUser,
