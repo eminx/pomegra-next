@@ -6,6 +6,7 @@ import {
   Page,
   Navbar,
   Toolbar,
+  Icon,
   Button,
   Link,
   List,
@@ -23,7 +24,7 @@ class CreateAccount extends Component {
     username: '',
     email: '',
     password: '',
-    isLoading: false,
+    isLoading: true,
     loginScreenType: null
   };
 
@@ -79,8 +80,6 @@ class CreateAccount extends Component {
 
     Meteor.loginWithPassword(username, password, error => {
       if (error) {
-        console.log('error!!');
-        console.log(error);
         app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
           console.log(error.reason);
         });
@@ -96,9 +95,20 @@ class CreateAccount extends Component {
     const { currentUser, isLoading } = this.props;
     const { loginScreenOpen, loginScreenType } = this.state;
 
-    // if (isLoading && !currentUser) {
-    //   return <Preloader color="multi"></Preloader>;
-    // }
+    if (isLoading && !currentUser) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            height: '100vh',
+            marginTop: 'calc(50vh - 24px)'
+          }}
+        >
+          <Preloader size={48} color="multi"></Preloader>
+        </div>
+      );
+    }
 
     return (
       <Page name="create-account">

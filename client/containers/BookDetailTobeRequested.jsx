@@ -33,30 +33,31 @@ class BookDetailTobeRequested extends Component {
   };
 
   requestBook = () => {
-    this.setState({
-      requestPopupOpened: true,
-      progressOn: true
-    });
-    const { bookInfo, currentUser } = this.props;
-
-    Meteor.call(
-      'makeRequest',
-      bookInfo._id,
-      bookInfo.added_by,
-      bookInfo.b_title,
-      bookInfo.b_author,
-      bookInfo.owner_name,
-      bookInfo.image_url,
-      (error, respond) => {
-        if (error) {
+    const self = this;
+    const app = self.$f7;
+    const { bookInfo } = this.props;
+    Meteor.call('makeRequest', bookInfo._id, (error, respond) => {
+      if (error) {
+        app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
           console.log(error);
-        }
+        });
+      } else if (respond.error) {
+        app.dialog.alert(`${respond.error}, please try again`, 'Error', () => {
+          console.log(respond);
+        });
+      } else {
+        const notification = app.notification.create({
+          icon: '<i class="icon success"></i>',
+          title: 'Success!',
+          subtitle: 'You have successfully sent your lending request',
+          closeButton: true,
+          closeTimeout: 6000,
+          opened: true
+        });
+        notification.open();
+        self.$f7router.navigate(`/request/${respond}`);
       }
-    );
-    setTimeout(
-      () => this.setState({ progressOn: false, requestSuccess: true }),
-      3000
-    );
+    });
   };
 
   render() {
@@ -140,9 +141,9 @@ class BookDetailTobeRequested extends Component {
   }
 }
 
-export default (BookDetailTobeRequestedContainer = withTracker(props => {
+export default BookDetailTobeRequestedContainer = withTracker(props => {
   const currentUser = Meteor.user();
   return {
     currentUser
   };
-})(BookDetailTobeRequested));
+})(BookDetailTobeRequested);

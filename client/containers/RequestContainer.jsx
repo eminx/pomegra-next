@@ -18,7 +18,9 @@ import {
   Link,
   List,
   ListItem,
-  ListInput
+  ListInput,
+  Row,
+  Col
 } from 'framework7-react';
 
 import { Requests } from '../../imports/api/collections';
@@ -83,6 +85,119 @@ class Request extends Component {
     }
   };
 
+  acceptRequest = () => {
+    const { currentUser, request } = this.props;
+    if (currentUser._id !== request.req_from) {
+      console.log('is not the owner');
+      return;
+    }
+
+    const self = this;
+    const app = self.$f7;
+
+    Meteor.call('acceptRequest', request._id, (error, respond) => {
+      if (error) {
+        app.dialog.alert(`${error.reason}`, 'Error', () => {
+          console.log(error);
+        });
+      } else {
+        const notification = app.notification.create({
+          // icon: '<i class="icon success"></i>',
+          title: 'Great!',
+          subtitle: 'Thank you for being a generous human being',
+          closeButton: true,
+          closeTimeout: 6000,
+          opened: true
+        });
+        notification.open();
+      }
+    });
+  };
+
+  denyRequest = () => {
+    const { currentUser, request } = this.props;
+    if (currentUser._id !== request.req_from) {
+      return;
+    }
+
+    const self = this;
+    const app = self.$f7;
+
+    Meteor.call('denyRequest', request._id, (error, respond) => {
+      if (error) {
+        app.dialog.alert(`${error.reason}`, 'Error', () => {
+          console.log(error);
+        });
+      } else {
+        const notification = app.notification.create({
+          // icon: '<i class="icon success"></i>',
+          title: 'Sorry...',
+          subtitle: 'We are sorry to have you deny this request',
+          closeButton: true,
+          closeTimeout: 6000,
+          opened: true
+        });
+        notification.open();
+      }
+    });
+  };
+
+  isHanded = () => {
+    const { currentUser, request } = this.props;
+    if (currentUser._id !== request.req_from) {
+      return;
+    }
+
+    const self = this;
+    const app = self.$f7;
+
+    Meteor.call('isHanded', request._id, (error, respond) => {
+      if (error) {
+        app.dialog.alert(`${error.reason}`, 'Error', () => {
+          console.log(error);
+        });
+      } else {
+        const notification = app.notification.create({
+          // icon: '<i class="icon success"></i>',
+          title: 'Success!',
+          subtitle: 'Great that you have handed over the book!',
+          closeButton: true,
+          closeTimeout: 6000,
+          opened: true
+        });
+        notification.open();
+      }
+    });
+  };
+
+  isReturned = () => {
+    const { currentUser, request } = this.props;
+    if (currentUser._id !== request.req_from) {
+      return;
+    }
+
+    const self = this;
+    const app = self.$f7;
+
+    Meteor.call('isReturned', request._id, (error, respond) => {
+      if (error) {
+        app.dialog.alert(`${error.reason}`, 'Error', () => {
+          console.log(error);
+        });
+      } else {
+        const notification = app.notification.create({
+          // icon: '<i class="icon success"></i>',
+          title: 'Success!',
+          subtitle: 'Your book is back and available at your shelf <3',
+          closeButton: true,
+          closeTimeout: 6000,
+          opened: true
+        });
+        notification.open();
+      }
+    });
+  };
+
   render() {
     const { currentUser, request, messages } = this.props;
     const { sheetVisible } = this.state;
@@ -96,8 +211,6 @@ class Request extends Component {
       );
     }
 
-    const isMyBook = request.owner_name === currentUser.username;
-
     return (
       <Page name="books">
         <Navbar title={request.book_name} backLink></Navbar>
@@ -106,28 +219,116 @@ class Request extends Component {
           <p style={{ textAlign: 'center' }}>
             <em>by {request.book_author}</em>
           </p>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div
-              style={{
-                backgroundImage:
-                  request.book_image_url && `url(${request.book_image_url})`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                height: 120,
-                backgroundSize: 'contain',
-                flexGrow: 1
-              }}
-            ></div>
-            <List simpleList noHairlinesBetween style={{ flexGrow: 1 }}>
-              <ListItem>{request.owner_name}</ListItem>
-              <ListItem>{request.requester_name}</ListItem>
-            </List>
-          </div>
-          <Icon icon="md:camera_fill"></Icon>
-          <Icon icon="ios:camera_fill"></Icon>
-          <Icon icon="f7:camera_fill"></Icon>
         </Block>
+
+        <Block>
+          <Row>
+            <Col width="33">
+              <div
+                style={{
+                  backgroundImage:
+                    request.book_image_url && `url(${request.book_image_url})`,
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'center',
+                  height: 120,
+                  width: 90
+                }}
+              ></div>
+            </Col>
+            <Col width="66">
+              <p>{request.owner_name}</p>
+              <p>{request.requester_name}</p>
+            </Col>
+          </Row>
+        </Block>
+
+        <Block>
+          {!request.is_confirmed &&
+            !request.is_denied &&
+            currentUser._id === request.req_from && (
+              <Row>
+                <Col>
+                  <Button
+                    fill
+                    round
+                    strong
+                    onClick={() => this.acceptRequest()}
+                  >
+                    Accept Request
+                  </Button>
+                </Col>
+                <Col>
+                  <Button onClick={() => this.denyRequest()}>
+                    Deny Request
+                  </Button>
+                </Col>
+              </Row>
+            )}
+        </Block>
+
+        <Block>
+          {request.is_confirmed &&
+            !request.is_handed &&
+            currentUser._id === request.req_from && (
+              <Row>
+                <Button onClick={() => this.isHanded()}>
+                  Book is handed over
+                </Button>
+              </Row>
+            )}
+        </Block>
+
+        <Block>
+          {request.is_handed &&
+            !request.is_returned &&
+            currentUser._id === request.req_from && (
+              <Row>
+                <Button onClick={() => this.isReturned()}>
+                  My book is returned
+                </Button>
+              </Row>
+            )}
+        </Block>
+
+        <Messages7
+          ref={el => {
+            this.messagesComponent = el;
+          }}
+        >
+          <MessagesTitle>
+            <b>Sunday, Feb 9,</b> 12:58
+          </MessagesTitle>
+
+          {messages &&
+            messages.messages.map((message, index) => (
+              <Message
+                key={message.date.toString()}
+                type={currentUser._id === message.from ? 'sent' : 'received'}
+                name={this.getMessageSender(message)}
+                first={index === 0}
+                last={messages.messages.length === index}
+                tail
+              >
+                {message.text && (
+                  <span
+                    slot="text"
+                    dangerouslySetInnerHTML={{ __html: message.text }}
+                  />
+                )}
+              </Message>
+            ))}
+          {this.state.typingMessage && (
+            <Message
+              type="received"
+              typing={true}
+              // first={true}
+              // last={true}
+              // tail={true}
+              header={`${this.state.typingMessage.name} is typing`}
+              avatar={this.state.typingMessage.avatar}
+            ></Message>
+          )}
+        </Messages7>
 
         <Messagebar
           placeholder={'Message'}
@@ -173,66 +374,6 @@ class Request extends Component {
                 ))}
               </MessagebarSheet> */}
         </Messagebar>
-
-        <Messages7
-          ref={el => {
-            this.messagesComponent = el;
-          }}
-        >
-          <MessagesTitle>
-            <b>Sunday, Feb 9,</b> 12:58
-          </MessagesTitle>
-
-          {messages &&
-            messages.messages.map((message, index) => (
-              <Message
-                key={message.date.toString()}
-                type={currentUser._id === message.from ? 'sent' : 'received'}
-                name={this.getMessageSender(message)}
-                first={index === 0}
-                last={messages.messages.length === index}
-                tail
-              >
-                {message.text && (
-                  <span
-                    slot="text"
-                    dangerouslySetInnerHTML={{ __html: message.text }}
-                  />
-                )}
-              </Message>
-            ))}
-          {this.state.typingMessage && (
-            <Message
-              type="received"
-              typing={true}
-              // first={true}
-              // last={true}
-              // tail={true}
-              header={`${this.state.typingMessage.name} is typing`}
-              avatar={this.state.typingMessage.avatar}
-            ></Message>
-          )}
-        </Messages7>
-
-        {/* <Block>
-              <List form>
-                <ListInput
-                  onInput={e => this.setState({ messageInput: e.target.value })}
-                  value={this.state.messageInput}
-                  label="message"
-                  type="text"
-                  placeholder="Your message"
-                />
-                <ListItem>
-                  <Button
-                    type="submit"
-                    onClick={event => this.sendMessage(event)}
-                  >
-                    Send
-                  </Button>
-                </ListItem>
-              </List>
-            </Block> */}
       </Page>
     );
   }
