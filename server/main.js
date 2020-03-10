@@ -60,15 +60,12 @@ Meteor.methods({
       return false;
     }
 
-    console.log(bookId, 'request arrived');
-
     try {
       const theBook = Books.findOne(bookId);
       const currentUser = Meteor.user();
       const owner = Meteor.users.findOne(theBook.added_by);
 
       if (Requests.findOne({ req_b_id: bookId, req_by: currentUserId })) {
-        console.log('req exists');
         throw new Meteor.Error('You have already requested this item');
         return;
       }

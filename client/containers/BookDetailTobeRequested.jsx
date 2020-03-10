@@ -55,7 +55,11 @@ class BookDetailTobeRequested extends Component {
           opened: true
         });
         notification.open();
-        self.$f7router.navigate(`/request/${respond}`);
+        self.$f7router.navigate('/request/', {
+          props: {
+            _id: respond
+          }
+        });
       }
     });
   };

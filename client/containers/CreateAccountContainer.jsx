@@ -95,7 +95,7 @@ class CreateAccount extends Component {
     const { currentUser, isLoading } = this.props;
     const { loginScreenOpen, loginScreenType } = this.state;
 
-    if (isLoading && !currentUser) {
+    if (isLoading) {
       return (
         <div
           style={{

@@ -16,9 +16,8 @@ import {
   Message,
   Button,
   Link,
+  Preloader,
   List,
-  ListItem,
-  ListInput,
   Row,
   Col
 } from 'framework7-react';
@@ -36,8 +35,10 @@ class Request extends Component {
   componentDidMount() {
     const self = this;
     self.$f7ready(() => {
-      self.messagebar = self.messagebarComponent.f7Messagebar;
-      self.messages = self.messagesComponent.f7Messages;
+      self.messagebar =
+        self.messagebarComponent && self.messagebarComponent.f7Messagebar;
+      self.messages =
+        self.messagesComponent && self.messagesComponent.f7Messages;
     });
   }
 
@@ -199,15 +200,30 @@ class Request extends Component {
   };
 
   render() {
-    const { currentUser, request, messages } = this.props;
+    const { currentUser, request, messages, isLoading } = this.props;
     const { sheetVisible } = this.state;
 
-    if (!request || !currentUser) {
+    if (!currentUser) {
       return (
         <Page>
           <Navbar title="No account" backLink />
           <div style={{ textAlign: 'center' }}>Please create an account</div>
         </Page>
+      );
+    }
+
+    if (isLoading || !request || !messages) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            height: '100vh',
+            marginTop: 'calc(50vh - 24px)'
+          }}
+        >
+          <Preloader size={48} color="multi"></Preloader>
+        </div>
       );
     }
 
@@ -381,15 +397,20 @@ class Request extends Component {
 
 export default RequestContainer = withTracker(props => {
   const currentUser = Meteor.user();
-  const requestId = props.request._id;
-  Meteor.subscribe('singleRequest', requestId);
+  const requestId = props.request && props.request._id;
+
+  const reqSub = Meteor.subscribe('singleRequest', requestId);
   const request = currentUser && Requests.findOne(requestId);
 
-  Meteor.subscribe('myMessages', requestId);
+  const msgSub = Meteor.subscribe('myMessages', requestId);
   const messages = currentUser && Messages.findOne({ req_id: requestId });
+
+  const isLoading = !reqSub.ready() || !msgSub.ready();
+
   return {
     currentUser,
     request,
-    messages
+    messages,
+    isLoading
   };
 })(Request);
