@@ -187,18 +187,10 @@ class Request extends Component {
             messages.messages.map((message, index) => (
               <Message
                 key={message.date.toString()}
+                type={currentUser._id === message.from ? 'sent' : 'received'}
                 name={this.getMessageSender(message)}
-                // sameName
-                // sameHeader
-                // sameFooter
-                // sameAvatar
-                type={message.sent}
-                // image={message.image}
-                name={message.name}
-                // avatar={message.avatar}
-                // first={this.isFirstMessage(message, index)}
-                // last={this.isLastMessage(message, index)}
-                // tail={this.isTailMessage(message, index)}
+                first={index === 0}
+                last={messages.messages.length === index}
                 tail
               >
                 {message.text && (
