@@ -9,21 +9,21 @@ class Find extends Component {
   viewBookInDetail = result => {
     this.$f7router.navigate('/book-detail-tobe-requested/', {
       props: {
-        bookInfo: result,
-      },
+        bookInfo: result
+      }
     });
   };
 
   render() {
-    const { currentUser, suggestedBooks } = this.props;
+    const { currentUser, othersBooks } = this.props;
 
     const detailListItemStyle = {
       justifyContent: 'flex-end',
       height: 18,
-      fontSize: 12,
+      fontSize: 12
     };
 
-    if (!suggestedBooks) {
+    if (!othersBooks) {
       return;
     }
 
@@ -31,9 +31,9 @@ class Find extends Component {
       <Page name="books">
         <Navbar title="Suggested Books" backLink />
         <List mediaList>
-          {suggestedBooks &&
-            suggestedBooks.length > 0 &&
-            suggestedBooks.map(suggestedBook => (
+          {othersBooks &&
+            othersBooks.length > 0 &&
+            othersBooks.map(suggestedBook => (
               <ListItem
                 mediaItem
                 key={suggestedBook._id || suggestedBook.b_title}
@@ -60,11 +60,11 @@ class Find extends Component {
 
 export default FindContainer = withTracker(props => {
   const currentUser = Meteor.user();
-  Meteor.subscribe('suggestedBooks');
-  const suggestedBooks = Books.find().fetch();
+  Meteor.subscribe('othersBooks');
+  const othersBooks = currentUser && Books.find().fetch();
 
   return {
     currentUser,
-    suggestedBooks,
+    othersBooks
   };
 })(Find);

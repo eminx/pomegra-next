@@ -72,6 +72,20 @@ class Request extends Component {
     if (messageInput.length) self.messagebar.focus();
   };
 
+  getMessageSender = message => {
+    const { currentUser, request } = this.props;
+    if (currentUser._id === message.from) {
+      console.log('me');
+      return null;
+    } else if (request.requester_name === currentUser.username) {
+      console.log(request.owner_name);
+      return request.owner_name;
+    } else {
+      console.log(request.requester_name);
+      return request.requester_name;
+    }
+  };
+
   render() {
     const { currentUser, request, messages } = this.props;
     const { sheetVisible } = this.state;
@@ -84,6 +98,8 @@ class Request extends Component {
         </Page>
       );
     }
+
+    const isMyBook = request.owner_name === currentUser.username;
 
     return (
       <Page name="books">
@@ -170,26 +186,32 @@ class Request extends Component {
             <b>Sunday, Feb 9,</b> 12:58
           </MessagesTitle>
 
-          {messages.messages.map((message, index) => (
-            <Message
-              key={index}
-              // type={message.type}
-              // image={message.image}
-              name={message.name}
-              // avatar={message.avatar}
-              // first={this.isFirstMessage(message, index)}
-              // last={this.isLastMessage(message, index)}
-              // tail={this.isTailMessage(message, index)}
-              tail
-            >
-              {message.text && (
-                <span
-                  slot="text"
-                  dangerouslySetInnerHTML={{ __html: message.text }}
-                />
-              )}
-            </Message>
-          ))}
+          {messages &&
+            messages.messages.map((message, index) => (
+              <Message
+                key={message.date.toString()}
+                name={this.getMessageSender(message)}
+                // sameName
+                // sameHeader
+                // sameFooter
+                // sameAvatar
+                type={message.sent}
+                // image={message.image}
+                name={message.name}
+                // avatar={message.avatar}
+                // first={this.isFirstMessage(message, index)}
+                // last={this.isLastMessage(message, index)}
+                // tail={this.isTailMessage(message, index)}
+                tail
+              >
+                {message.text && (
+                  <span
+                    slot="text"
+                    dangerouslySetInnerHTML={{ __html: message.text }}
+                  />
+                )}
+              </Message>
+            ))}
           {this.state.typingMessage && (
             <Message
               type="received"
@@ -230,11 +252,11 @@ class Request extends Component {
 export default RequestContainer = withTracker(props => {
   const currentUser = Meteor.user();
   const requestId = props.request._id;
-  // Requests && Meteor.subscribe('request', requestId);
-  const request = Requests && Requests.findOne(requestId);
+  Meteor.subscribe('singleRequest', requestId);
+  const request = currentUser && Requests.findOne(requestId);
 
-  // Messages && Meteor.subscribe('messages', requestId);
-  const messages = Messages && Messages.findOne({ req_id: requestId });
+  Meteor.subscribe('myMessages', requestId);
+  const messages = currentUser && Messages.findOne({ req_id: requestId });
   return {
     currentUser,
     request,

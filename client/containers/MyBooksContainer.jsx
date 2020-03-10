@@ -9,8 +9,8 @@ class MyBooks extends Component {
   viewBookInDetail = myBook => {
     this.$f7router.navigate('/book-detail/', {
       props: {
-        myBook,
-      },
+        myBook
+      }
     });
   };
 
@@ -53,8 +53,11 @@ export default MyBooksContainer = withTracker(props => {
   Meteor.subscribe('myBooks');
   const myBooks =
     currentUser && Books.find({ added_by: currentUser._id }).fetch();
+
+  console.log(myBooks);
+
   return {
     currentUser,
-    myBooks,
+    myBooks
   };
 })(MyBooks);

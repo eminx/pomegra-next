@@ -11,8 +11,8 @@ class RequestsList extends Component {
   viewRequestInDetail = request => {
     this.$f7router.navigate('/request/', {
       props: {
-        request,
-      },
+        request
+      }
     });
   };
 
@@ -65,9 +65,10 @@ class RequestsList extends Component {
 
 export default RequestsListComponent = withTracker(props => {
   const currentUser = Meteor.user();
-  const requests = Requests.find().fetch();
+  Meteor.subscribe('myRequests');
+  const requests = currentUser && Requests.find().fetch();
   return {
     requests,
-    currentUser,
+    currentUser
   };
 })(RequestsList);

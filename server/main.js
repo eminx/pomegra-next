@@ -299,3 +299,66 @@ Meteor.methods({
     }
   }
 });
+
+// PUBLICATIONS
+
+// USER
+Meteor.publish('me', function() {
+  const userId = this.userId;
+  if (userId) {
+    return Meteor.users.find(userId);
+  }
+});
+
+// BOOKS
+Meteor.publish('myBooks', function() {
+  const currentUserId = this.userId;
+  return Books.find({
+    added_by: currentUserId
+  });
+});
+
+Meteor.publish('othersBooks', function() {
+  const currentUserId = this.userId;
+  if (currentUserId) {
+    return Books.find(
+      {
+        added_by: { $ne: currentUserId }
+      },
+      { limit: 20 }
+    );
+  } else {
+    return Books.find({}, { limit: 20 });
+  }
+});
+
+// REQUESTS
+Meteor.publish('myRequests', function() {
+  var currentUserId = this.userId;
+  return Requests.find({
+    $or: [{ req_by: currentUserId }, { req_from: currentUserId }]
+  });
+});
+
+Meteor.publish('singleRequest', function(reqId) {
+  var currentUserId = this.userId;
+  return Requests.find({
+    _id: reqId,
+    $or: [
+      {
+        req_by: currentUserId
+      },
+      {
+        req_from: currentUserId
+      }
+    ]
+  });
+});
+
+Meteor.publish('myMessages', function(reqId) {
+  var currentUserId = this.userId;
+  return Messages.find({
+    req_id: reqId,
+    $or: [{ borrower_id: currentUserId }, { lender_id: currentUserId }]
+  });
+});
