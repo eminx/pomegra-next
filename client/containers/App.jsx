@@ -11,6 +11,8 @@ import FindContainer from './FindContainer';
 import RequestsList from './RequestsList';
 import RequestContainer from './RequestContainer';
 
+import 'antd-mobile/dist/antd-mobile.less';
+
 const routes = [
   {
     name: 'create-account',

@@ -18,6 +18,8 @@ import {
   Preloader
 } from 'framework7-react';
 
+import { Button as AntButton } from 'antd-mobile';
+
 class CreateAccount extends Component {
   state = {
     loginScreenOpen: false,
@@ -145,6 +147,19 @@ class CreateAccount extends Component {
             >
               Create an Account
             </Button>
+
+            <AntButton
+              type="primary"
+              onClick={() =>
+                this.setState({
+                  loginScreenOpen: true,
+                  loginScreenType: 'signup'
+                })
+              }
+            >
+              Create an Account
+            </AntButton>
+
             <Button
               style={{ marginTop: 16 }}
               large
