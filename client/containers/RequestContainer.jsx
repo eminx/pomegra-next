@@ -32,15 +32,7 @@ class Request extends Component {
     typingMessage: null
   };
 
-  componentDidMount() {
-    const self = this;
-
-    self.$f7ready(f7 => {
-      // weird this isn't working
-      // self.messagebar = self.messagebarComponent.f7Messagebar;
-      // self.messages = self.messagesComponent.f7Messages;
-    });
-  }
+  componentDidMount() {}
 
   sendMessage = event => {
     event.preventDefault();

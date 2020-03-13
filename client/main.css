@@ -1,11 +1,3 @@
 body {
-  padding: 10px;
   font-family: sans-serif;
-}
-
-:root {
-  --f7-theme-color: #009688;
-  --f7-theme-color-shade: #ff3a2c;
-  --f7-theme-color-tint: #fe6054;
-  --f7-theme-color-rgb: 255, 0, 0;
 }

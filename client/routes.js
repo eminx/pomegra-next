@@ -1,16 +1,17 @@
 import React from 'react';
 import { Switch, Router, Route } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
+
 import Layout from './containers/Layout';
-
-// route components
-// import HomeContainer from './HomeContainer';
-
-// import BookingContainer from './bookings/BookingContainer';
-// import NewBookSpaceContainer from './bookings/NewBookSpaceContainer';
-// import EditBookingContainer from './bookings/EditBookingContainer';
-
-// import ScrollToTop from './ScrollToTop';
+import AccountManagerContainer from './containers/AccountManagerContainer';
+import AddBookContainer from './containers/AddBookContainer';
+import BookDetailTobeAdded from './containers/BookDetailTobeAdded';
+import MyBooksContainer from './containers/MyBooksContainer';
+import MyBookContainer from './containers/MyBookContainer';
+import FindContainer from './containers/FindContainer';
+import BookDetailTobeRequested from './containers/BookDetailTobeRequested';
+import RequestsList from './containers/RequestsList';
+import RequestContainer from './containers/RequestsList';
 
 const browserHistory = createBrowserHistory();
 
@@ -18,15 +19,17 @@ export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Switch>
       <Layout history={browserHistory}>
-        {/* <ScrollToTop>
-          <Route exact path="/" component={HomeContainer} />
-          <Route exact path="/calendar" component={CalendarContainer} />
+        <Route exact path="/" component={AccountManagerContainer} />
+        <Route exact path="/add" component={AddBookContainer} />
+        <Route exact path="/add-book" component={BookDetailTobeAdded} />
+        <Route exact path="/my-books" component={MyBooksContainer} />
+        <Route exact path="/my-book/:id" component={MyBookContainer} />
 
-          <Route exact path="/new-booking" component={NewBookSpaceContainer} />
-          <Route path="/event/:id" component={BookingContainer} />
-          <Route path="/booking/:id" component={BookingContainer} />
-          <Route path="/edit-booking/:id/" component={EditBookingContainer} />
-        </ScrollToTop> */}
+        <Route exact path="/find" component={FindContainer} />
+        <Route exact path="/book/:id" component={BookDetailTobeRequested} />
+
+        <Route exact path="/requests" component={RequestsList} />
+        <Route exact path="/request/:id" component={RequestContainer} />
       </Layout>
     </Switch>
   </Router>

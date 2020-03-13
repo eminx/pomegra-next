@@ -9,7 +9,7 @@ import {
   Searchbar,
   List,
   ListItem,
-  Preloader,
+  Preloader
 } from 'framework7-react';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
@@ -19,12 +19,12 @@ class AddBook extends Component {
     isLoading: false,
     searchResults: [],
     searchbarInput: '',
-    searchbarFocused: false,
+    searchbarFocused: false
   };
 
   searchbarSearch = () => {
     this.setState({
-      isLoading: true,
+      isLoading: true
     });
     const keyword = this.state.searchbarInput;
     fetch(googleApi + keyword)
@@ -34,7 +34,7 @@ class AddBook extends Component {
       .then(parsedResults => {
         this.setState({
           isLoading: false,
-          searchResults: parsedResults.items,
+          searchResults: parsedResults.items
           // searchbarFocused: false,
         });
       });
@@ -43,11 +43,10 @@ class AddBook extends Component {
   viewBookInDetail = result => {
     this.$f7router.navigate('/book-detail-tobe-added/', {
       props: {
-        bookInfo: result,
-      },
+        bookInfo: result
+      }
     });
   };
-
   render() {
     const { searchResults, searchbarInput, isLoading } = this.state;
     return (
@@ -123,6 +122,6 @@ export default AddBookContainer = withTracker(props => {
   const meSub = Meteor.subscribe('me');
   const currentUser = Meteor.user();
   return {
-    currentUser,
+    currentUser
   };
 })(AddBook);

@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Page, Navbar, List, ListItem } from 'framework7-react';
+import { Navbar, List, ListItem } from 'antd-mobile';
 
 class Find extends Component {
   state = {};
@@ -23,12 +23,14 @@ class Find extends Component {
       fontSize: 12
     };
 
-    if (!othersBooks) {
-      return;
+    if (!currentUser || !othersBooks) {
+      return null;
     }
 
+    return <p>find me baby</p>;
+
     return (
-      <Page name="books">
+      <div name="books">
         <Navbar title="Suggested Books" backLink />
         <List mediaList>
           {othersBooks &&
@@ -53,7 +55,7 @@ class Find extends Component {
               </ListItem>
             ))}
         </List>
-      </Page>
+      </div>
     );
   }
 }
