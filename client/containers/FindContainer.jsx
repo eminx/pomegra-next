@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Navbar, List, ListItem } from 'antd-mobile';
+import AppTabBar from '../reusables/AppTabBar';
 
 class Find extends Component {
   state = {};
@@ -27,7 +28,12 @@ class Find extends Component {
       return null;
     }
 
-    return <p>find me baby</p>;
+    return (
+      <div>
+        find me baby
+        <AppTabBar />
+      </div>
+    );
 
     return (
       <div name="books">

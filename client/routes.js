@@ -25,7 +25,7 @@ export const renderRoutes = () => (
         <Route exact path="/my-books" component={MyBooksContainer} />
         <Route exact path="/my-book/:id" component={MyBookContainer} />
 
-        <Route exact path="/find" component={FindContainer} />
+        <Route exact path="/search" component={FindContainer} />
         <Route exact path="/book/:id" component={BookDetailTobeRequested} />
 
         <Route exact path="/requests" component={RequestsList} />

@@ -24,6 +24,7 @@
     "rc-form": "^2.4.11",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
+    "react-icons": "^3.9.0",
     "react-meteor-data": "^0.2.11",
     "react-router-dom": "^5.1.2"
   },
