@@ -40,8 +40,8 @@ class AppTabBar extends Component {
           ></TabBar.Item>
 
           <TabBar.Item
-            key="search"
-            title="Search"
+            key="find"
+            title="Find"
             icon={<IoIosSearch />}
             selectedIcon={<IoIosSearch />}
             selected={pathname === '/find'}

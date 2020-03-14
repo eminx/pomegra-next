@@ -6,6 +6,7 @@ import { NavBar, List, SearchBar, WhiteSpace } from 'antd-mobile';
 const ListItem = List.Item;
 
 import { Requests } from '../../imports/api/collections';
+import AppTabBar from '../reusables/AppTabBar';
 
 class RequestsList extends Component {
   state = {
@@ -80,6 +81,7 @@ class RequestsList extends Component {
               </ListItem>
             ))}
         </List>
+        <AppTabBar />
       </div>
     );
   }

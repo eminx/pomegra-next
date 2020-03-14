@@ -11,7 +11,7 @@ import MyBookContainer from './containers/MyBookContainer';
 import FindContainer from './containers/FindContainer';
 import BookDetailTobeRequested from './containers/BookDetailTobeRequested';
 import RequestsList from './containers/RequestsList';
-import RequestContainer from './containers/RequestsList';
+import RequestContainer from './containers/RequestContainer';
 
 const browserHistory = createBrowserHistory();
 

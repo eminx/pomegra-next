@@ -389,8 +389,10 @@ Meteor.publish('myRequests', function() {
 });
 
 Meteor.publish('singleRequest', function(reqId) {
+  var currentUserId = this.userId;
   return Requests.find({
-    _id: reqId
+    _id: reqId,
+    $or: [{ req_by: currentUserId }, { req_from: currentUserId }]
   });
 });
 

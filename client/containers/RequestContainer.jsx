@@ -2,6 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
+  App,
+  View,
   Icon,
   Block,
   Page,
@@ -21,6 +23,21 @@ import {
   Row,
   Col
 } from 'framework7-react';
+
+// // Import F7 Bundle
+// import Framework7 from 'framework7/framework7-lite.esm.bundle.js';
+// // Import F7-React Plugin
+// import Framework7React from 'framework7-react';
+// // Init F7-React Plugin
+// Framework7.use(Framework7React);
+
+// import 'framework7/css/framework7.bundle.min.css';
+
+const f7params = {
+  name: 'Librella',
+  id: 'com.librella.alpha',
+  theme: 'ios'
+};
 
 import { Requests } from '../../imports/api/collections';
 
@@ -196,10 +213,12 @@ class Request extends Component {
 
     if (!currentUser) {
       return (
-        <Page>
-          <Navbar title="No account" backLink />
-          <div style={{ textAlign: 'center' }}>Please create an account</div>
-        </Page>
+        <App>
+          <Page>
+            <Navbar title="No account" backLink />
+            <div style={{ textAlign: 'center' }}>Please create an account</div>
+          </Page>
+        </App>
       );
     }
 
@@ -218,8 +237,10 @@ class Request extends Component {
       );
     }
 
+    console.log('wtf is going on');
+
     return (
-      <Page name="books">
+      <div>
         <Navbar title={request.book_name} backLink></Navbar>
 
         <Block>
@@ -381,14 +402,14 @@ class Request extends Component {
                 ))}
               </MessagebarSheet> */}
         </Messagebar>
-      </Page>
+      </div>
     );
   }
 }
 
 export default RequestContainer = withTracker(props => {
   const currentUser = Meteor.user();
-  const requestId = props.request && props.request._id;
+  const requestId = props.match.params.id;
 
   const reqSub = Meteor.subscribe('singleRequest', requestId);
   const request = currentUser && Requests.findOne(requestId);
