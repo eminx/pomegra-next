@@ -374,6 +374,12 @@ Meteor.publish('othersBooks', function() {
   }
 });
 
+Meteor.publish('singleBook', function(bookId) {
+  return Books.find({
+    _id: bookId
+  });
+});
+
 // REQUESTS
 Meteor.publish('myRequests', function() {
   var currentUserId = this.userId;
@@ -383,17 +389,8 @@ Meteor.publish('myRequests', function() {
 });
 
 Meteor.publish('singleRequest', function(reqId) {
-  var currentUserId = this.userId;
   return Requests.find({
-    _id: reqId,
-    $or: [
-      {
-        req_by: currentUserId
-      },
-      {
-        req_from: currentUserId
-      }
-    ]
+    _id: reqId
   });
 });
 

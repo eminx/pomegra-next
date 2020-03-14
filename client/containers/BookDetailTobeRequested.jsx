@@ -1,29 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import {
-  Block,
-  Page,
-  Navbar,
-  NavRight,
-  Link,
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  List,
-  ListItem,
-  Popup,
-  Progressbar
-} from 'framework7-react';
+import { Button, Card, List, NavBar } from 'antd-mobile';
+
+import AppTabBar from '../reusables/AppTabBar';
 
 // import BookCard from '../../imports/ui/BookCard'
 
-const detailListItemStyle = {
-  justifyContent: 'flex-end',
-  height: 18,
-  fontSize: 12
-};
+const ListItem = List.Item;
 
 class BookDetailTobeRequested extends Component {
   state = {
@@ -35,8 +19,8 @@ class BookDetailTobeRequested extends Component {
   requestBook = () => {
     const self = this;
     const app = self.$f7;
-    const { bookInfo } = this.props;
-    Meteor.call('makeRequest', bookInfo._id, (error, respond) => {
+    const { book } = this.props;
+    Meteor.call('makeRequest', book._id, (error, respond) => {
       if (error) {
         app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
           console.log(error);
@@ -66,88 +50,73 @@ class BookDetailTobeRequested extends Component {
 
   render() {
     const { requestPopupOpened, progressOn, requestSuccess } = this.state;
-    const { bookInfo } = this.props;
+    const { book } = this.props;
 
-    if (!bookInfo) {
-      return;
-    }
+    // if (!book) {
+    //   return;
+    // }
 
     return (
-      <Page name="books">
-        <Navbar title="Request to Borrow" backLink />
+      <div name="books">
+        <NavBar mode="light">{book && book.b_title}</NavBar>
 
-        <Card className="demo-card-header-pic" title={bookInfo.b_title}>
-          <CardHeader
-            className="no-border"
-            valign="bottom"
-            style={
-              bookInfo.image_url && {
-                backgroundImage: `url(${bookInfo.image_url})`,
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'center',
-                backgroundColor: '#010101',
-                height: 120,
-                backgroundSize: 'contain'
-              }
-            }
-          />
-
-          <CardContent>
-            <Block>
-              <List
-                simpleList
-                style={{ paddingTop: 12, paddingBottom: 12 }}
-                noHairlinesBetween
+        {book && (
+          <Fragment>
+            <Card>
+              <Card.Header
+                title={book.b_author}
+                thumb={book.image_url}
+                thumbStyle={{ maxHeight: 80 }}
+                extra={book.b_cat}
+              />
+              <Card.Body>{book.b_description}</Card.Body>
+              <Card.Footer content={book.b_lang} />
+            </Card>
+            <Button onClick={() => this.requestBook()}>
+              Borrow from owner
+            </Button>
+            {/* <Popup opened={requestPopupOpened}>
+              <Navbar title="Request Handling">
+                <NavRight>
+                  <Link
+                    onClick={() => this.setState({ requestPopupOpened: false })}
+                  >
+                    Close
+                  </Link>
+                </NavRight>
+              </Navbar>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  height: '100%'
+                }}
               >
-                <ListItem style={{ paddingLeft: 0 }}>
-                  {bookInfo.b_author}
-                </ListItem>
-                <ListItem style={detailListItemStyle}>
-                  {' '}
-                  {bookInfo.b_lang.toUpperCase()},{' '}
-                </ListItem>
-                <ListItem style={detailListItemStyle}>
-                  {bookInfo.b_cat}
-                </ListItem>
-              </List>
-            </Block>
-            <p>{bookInfo.b_description}</p>
-          </CardContent>
-          <CardFooter style={{ display: 'flex', justifyContent: 'center' }}>
-            <Link onClick={() => this.requestBook()}>Borrow from owner</Link>
-          </CardFooter>
-        </Card>
-
-        <Popup opened={requestPopupOpened}>
-          <Navbar title="Request Handling">
-            <NavRight>
-              <Link
-                onClick={() => this.setState({ requestPopupOpened: false })}
-              >
-                Close
-              </Link>
-            </NavRight>
-          </Navbar>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              flexDirection: 'column',
-              height: '100%'
-            }}
-          >
-            {progressOn && <Progressbar infinite />}
-            {requestSuccess && 'Your request is successfully sent'}
-          </div>
-        </Popup>
-      </Page>
+                {progressOn && <Progressbar infinite />}
+                {requestSuccess && 'Your request is successfully sent'}
+              </div>
+            </Popup>{' '} */}
+            <AppTabBar />
+          </Fragment>
+        )}
+      </div>
     );
   }
 }
 
 export default BookDetailTobeRequestedContainer = withTracker(props => {
   const currentUser = Meteor.user();
+  const bookId = props.match.params.id;
+
+  const bookSub = Meteor.subscribe('singleBook', bookId);
+  const book = Books.findOne(bookId);
+
+  const isLoading = !bookSub.ready();
+
   return {
-    currentUser
+    currentUser,
+    book,
+    isLoading
   };
 })(BookDetailTobeRequested);

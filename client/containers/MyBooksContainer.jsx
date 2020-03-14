@@ -2,19 +2,16 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-  Page,
-  Navbar,
+  WhiteSpace,
+  NavBar,
   List,
-  ListItem,
   Subnavbar,
-  Searchbar,
-  Actions,
-  ActionsGroup,
-  ActionsLabel,
-  ActionsButton,
+  SearchBar,
   Button,
-  Block
-} from 'framework7-react';
+  Picker
+} from 'antd-mobile';
+
+import AppTabBar from '../reusables/AppTabBar';
 
 const sortByMethods = [
   'last added',
@@ -26,7 +23,8 @@ const sortByMethods = [
 
 class MyBooks extends Component {
   state = {
-    sortBy: 'last added'
+    sortBy: 'last added',
+    filterValue: ''
   };
 
   viewBookInDetail = myBook => {
@@ -37,106 +35,100 @@ class MyBooks extends Component {
     });
   };
 
+  handleSortByChange = value => {
+    this.setState({
+      sortBy: value[0]
+    });
+  };
+
+  handleFilter = value => {
+    this.setState({ filterValue: value });
+  };
+
   sortedBooks = () => {
     const { myBooks } = this.props;
     const { sortBy } = this.state;
 
-    let sortedBooks;
+    if (!myBooks) {
+      return;
+    }
 
     switch (sortBy) {
       case 'book title':
-        sortedBooks = myBooks.sort((a, b) =>
-          a.b_title.localeCompare(b.b_title)
-        );
-        break;
+        return myBooks.sort((a, b) => a.b_title.localeCompare(b.b_title));
       case 'book author':
-        sortedBooks = myBooks.sort((a, b) =>
-          a.b_author.localeCompare(b.b_author)
-        );
-        break;
+        return myBooks.sort((a, b) => a.b_author.localeCompare(b.b_author));
       case 'request condition':
-        sortedBooks = myBooks.sort(
+        return myBooks.sort(
           (a, b) =>
             b.on_request - a.on_request ||
             b.on_acceptance - a.on_acceptance ||
             b.on_lend - a.on_lend
         );
-        break;
       case 'language':
-        sortedBooks = myBooks.sort((a, b) => a.b_lang.localeCompare(b.b_lang));
-        break;
+        return myBooks.sort((a, b) => a.b_lang.localeCompare(b.b_lang));
       default:
-        sortedBooks = myBooks.sort((a, b) => b.date_added - a.date_added);
+        return myBooks.sort((a, b) => b.date_added - a.date_added);
     }
-
-    return sortedBooks;
   };
 
   render() {
-    const { sortBy } = this.state;
+    const { sortBy, filterValue } = this.state;
 
     const sortedBooks = this.sortedBooks();
 
+    if (!sortedBooks) {
+      return null;
+    }
+
+    const filteredSortedBooks = sortedBooks.filter(book => {
+      return (
+        book.b_title.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
+        book.b_author.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
+        book.b_cat.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1
+      );
+    });
+
     return (
-      <Page name="books">
-        <Navbar backLink title="My Books">
-          <Subnavbar inner={false}>
-            <Searchbar
-              searchContainer=".search-list"
-              searchIn=".item-title, .item-subtitle"
-              disableButton={!this.$theme.aurora}
-              placeholder="Filter"
-            ></Searchbar>
-          </Subnavbar>
-        </Navbar>
-        <Block>
-          sorted by{' '}
-          <Button onClick={() => this.refs.sortActions.open()}>{sortBy}</Button>
-          <Actions ref="sortActions">
-            <ActionsGroup>
-              <ActionsLabel style={{ textAlign: 'center' }}>
-                sort books by
-              </ActionsLabel>
+      <div>
+        <NavBar mode="light">My Books</NavBar>
+        <SearchBar
+          placeholder="Filter"
+          cancelText="Cancel"
+          onChange={value => this.handleFilter(value)}
+          onClear={() => this.setState({ filterValue: '' })}
+        />
 
-              {sortByMethods.map(method => (
-                <ActionsButton
-                  key={method}
-                  bold={sortBy === method}
-                  onClick={() => this.setState({ sortBy: method })}
-                >
-                  {method}
-                </ActionsButton>
-              ))}
-            </ActionsGroup>
-          </Actions>
-        </Block>
+        <Picker
+          title="Sort by"
+          extra="change"
+          data={sortByMethods.map(method => ({ value: method, label: method }))}
+          cols={1}
+          okText="Confirm"
+          dismissText="Cancel"
+          onOk={value => this.handleSortByChange(value)}
+        >
+          <List.Item arrow="horizontal">{sortBy}</List.Item>
+        </Picker>
 
-        <List className="searchbar-not-found">
-          <ListItem title="Nothing found" />
-        </List>
-        <List mediaList className="search-list searchbar-found">
-          {sortedBooks &&
-            sortedBooks.map(myBook => (
-              <ListItem
-                mediaItem
+        <WhiteSpace size="md" />
+
+        <List>
+          {filteredSortedBooks &&
+            filteredSortedBooks.map(myBook => (
+              <List.Item
                 key={myBook._id}
-                link="#"
-                after={myBook.b_cat}
-                title={myBook.b_title}
-                subtitle={myBook.b_author}
-                // text={myBook.description}
+                thumb={myBook.image_url}
+                extra={myBook.b_cat}
                 onClick={() => this.viewBookInDetail(myBook)}
               >
-                <img
-                  slot="media"
-                  src={myBook.image_url}
-                  width={40}
-                  height={60}
-                />
-              </ListItem>
+                <p>{myBook.b_title}</p>
+                <span>{myBook.b_author}</span>
+              </List.Item>
             ))}
         </List>
-      </Page>
+        <AppTabBar />
+      </div>
     );
   }
 }

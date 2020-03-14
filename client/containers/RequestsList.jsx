@@ -1,18 +1,21 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import {
-  Page,
-  Navbar,
-  List,
-  ListItem,
-  Subnavbar,
-  Searchbar
-} from 'framework7-react';
+import { NavBar, List, SearchBar, WhiteSpace } from 'antd-mobile';
+
+const ListItem = List.Item;
 
 import { Requests } from '../../imports/api/collections';
 
 class RequestsList extends Component {
+  state = {
+    filterValue: ''
+  };
+
+  handleFilter = value => {
+    this.setState({ filterValue: value });
+  };
+
   viewRequestInDetail = request => {
     this.$f7router.navigate('/request/', {
       props: {
@@ -23,62 +26,61 @@ class RequestsList extends Component {
 
   render() {
     const { requests, currentUser } = this.props;
+    const { filterValue } = this.state;
 
     if (!requests || !currentUser) {
       return (
-        <Page>
-          <Navbar title="No account" backLink />
+        <div>
+          <NavBar>No account</NavBar>
           <div style={{ textAlign: 'center' }}>Please create an account</div>
-        </Page>
+        </div>
       );
     }
 
+    const filteredRequests = requests.filter(request => {
+      return (
+        request.book_name.toLowerCase().indexOf(filterValue.toLowerCase()) !==
+          -1 ||
+        request.owner_name.toLowerCase().indexOf(filterValue.toLowerCase()) !==
+          -1 ||
+        request.requester_name
+          .toLowerCase()
+          .indexOf(filterValue.toLowerCase()) !== -1
+      );
+    });
+
     return (
-      <Page name="requests">
-        <Navbar backLink title="Requests">
-          <Subnavbar inner={false}>
-            <Searchbar
-              searchContainer=".search-list"
-              searchIn=".item-title, .item-subtitle, .item-extra"
-              disableButton={!this.$theme.aurora}
-              placeholder="Filter"
-            ></Searchbar>
-          </Subnavbar>
-        </Navbar>
+      <div name="requests">
+        <NavBar mode="light">Requests</NavBar>
+        <SearchBar
+          placeholder="Filter"
+          cancelText="Cancel"
+          onChange={value => this.handleFilter(value)}
+          onClear={() => this.setState({ filterValue: '' })}
+        />
 
-        <List className="searchbar-not-found">
-          <ListItem title="Nothing found" />
-        </List>
-
-        <List mediaList className="search-list searchbar-found">
-          {requests &&
-            requests.map(request => (
+        <WhiteSpace size="md" />
+        <List>
+          {filteredRequests &&
+            filteredRequests.map(request => (
               <ListItem
-                mediaItem
                 key={request._id}
-                link="#"
-                title={request.book_name}
-                subtitle={
+                thumb={request.book_image_url}
+                extra={
                   currentUser.username === request.owner_name
                     ? request.requester_name
                     : request.owner_name
                 }
-                // text={myBook.description}
                 onClick={() => this.viewRequestInDetail(request)}
               >
-                <img
-                  slot="media"
-                  src={request.book_image_url}
-                  width={40}
-                  height={60}
-                />
+                {request.book_name}
                 <span style={{ visibility: 'hidden' }} className="item-extra">
                   {request.book_author}
                 </span>
               </ListItem>
             ))}
         </List>
-      </Page>
+      </div>
     );
   }
 }

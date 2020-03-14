@@ -16,7 +16,15 @@ class AppTabBar extends Component {
     const pathname = history && location.pathname;
 
     return (
-      <div style={{ position: 'fixed', height: '100%', width: '100%', top: 0 }}>
+      <div
+        style={{
+          position: 'fixed',
+          height: 50,
+          width: '100%',
+          bottom: 0,
+          zIndex: 9
+        }}
+      >
         <TabBar
           unselectedTintColor="#949494"
           tintColor="#33A3F4"
@@ -36,8 +44,8 @@ class AppTabBar extends Component {
             title="Search"
             icon={<IoIosSearch />}
             selectedIcon={<IoIosSearch />}
-            selected={pathname === '/search'}
-            onPress={() => this.changeRoute('/search')}
+            selected={pathname === '/find'}
+            onPress={() => this.changeRoute('/find')}
           ></TabBar.Item>
 
           <TabBar.Item

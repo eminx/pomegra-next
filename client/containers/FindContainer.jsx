@@ -1,66 +1,59 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Navbar, List, ListItem } from 'antd-mobile';
+import { NavBar, List } from 'antd-mobile';
 import AppTabBar from '../reusables/AppTabBar';
+import { Redirect } from 'react-router-dom';
+
+const ListItem = List.Item;
+const Brief = ListItem.Brief;
 
 class Find extends Component {
-  state = {};
+  state = {
+    redirectToBookDetail: null
+  };
 
-  viewBookInDetail = result => {
-    this.$f7router.navigate('/book-detail-tobe-requested/', {
-      props: {
-        bookInfo: result
-      }
+  viewBookInDetail = suggestedBookId => {
+    console.log(suggestedBookId);
+    this.setState({
+      redirectToBookDetail: suggestedBookId
     });
   };
 
   render() {
     const { currentUser, othersBooks } = this.props;
-
-    const detailListItemStyle = {
-      justifyContent: 'flex-end',
-      height: 18,
-      fontSize: 12
-    };
+    const { redirectToBookDetail } = this.state;
 
     if (!currentUser || !othersBooks) {
       return null;
     }
 
-    return (
-      <div>
-        find me baby
-        <AppTabBar />
-      </div>
-    );
+    if (redirectToBookDetail) {
+      return <Redirect to={`/book/${redirectToBookDetail}`} />;
+    }
 
     return (
       <div name="books">
-        <Navbar title="Suggested Books" backLink />
-        <List mediaList>
+        <NavBar mode="light">Books</NavBar>
+        <List renderHeader={() => 'Suggested books for you'}>
           {othersBooks &&
             othersBooks.length > 0 &&
             othersBooks.map(suggestedBook => (
               <ListItem
-                mediaItem
-                key={suggestedBook._id || suggestedBook.b_title}
-                link="#"
-                after={suggestedBook.b_cat}
-                title={suggestedBook.b_title}
-                subtitle={suggestedBook.b_author}
-                // text={suggestedBook.description}
-                onClick={() => this.viewBookInDetail(suggestedBook)}
+                key={suggestedBook._id}
+                align="top"
+                thumb={suggestedBook.image_url}
+                multipleLine
+                extra={suggestedBook.b_cat}
+                onClick={() => this.viewBookInDetail(suggestedBook._id)}
               >
-                <img
-                  slot="media"
-                  src={suggestedBook.image_url}
-                  width={40}
-                  height={60}
-                />
+                {suggestedBook.b_title}
+                <Brief>{suggestedBook.b_author}</Brief>
               </ListItem>
             ))}
         </List>
+
+        <AppTabBar />
       </div>
     );
   }
