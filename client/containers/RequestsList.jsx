@@ -1,20 +1,49 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { NavBar, List, SearchBar, WhiteSpace } from 'antd-mobile';
+import {
+  NavBar,
+  List,
+  SearchBar,
+  SegmentedControl,
+  WhiteSpace,
+  WingBlank
+} from 'antd-mobile';
 
 const ListItem = List.Item;
 
 import { Requests } from '../../imports/api/collections';
 import AppTabBar from '../reusables/AppTabBar';
 
+const requestTypeValues = ['All', 'By Me', 'From Me'];
+
 class RequestsList extends Component {
   state = {
-    filterValue: ''
+    filterValue: '',
+    requestType: 'All'
   };
 
   handleFilter = value => {
     this.setState({ filterValue: value });
+  };
+
+  handleTypeChange = value => {
+    this.setState({
+      requestType: value
+    });
+  };
+
+  getTypeOfRequests = () => {
+    const { requests, currentUser } = this.props;
+    const currentUserId = currentUser._id;
+    switch (this.state.requestType) {
+      case 'By Me':
+        return requests.filter(request => request.req_by === currentUserId);
+      case 'From Me':
+        return requests.filter(request => request.req_from === currentUserId);
+      default:
+        return requests;
+    }
   };
 
   viewRequestInDetail = request => {
@@ -27,7 +56,7 @@ class RequestsList extends Component {
 
   render() {
     const { requests, currentUser } = this.props;
-    const { filterValue } = this.state;
+    const { filterValue, requestType } = this.state;
 
     if (!requests || !currentUser) {
       return (
@@ -38,7 +67,9 @@ class RequestsList extends Component {
       );
     }
 
-    const filteredRequests = requests.filter(request => {
+    const typeOfRequests = this.getTypeOfRequests();
+
+    const filteredRequests = typeOfRequests.filter(request => {
       return (
         request.book_name.toLowerCase().indexOf(filterValue.toLowerCase()) !==
           -1 ||
@@ -60,8 +91,19 @@ class RequestsList extends Component {
           onClear={() => this.setState({ filterValue: '' })}
         />
 
+        <WingBlank size="md">
+          <SegmentedControl
+            selectedIndex={requestTypeValues.findIndex(
+              value => value === requestType
+            )}
+            values={requestTypeValues}
+            onValueChange={value => this.handleTypeChange(value)}
+          />
+        </WingBlank>
+
         <WhiteSpace size="md" />
-        <List>
+
+        <List renderHeader={() => 'Your Previous Requests'}>
           {filteredRequests &&
             filteredRequests.map(request => (
               <ListItem

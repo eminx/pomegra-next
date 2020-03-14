@@ -57,7 +57,9 @@ class MyBooks extends Component {
       case 'book title':
         return myBooks.sort((a, b) => a.b_title.localeCompare(b.b_title));
       case 'book author':
-        return myBooks.sort((a, b) => a.b_author.localeCompare(b.b_author));
+        return myBooks.sort(
+          (a, b) => a.b_author && a.b_author.localeCompare(b.b_author)
+        );
       case 'request condition':
         return myBooks.sort(
           (a, b) =>
