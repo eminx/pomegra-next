@@ -1,9 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import {
   List,
+  Flex,
   Button,
   InputItem,
   NavBar,
@@ -25,7 +26,8 @@ class AccountManager extends Component {
     username: '',
     email: '',
     password: '',
-    isLoading: false
+    isLoading: false,
+    redirectTo: null
   };
 
   createAccount = values => {
@@ -88,9 +90,15 @@ class AccountManager extends Component {
     });
   };
 
+  redirectTo = route => {
+    this.setState({
+      redirectTo: route
+    });
+  };
+
   render() {
     const { currentUser, isLoading } = this.props;
-    const { loginScreenOpen } = this.state;
+    const { loginScreenOpen, redirectTo } = this.state;
 
     // if (isLoading) {
     //   return (
@@ -106,6 +114,10 @@ class AccountManager extends Component {
     //     </div>
     //   );
     // }
+
+    if (redirectTo) {
+      return <Redirect to={redirectTo} />;
+    }
 
     return (
       <div>
@@ -133,13 +145,22 @@ class AccountManager extends Component {
         <WhiteSpace />
 
         {currentUser && (
-          <div>
-            <WingBlank>
-              <Link to="/find">
-                <Button type="ghost">Find a Book to Read</Button>{' '}
-              </Link>
-            </WingBlank>
+          <WingBlank size="lg">
+            <Flex justify="center">
+              <Button
+                size="small"
+                type="ghost"
+                inline
+                onClick={() => this.signOut()}
+              >
+                Sign out
+              </Button>
+            </Flex>
+          </WingBlank>
+        )}
 
+        {currentUser && (
+          <div>
             <List
               style={{
                 backgroundColor: 'white',
@@ -148,7 +169,14 @@ class AccountManager extends Component {
                 marginTop: 200
               }}
             >
-              <List.Item extra={<Link to="/find">Borrow</Link>} multipleLine>
+              <List.Item
+                extra={
+                  <Button size="small" onClick={() => this.redirectTo('/find')}>
+                    Borrow
+                  </Button>
+                }
+                multipleLine
+              >
                 Borrow
                 <List.Item.Brief>
                   Borrow Books from others to Read
@@ -158,7 +186,14 @@ class AccountManager extends Component {
               </List.Item>
 
               <List.Item
-                extra={<Button to="/my-books">My Shelf</Button>}
+                extra={
+                  <Button
+                    size="small"
+                    onClick={() => this.redirectTo('/my-books')}
+                  >
+                    My Shelf
+                  </Button>
+                }
                 multipleLine
               >
                 Lend
@@ -170,7 +205,14 @@ class AccountManager extends Component {
               </List.Item>
 
               <List.Item
-                extra={<Button to="/messages">My Messages</Button>}
+                extra={
+                  <Button
+                    size="small"
+                    onClick={() => this.redirectTo('/messages')}
+                  >
+                    My Messages
+                  </Button>
+                }
                 multipleLine
               >
                 Message
@@ -181,17 +223,6 @@ class AccountManager extends Component {
                 </List.Item.Brief>
               </List.Item>
             </List>
-
-            <WingBlank size="lg">
-              <Button
-                size="small"
-                type="ghost"
-                inline
-                onClick={() => this.signOut()}
-              >
-                Sign out
-              </Button>
-            </WingBlank>
           </div>
         )}
 

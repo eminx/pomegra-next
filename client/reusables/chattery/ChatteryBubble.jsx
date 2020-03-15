@@ -1,16 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
-import VisibilitySensor from 'react-visibility-sensor';
 
 class ChatteryBubble extends React.Component {
-  componentDidMount() {
-    const { isFromMe, children } = this.props;
-    if (!isFromMe) {
-      this.removeNotification;
-    }
-  }
-
   parseDate = theDate => {
     const isToday = moment(theDate).isSame(moment(), 'd');
     const isYesterday = moment(theDate).isSame(moment().add(-1, 'days'), 'd');
@@ -27,21 +19,8 @@ class ChatteryBubble extends React.Component {
     }
   };
 
-  removeNotification = isVisible => {
-    const { isFromMe, removeNotification } = this.props;
-    if (isVisible && !isFromMe) {
-      removeNotification();
-    }
-  };
-
   render() {
-    const {
-      senderUsername,
-      createdDate,
-      isFromMe,
-      isSeen,
-      children
-    } = this.props;
+    const { senderUsername, createdDate, isFromMe, children } = this.props;
     let bubbleClass = 'talk-bubble tri-right round ';
     let bubbleClassContainer = 'talk-bubble-container ';
     if (isFromMe) {
@@ -54,22 +33,13 @@ class ChatteryBubble extends React.Component {
 
     return (
       <div className={bubbleClassContainer}>
-        <VisibilitySensor onChange={this.removeNotification}>
-          {({ isVisible }) => (
-            <div
-              className={bubbleClass}
-              // style={!isSeen ? { borderColor: '#ea3924' } : null}
-            >
-              <div className="talktext">
-                <p className="talktext-senderinfo">{senderUsername}</p>
-                <p className="talktext-content">{children}</p>
-                <p className="talktext-dateinfo">
-                  {this.parseDate(createdDate)}
-                </p>
-              </div>
-            </div>
-          )}
-        </VisibilitySensor>
+        <div className={bubbleClass}>
+          <div className="talktext">
+            <p className="talktext-senderinfo">{senderUsername}</p>
+            <p className="talktext-content">{children}</p>
+            <p className="talktext-dateinfo">{this.parseDate(createdDate)}</p>
+          </div>
+        </div>
       </div>
     );
   }

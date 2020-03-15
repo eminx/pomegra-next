@@ -2,7 +2,7 @@ body {
   font-family: sans-serif;
 }
 
-.mybooks-list .am-list-item img {
+.larger-thumb-list .am-list-item img {
   width: 33px;
   height: 44px;
   vertical-align: middle;

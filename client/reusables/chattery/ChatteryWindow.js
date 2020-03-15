@@ -23,24 +23,23 @@ class ChatteryWindow extends React.Component {
   };
 
   render() {
-    const { removeNotification } = this.props;
+    const { messages } = this.props;
+
     return (
       <div className="chattery-window-container">
         <div className="chattery-window" ref={this.chatWindow}>
-          {this.props.messages.map((message, index) => {
-            return (
+          {messages &&
+            messages.map((message, index) => (
               <ChatteryBubble
-                key={message.content.substring(0, 2) + index}
-                createdDate={message.createdDate}
+                key={message.text.substring(0, 20) + index}
+                createdDate={message.date}
                 senderUsername={message.senderUsername}
-                isSeen={Boolean(message.isSeen)}
+                isSeen={false}
                 isFromMe={message.isFromMe}
-                removeNotification={() => removeNotification(index)}
               >
-                {message.content}
+                {message.text}
               </ChatteryBubble>
-            );
-          })}
+            ))}
         </div>
       </div>
     );

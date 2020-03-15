@@ -111,7 +111,7 @@ class MyBooks extends Component {
 
         <WhiteSpace size="md" />
 
-        <List className="mybooks-list">
+        <List className="larger-thumb-list">
           {filteredSortedBooks &&
             filteredSortedBooks.map(myBook => (
               <List.Item

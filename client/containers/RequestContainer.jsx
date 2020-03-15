@@ -7,46 +7,59 @@ import {
   Button,
   Flex,
   Result,
+  Icon,
   Link,
   List,
+  InputItem,
+  Steps,
   WingBlank,
-  WhiteSpace
+  WhiteSpace,
+  Menu,
+  Accordion
 } from 'antd-mobile';
+import { IoMdSend } from 'react-icons/io';
 
 import { Requests } from '../../imports/api/collections';
 import AppTabBar from '../reusables/AppTabBar';
-import Chattery from '../chattery';
+import { ChatteryWindow } from '../reusables/chattery/ChatteryWindow';
+import { Redirect } from 'react-router-dom';
+// import Chattery from '../reusables/chattery';
 
-const myImg = src => (
-  <img
-    src={src}
-    // className="spe am-icon am-icon-md"
-    alt=""
-    width={48}
-    height={66}
-  />
-);
+const Step = Steps.Step;
+
+const steps = [
+  {
+    title: 'Accepted',
+    description: 'Request is accepted'
+  },
+  {
+    title: 'Handed',
+    description: 'Borrower received the book to read'
+  },
+  {
+    title: 'Returned',
+    description: 'Borrower has returned the book to the owner'
+  }
+].map((s, i) => <Step key={i} title={s.title} description={s.description} />);
+
+const myImg = src => <img src={src} alt="" width={48} height={66} />;
 
 class Request extends Component {
   state = {
     messageInput: '',
     attachments: [],
     sheetVisible: false,
-    typingMessage: null
+    typingMessage: null,
+    menuOpened: false,
+    chatInputValue: ''
   };
 
   componentDidMount() {}
 
   sendMessage = event => {
-    event.preventDefault();
+    event && event.preventDefault();
     const { request } = this.props;
-
-    const self = this;
-    const messageInput = self.messagebarComponent.f7Messagebar
-      .getValue()
-      .replace(/\n/g, '<br>')
-      .trim();
-
+    const messageInput = this.state.chatInputValue;
     if (messageInput === '') {
       return;
     }
@@ -58,25 +71,27 @@ class Request extends Component {
       }
     });
 
-    self.setState({
-      // Reset attachments
-      attachments: [],
-      // Hide sheet
-      sheetVisible: false
+    this.setState({
+      chatInputValue: ''
     });
-    self.messagebarComponent.f7Messagebar.clear();
-
-    // Focus area
-    if (messageInput.length) self.messagebarComponent.f7Messagebar.focus();
   };
 
   getChatMessages = () => {
     const { messages, currentUser } = this.props;
 
-    return messages.map(message => {
-      if (message.senderId === currentUser._id) {
+    if (!messages || !messages.messages) {
+      return null;
+    }
+
+    if (messages.messages.length === 0) {
+      return null;
+    }
+
+    return messages.messages.map(message => {
+      if (message.from === currentUser._id) {
         message.isFromMe = true;
       }
+      message.senderUsername = this.getMessageSender(message);
       return message;
     });
   };
@@ -154,9 +169,6 @@ class Request extends Component {
       return;
     }
 
-    const self = this;
-    const app = self.$f7;
-
     Meteor.call('isHanded', request._id, (error, respond) => {
       if (error) {
         app.dialog.alert(`${error.reason}`, 'Error', () => {
@@ -204,17 +216,48 @@ class Request extends Component {
     });
   };
 
+  getCurrentStatus = () => {
+    const { request } = this.props;
+
+    if (request.is_returned) {
+      return 2;
+    } else if (request.is_handed) {
+      return 1;
+    } else if (request.is_confirmed) {
+      return 0;
+    }
+  };
+
+  toggleMenu = () => {
+    this.setState({
+      menuOpened: !this.state.menuOpened
+    });
+  };
+
+  getOthersName = () => {
+    const { request, currentUser } = this.props;
+    if (request.requester_name === currentUser.username) {
+      return request.owner_name;
+    } else {
+      return request.requester_name;
+    }
+  };
+
   render() {
     const { currentUser, request, isLoading } = this.props;
-    const { sheetVisible } = this.state;
+    const { menuOpened, backToRequests, chatInputValue } = this.state;
 
     if (!currentUser) {
       return null;
     }
 
+    if (backToRequests) {
+      return <Redirect to="/messages" />;
+    }
+
     const messages = this.getChatMessages();
 
-    if (isLoading || !request || !messages) {
+    if (isLoading || !request) {
       return (
         <div
           style={{
@@ -228,157 +271,122 @@ class Request extends Component {
       );
     }
 
+    const requestedNotResponded = !request.is_confirmed && !request.is_denied;
+    const iAmTheOwner = currentUser._id === request.req_from;
+
     return (
-      <div>
-        <NavBar>Lending Request</NavBar>
-        <WhiteSpace size="lg" />
-        <WingBlank>
-          {!request.is_confirmed &&
-            !request.is_denied &&
-            currentUser._id === request.req_from && (
-              <div>
-                <Result
-                  img={myImg(request.book_image_url)}
-                  title={request.book_name}
-                  message={`${request.requester_name} would like to read your book`}
-                  buttonText="Accept"
-                  buttonType="primary"
-                  onButtonClick={() => this.acceptRequest()}
-                />
-                <WhiteSpace />
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <Button
-                    inline
-                    type="danger"
-                    onClick={() => this.denyRequest()}
-                  >
-                    Deny
-                  </Button>
-                </div>
-              </div>
-            )}
-        </WingBlank>
-
-        <WingBlank>
-          {request.is_confirmed &&
-            !request.is_handed &&
-            currentUser._id === request.req_from && (
-              <Flex>
-                <Flex.Item>
-                  <Button onClick={() => this.isHanded()}>
-                    Book is handed over
-                  </Button>
-                </Flex.Item>
-              </Flex>
-            )}
-        </WingBlank>
-
-        <WingBlank>
-          {request.is_handed &&
-            !request.is_returned &&
-            currentUser._id === request.req_from && (
-              <Flex>
-                <Flex.Item>
-                  <Button onClick={() => this.isReturned()}>
-                    My book is returned
-                  </Button>
-                </Flex.Item>
-              </Flex>
-            )}
-        </WingBlank>
-
-        <Chattery
-          messages={messages}
-          onNewMessage={this.sendMessage}
-          // removeNotification={this.removeNotification}
-        />
-
-        {/* <MessagesF7
-          ref={el => {
-            this.messagesComponent = el;
-          }}
+      <div style={{ paddingBottom: 44 }}>
+        <NavBar
+          mode="light"
+          leftContent={<Icon type="left" />}
+          onLeftClick={() => this.setState({ backToRequests: true })}
+          rightContent={<Icon type="ellipsis" />}
         >
-          <MessagesTitle>
-            <b>Sunday, Feb 9,</b> 12:58
-          </MessagesTitle>
+          <b>{this.getOthersName()}</b>
+        </NavBar>
 
-          {messages &&
-            messages.messages.map((message, index) => (
-              <Message
-                key={message.date.toString()}
-                type={currentUser._id === message.from ? 'sent' : 'received'}
-                name={this.getMessageSender(message)}
-                first={index === 0}
-                last={messages.messages.length === index}
-                tail
-              >
-                {message.text && (
-                  <span
-                    slot="text"
-                    dangerouslySetInnerHTML={{ __html: message.text }}
+        <Accordion className="request-accordion">
+          <Accordion.Panel
+            header={request.book_name}
+            style={{ textAlign: 'center' }}
+          >
+            <WingBlank>
+              {requestedNotResponded && iAmTheOwner ? (
+                <div>
+                  <WhiteSpace size="lg" />
+                  <Result
+                    img={myImg(request.book_image_url)}
+                    title={request.book_name}
+                    message={`${request.requester_name} would like to read your book`}
+                    buttonText="Accept"
+                    buttonType="primary"
+                    onButtonClick={() => this.acceptRequest()}
                   />
+                  <WhiteSpace />
+                  <Flex justify="center">
+                    <Button
+                      inline
+                      type="warning"
+                      onClick={() => this.denyRequest()}
+                    >
+                      Deny
+                    </Button>
+                  </Flex>
+                  <WhiteSpace size="lg" />
+                </div>
+              ) : (
+                <div>
+                  <Flex justify="center">{myImg(request.book_image_url)}</Flex>
+                  <WhiteSpace size="lg" />
+                  <div>
+                    <Steps
+                      current={this.getCurrentStatus()}
+                      direction="horizontal"
+                      size="small"
+                    >
+                      {steps}
+                    </Steps>
+                  </div>
+                </div>
+              )}
+            </WingBlank>
+
+            <WingBlank>
+              {request.is_confirmed &&
+                !request.is_handed &&
+                currentUser._id === request.req_from && (
+                  <Flex justify="center" style={{ padding: 12 }}>
+                    <Button
+                      inline
+                      size="small"
+                      type="primary"
+                      onClick={() => this.isHanded()}
+                    >
+                      I've handed over the book
+                    </Button>
+                  </Flex>
                 )}
-              </Message>
-            ))}
-          {this.state.typingMessage && (
-            <Message
-              type="received"
-              typing={true}
-              // first={true}
-              // last={true}
-              // tail={true}
-              header={`${this.state.typingMessage.name} is typing`}
-              avatar={this.state.typingMessage.avatar}
-            ></Message>
-          )}
-        </MessagesF7> */}
 
-        {/* <Messagebar
-          placeholder={'Message'}
-          ref={el => {
-            this.messagebarComponent = el;
-          }}
-          attachmentsVisible={false}
-          sheetVisible={sheetVisible}
-        >
-          <Link
-            iconIos="f7:camera_fill"
-            iconAurora="f7:camera_fill"
-            iconMd="material:camera_alt"
-            slot="inner-start"
-            onClick={() => {
-              this.setState({ sheetVisible: !this.state.sheetVisible });
-            }}
-          ></Link>
-          <Link
-            iconIos="f7:arrow_up_circle_fill"
-            iconAurora="f7:arrow_up_circle_fill"
-            iconMd="material:send"
-            slot="inner-end"
-            onClick={event => this.sendMessage(event)}
-          ></Link>
-          {/* <MessagebarAttachments>
-                {this.state.attachments.map((image, index) => (
-                  <MessagebarAttachment
-                    key={index}
-                    image={image}
-                    onAttachmentDelete={() => this.deleteAttachment(image)}
-                  ></MessagebarAttachment>
-                ))}
-              </MessagebarAttachments> */}
-        {/* <MessagebarSheet>
-                {this.state.images.map((image, index) => (
-                  <MessagebarSheetImage
-                    key={index}
-                    image={image}
-                    checked={this.state.attachments.indexOf(image) >= 0}
-                    onChange={this.handleAttachment.bind(this)}
-                  ></MessagebarSheetImage>
-                ))}
-              </MessagebarSheet> 
-        </Messagebar> */}
+              {request.is_handed &&
+                !request.is_returned &&
+                currentUser._id === request.req_from && (
+                  <Flex justify="center" style={{ padding: 12 }}>
+                    <Button
+                      inline
+                      size="small"
+                      type="primary"
+                      onClick={() => this.isReturned()}
+                    >
+                      I've received my book back
+                    </Button>
+                  </Flex>
+                )}
+            </WingBlank>
+            <WhiteSpace size="lg" />
+          </Accordion.Panel>
+        </Accordion>
 
-        <AppTabBar />
+        {messages && (
+          <ChatteryWindow
+            messages={messages}
+            // removeNotification={this.removeNotification}
+          />
+        )}
+
+        <Flex style={{ position: 'fixed', bottom: 0, width: '100%' }}>
+          <Flex.Item>
+            <form onSubmit={event => this.sendMessage(event)}>
+              <InputItem
+                value={chatInputValue}
+                onChange={value => this.setState({ chatInputValue: value })}
+                placeholder="enter message"
+              />
+            </form>
+          </Flex.Item>
+          <Flex.Item style={{ flexGrow: 0, flexBasis: 36 }}>
+            <IoMdSend size={24} onClick={() => this.sendMessage()} />
+          </Flex.Item>
+        </Flex>
       </div>
     );
   }

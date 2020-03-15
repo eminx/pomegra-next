@@ -5,6 +5,7 @@ import { AiOutlineMessage, AiFillMessage } from 'react-icons/ai';
 import { FaRegUser, FaUserAlt } from 'react-icons/fa';
 import { GiBookshelf } from 'react-icons/gi';
 import { IoIosSearch } from 'react-icons/io';
+import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
 
 class AppTabBar extends Component {
   changeRoute = route => {
@@ -31,10 +32,19 @@ class AppTabBar extends Component {
           barTintColor="white"
         >
           <TabBar.Item
+            key="home"
+            title="Home"
+            icon={<GoHome />}
+            selectedIcon={<GoHome />}
+            selected={pathname === '/'}
+            onPress={() => this.changeRoute('/')}
+          ></TabBar.Item>
+
+          <TabBar.Item
             key="my-books"
             title="My Books"
-            icon={<GiBookshelf />}
-            selectedIcon={<GiBookshelf />}
+            icon={<GoBook />}
+            selectedIcon={<GoBook />}
             selected={pathname === '/my-books'}
             onPress={() => this.changeRoute('/my-books')}
           ></TabBar.Item>
@@ -42,8 +52,8 @@ class AppTabBar extends Component {
           <TabBar.Item
             key="find"
             title="Find"
-            icon={<IoIosSearch />}
-            selectedIcon={<IoIosSearch />}
+            icon={<GoSearch />}
+            selectedIcon={<GoSearch />}
             selected={pathname === '/find'}
             onPress={() => this.changeRoute('/find')}
           ></TabBar.Item>
@@ -51,20 +61,20 @@ class AppTabBar extends Component {
           <TabBar.Item
             key="messages"
             title="Messages"
-            icon={<AiOutlineMessage />}
-            selectedIcon={<AiFillMessage />}
+            icon={<GoCommentDiscussion />}
+            selectedIcon={<GoCommentDiscussion />}
             selected={pathname === '/messages'}
             onPress={() => this.changeRoute('/messages')}
           ></TabBar.Item>
 
-          <TabBar.Item
+          {/* <TabBar.Item
             key="my-profile"
             title="My Profile"
             icon={<FaRegUser />}
             selectedIcon={<FaUserAlt />}
             selected={pathname === '/my-profile'}
             onPress={() => this.changeRoute('/my-profile')}
-          ></TabBar.Item>
+          ></TabBar.Item> */}
         </TabBar>
       </div>
     );
