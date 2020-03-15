@@ -2,44 +2,30 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import {
-  App,
-  View,
-  Icon,
-  Block,
-  Page,
-  Navbar,
-  Messagebar,
-  MessagebarAttachment,
-  MessagebarAttachments,
-  MessagebarSheet,
-  MessagebarSheetImage,
-  MessagesTitle,
-  Messages as MessagesF7,
-  Message,
+  ActivityIndicator,
+  NavBar,
   Button,
+  Flex,
+  Result,
   Link,
-  Preloader,
   List,
-  Row,
-  Col
-} from 'framework7-react';
-
-// // Import F7 Bundle
-// import Framework7 from 'framework7/framework7-lite.esm.bundle.js';
-// // Import F7-React Plugin
-// import Framework7React from 'framework7-react';
-// // Init F7-React Plugin
-// Framework7.use(Framework7React);
-
-// import 'framework7/css/framework7.bundle.min.css';
-
-const f7params = {
-  name: 'Librella',
-  id: 'com.librella.alpha',
-  theme: 'ios'
-};
+  WingBlank,
+  WhiteSpace
+} from 'antd-mobile';
 
 import { Requests } from '../../imports/api/collections';
+import AppTabBar from '../reusables/AppTabBar';
+import Chattery from '../chattery';
+
+const myImg = src => (
+  <img
+    src={src}
+    // className="spe am-icon am-icon-md"
+    alt=""
+    width={48}
+    height={66}
+  />
+);
 
 class Request extends Component {
   state = {
@@ -82,6 +68,17 @@ class Request extends Component {
 
     // Focus area
     if (messageInput.length) self.messagebarComponent.f7Messagebar.focus();
+  };
+
+  getChatMessages = () => {
+    const { messages, currentUser } = this.props;
+
+    return messages.map(message => {
+      if (message.senderId === currentUser._id) {
+        message.isFromMe = true;
+      }
+      return message;
+    });
   };
 
   getMessageSender = message => {
@@ -208,19 +205,14 @@ class Request extends Component {
   };
 
   render() {
-    const { currentUser, request, messages, isLoading } = this.props;
+    const { currentUser, request, isLoading } = this.props;
     const { sheetVisible } = this.state;
 
     if (!currentUser) {
-      return (
-        <App>
-          <Page>
-            <Navbar title="No account" backLink />
-            <div style={{ textAlign: 'center' }}>Please create an account</div>
-          </Page>
-        </App>
-      );
+      return null;
     }
+
+    const messages = this.getChatMessages();
 
     if (isLoading || !request || !messages) {
       return (
@@ -228,97 +220,80 @@ class Request extends Component {
           style={{
             display: 'flex',
             justifyContent: 'center',
-            height: '100vh',
-            marginTop: 'calc(50vh - 24px)'
+            marginTop: 50
           }}
         >
-          <Preloader size={48} color="multi"></Preloader>
+          <ActivityIndicator text="Loading..." />
         </div>
       );
     }
 
-    console.log('wtf is going on');
-
     return (
       <div>
-        <Navbar title={request.book_name} backLink></Navbar>
-
-        <Block>
-          <p style={{ textAlign: 'center' }}>
-            <em>by {request.book_author}</em>
-          </p>
-        </Block>
-
-        <Block>
-          <Row>
-            <Col width="33">
-              <div
-                style={{
-                  backgroundImage:
-                    request.book_image_url && `url(${request.book_image_url})`,
-                  backgroundRepeat: 'no-repeat',
-                  backgroundPosition: 'center',
-                  height: 120,
-                  width: 90
-                }}
-              ></div>
-            </Col>
-            <Col width="66">
-              <p>{request.owner_name}</p>
-              <p>{request.requester_name}</p>
-            </Col>
-          </Row>
-        </Block>
-
-        <Block>
+        <NavBar>Lending Request</NavBar>
+        <WhiteSpace size="lg" />
+        <WingBlank>
           {!request.is_confirmed &&
             !request.is_denied &&
             currentUser._id === request.req_from && (
-              <Row>
-                <Col>
+              <div>
+                <Result
+                  img={myImg(request.book_image_url)}
+                  title={request.book_name}
+                  message={`${request.requester_name} would like to read your book`}
+                  buttonText="Accept"
+                  buttonType="primary"
+                  onButtonClick={() => this.acceptRequest()}
+                />
+                <WhiteSpace />
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
                   <Button
-                    fill
-                    round
-                    strong
-                    onClick={() => this.acceptRequest()}
+                    inline
+                    type="danger"
+                    onClick={() => this.denyRequest()}
                   >
-                    Accept Request
+                    Deny
                   </Button>
-                </Col>
-                <Col>
-                  <Button onClick={() => this.denyRequest()}>
-                    Deny Request
-                  </Button>
-                </Col>
-              </Row>
+                </div>
+              </div>
             )}
-        </Block>
+        </WingBlank>
 
-        <Block>
+        <WingBlank>
           {request.is_confirmed &&
             !request.is_handed &&
             currentUser._id === request.req_from && (
-              <Row>
-                <Button onClick={() => this.isHanded()}>
-                  Book is handed over
-                </Button>
-              </Row>
+              <Flex>
+                <Flex.Item>
+                  <Button onClick={() => this.isHanded()}>
+                    Book is handed over
+                  </Button>
+                </Flex.Item>
+              </Flex>
             )}
-        </Block>
+        </WingBlank>
 
-        <Block>
+        <WingBlank>
           {request.is_handed &&
             !request.is_returned &&
             currentUser._id === request.req_from && (
-              <Row>
-                <Button onClick={() => this.isReturned()}>
-                  My book is returned
-                </Button>
-              </Row>
+              <Flex>
+                <Flex.Item>
+                  <Button onClick={() => this.isReturned()}>
+                    My book is returned
+                  </Button>
+                </Flex.Item>
+              </Flex>
             )}
-        </Block>
+        </WingBlank>
 
-        <MessagesF7
+        <Chattery
+          messages={messages}
+          onNewMessage={this.sendMessage}
+          // removeNotification={this.removeNotification}
+        />
+
+        {/* <MessagesF7
           ref={el => {
             this.messagesComponent = el;
           }}
@@ -356,9 +331,9 @@ class Request extends Component {
               avatar={this.state.typingMessage.avatar}
             ></Message>
           )}
-        </MessagesF7>
+        </MessagesF7> */}
 
-        <Messagebar
+        {/* <Messagebar
           placeholder={'Message'}
           ref={el => {
             this.messagebarComponent = el;
@@ -391,7 +366,7 @@ class Request extends Component {
                   ></MessagebarAttachment>
                 ))}
               </MessagebarAttachments> */}
-          {/* <MessagebarSheet>
+        {/* <MessagebarSheet>
                 {this.state.images.map((image, index) => (
                   <MessagebarSheetImage
                     key={index}
@@ -400,8 +375,10 @@ class Request extends Component {
                     onChange={this.handleAttachment.bind(this)}
                   ></MessagebarSheetImage>
                 ))}
-              </MessagebarSheet> */}
-        </Messagebar>
+              </MessagebarSheet> 
+        </Messagebar> */}
+
+        <AppTabBar />
       </div>
     );
   }

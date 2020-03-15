@@ -1,14 +1,27 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { List, Button, InputItem, NavBar, Modal, Toast } from 'antd-mobile';
+import { Link } from 'react-router-dom';
+import {
+  List,
+  Button,
+  InputItem,
+  NavBar,
+  Modal,
+  Toast,
+  WingBlank,
+  WhiteSpace
+} from 'antd-mobile';
 import CreateAccount from '../reusables/CreateAccount';
 import AppTabBar from '../reusables/AppTabBar';
+
+function errorDialog(error) {
+  Toast.fail(error.reason, 3);
+}
 
 class AccountManager extends Component {
   state = {
     loginScreenOpen: false,
-    signupScreenOpen: false,
     username: '',
     email: '',
     password: '',
@@ -22,13 +35,11 @@ class AccountManager extends Component {
       if (error) {
         console.log('error!!');
         console.log(error);
-        // app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
-        //   console.log(error.reason);
-        // });
+        errorDialog(error);
         this.setState({ isLoading: false });
         return;
       }
-      this.signIn();
+      this.signIn(values);
       this.setState({
         isLoading: false,
         loginScreenOpen: false
@@ -36,30 +47,34 @@ class AccountManager extends Component {
     });
   };
 
-  signIn = () => {
-    const { username, password } = this.state;
-    if (!username || !password) {
-      return;
-    }
-
-    Meteor.loginWithPassword(username, password, error => {
-      if (error) {
-        // app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
-        console.log(error.reason);
-        // });
+  signIn = values => {
+    if (values) {
+      Meteor.loginWithPassword(values.username, values.password, error => {
+        if (error) {
+          errorDialog(error);
+          console.log(error);
+        }
+      });
+    } else {
+      const { username, password } = this.state;
+      if (!username || !password) {
+        return;
       }
-    });
+
+      Meteor.loginWithPassword(username, password, error => {
+        if (error) {
+          errorDialog(error);
+          console.log(error);
+        }
+      });
+    }
   };
 
   signOut = () => {
     Meteor.logout();
   };
 
-  openSignupScreen = () => {
-    this.setState({
-      signupScreenOpen: true
-    });
-  };
+  forgotPassword = () => {};
 
   openLoginScreen = () => {
     this.setState({
@@ -67,16 +82,15 @@ class AccountManager extends Component {
     });
   };
 
-  closeScreens = () => {
+  closeScreen = () => {
     this.setState({
-      signupScreenOpen: false,
       loginScreenOpen: false
     });
   };
 
   render() {
     const { currentUser, isLoading } = this.props;
-    const { signupScreenOpen, loginScreenOpen } = this.state;
+    const { loginScreenOpen } = this.state;
 
     // if (isLoading) {
     //   return (
@@ -100,20 +114,95 @@ class AccountManager extends Component {
         {!currentUser && (
           <div>
             <CreateAccount onSubmit={this.createAccount} />
-
             <div>
               <p style={{ textAlign: 'center' }}>
                 <span>Already have an account?</span>
               </p>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <a onClick={() => this.openLoginScreen()}>Login</a>
+                <Button
+                  inline
+                  size="small"
+                  onClick={() => this.openLoginScreen()}
+                >
+                  Login
+                </Button>
               </div>
             </div>
           </div>
         )}
+        <WhiteSpace />
 
-        <Modal visible={!currentUser && loginScreenOpen} position="top">
-          <List>
+        {currentUser && (
+          <div>
+            <WingBlank>
+              <Link to="/find">
+                <Button type="ghost">Find a Book to Read</Button>{' '}
+              </Link>
+            </WingBlank>
+
+            <List
+              style={{
+                backgroundColor: 'white',
+                // position: 'fixed',
+                // bottom: 50,
+                marginTop: 200
+              }}
+            >
+              <List.Item extra={<Link to="/find">Borrow</Link>} multipleLine>
+                Borrow
+                <List.Item.Brief>
+                  Borrow Books from others to Read
+                  {/* You can borrow a book from your friends and others. See what
+                  books people have */}
+                </List.Item.Brief>
+              </List.Item>
+
+              <List.Item
+                extra={<Button to="/my-books">My Shelf</Button>}
+                multipleLine
+              >
+                Lend
+                <List.Item.Brief>
+                  Lend Books to Friends and neighbors
+                  {/* You can virtualise your book shelf. Let the others see your
+                  books and borrow from you. */}
+                </List.Item.Brief>
+              </List.Item>
+
+              <List.Item
+                extra={<Button to="/messages">My Messages</Button>}
+                multipleLine
+              >
+                Message
+                <List.Item.Brief>
+                  Message with People
+                  {/* For every book lending process, you can chat with others to
+                  manage your book lending process */}
+                </List.Item.Brief>
+              </List.Item>
+            </List>
+
+            <WingBlank size="lg">
+              <Button
+                size="small"
+                type="ghost"
+                inline
+                onClick={() => this.signOut()}
+              >
+                Sign out
+              </Button>
+            </WingBlank>
+          </div>
+        )}
+
+        <Modal
+          visible={!currentUser && loginScreenOpen}
+          // position="top"
+          closable
+          onClose={() => this.closeScreen()}
+          title="Login to your account"
+        >
+          <List renderHeader={() => 'Please enter your credentials'}>
             <InputItem
               label="Username or email"
               type="text"
@@ -132,25 +221,21 @@ class AccountManager extends Component {
                 this.setState({ password: e.target.value });
               }}
             />
-            <div>
-              <Button
-                type="submit"
-                onClick={this.signIn.bind(this)}
-                style={{ margin: '0 16px' }}
-              >
+            <List.Item>
+              <Button type="submit" onClick={() => this.signIn()} type="ghost">
                 Login
               </Button>
-            </div>
+            </List.Item>
 
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <Button
                 size="small"
                 inline
                 ghost
-                onClick={() => this.closeScreens()}
-                style={{ marginTop: 16 }}
+                onClick={() => this.forgotPassword()}
+                style={{ margin: '16px 0' }}
               >
-                Close
+                Forgot Password
               </Button>
             </div>
           </List>

@@ -28,11 +28,7 @@ class MyBooks extends Component {
   };
 
   viewBookInDetail = myBook => {
-    this.$f7router.navigate('/book-detail/', {
-      props: {
-        myBook
-      }
-    });
+    this.setState({});
   };
 
   handleSortByChange = value => {
@@ -115,17 +111,18 @@ class MyBooks extends Component {
 
         <WhiteSpace size="md" />
 
-        <List>
+        <List className="mybooks-list">
           {filteredSortedBooks &&
             filteredSortedBooks.map(myBook => (
               <List.Item
                 key={myBook._id}
                 thumb={myBook.image_url}
+                align="top"
                 extra={myBook.b_cat}
                 onClick={() => this.viewBookInDetail(myBook)}
               >
-                <p>{myBook.b_title}</p>
-                <span>{myBook.b_author}</span>
+                <b>{myBook.b_title}</b>
+                <List.Item.Brief>{myBook.b_author}</List.Item.Brief>
               </List.Item>
             ))}
         </List>

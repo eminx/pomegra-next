@@ -28,7 +28,7 @@ export const renderRoutes = () => (
         <Route exact path="/find" component={FindContainer} />
         <Route exact path="/book/:id" component={BookDetailTobeRequested} />
 
-        <Route exact path="/requests" component={RequestsList} />
+        <Route exact path="/messages" component={RequestsList} />
         <Route exact path="/request/:id" component={RequestContainer} />
       </Layout>
     </Switch>

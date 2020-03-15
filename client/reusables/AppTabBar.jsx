@@ -53,8 +53,8 @@ class AppTabBar extends Component {
             title="Messages"
             icon={<AiOutlineMessage />}
             selectedIcon={<AiFillMessage />}
-            selected={pathname === '/requests'}
-            onPress={() => this.changeRoute('/requests')}
+            selected={pathname === '/messages'}
+            onPress={() => this.changeRoute('/messages')}
           ></TabBar.Item>
 
           <TabBar.Item

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { List, Button, InputItem, Switch, Toast } from 'antd-mobile';
+import { List, Button, InputItem, Switch } from 'antd-mobile';
 import { createForm } from 'rc-form';
 
 const Item = List.Item;
@@ -23,7 +23,7 @@ class CreateAccountUI extends Component {
     this.props.form.resetFields();
   };
   validateAccount = (rule, value, callback) => {
-    if (value && value.length > 4) {
+    if (value && value.length > 3) {
       callback();
     } else {
       callback(new Error('At least four characters for account'));

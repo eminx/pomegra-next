@@ -1,60 +1,55 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Button, Card, List, NavBar } from 'antd-mobile';
+import { Button, Card, List, NavBar, Modal, Toast } from 'antd-mobile';
 
 import AppTabBar from '../reusables/AppTabBar';
+import { Redirect } from 'react-router-dom';
 
 // import BookCard from '../../imports/ui/BookCard'
 
-const ListItem = List.Item;
+function errorDialog(text) {
+  Toast.fail(text, 3);
+}
+
+function successDialog(text) {
+  Toast.success(text, 3);
+}
 
 class BookDetailTobeRequested extends Component {
   state = {
-    requestPopupOpened: false,
-    progressOn: false,
     requestSuccess: false
   };
 
-  requestBook = () => {
-    const self = this;
-    const app = self.$f7;
+  makeRequest = () => {
     const { book } = this.props;
     Meteor.call('makeRequest', book._id, (error, respond) => {
       if (error) {
-        app.dialog.alert(`${error.reason}, please try again`, 'Error', () => {
-          console.log(error);
-        });
+        errorDialog(error.reason);
       } else if (respond.error) {
-        app.dialog.alert(`${respond.error}, please try again`, 'Error', () => {
-          console.log(respond);
-        });
+        errorDialog(respond.error);
       } else {
-        const notification = app.notification.create({
-          icon: '<i class="icon success"></i>',
-          title: 'Success!',
-          subtitle: 'You have successfully sent your lending request',
-          closeButton: true,
-          closeTimeout: 6000,
-          opened: true
-        });
-        notification.open();
-        self.$f7router.navigate('/request/', {
-          props: {
-            _id: respond
-          }
+        successDialog('Your request is successfully sent!');
+        console.log(respond);
+        this.setState({
+          requestSuccess: respond
         });
       }
     });
   };
 
   render() {
-    const { requestPopupOpened, progressOn, requestSuccess } = this.state;
+    const { requestSuccess } = this.state;
+
+    if (requestSuccess) {
+      return <Redirect to={`/request/${requestSuccess}`} />;
+    }
+
     const { book } = this.props;
 
-    // if (!book) {
-    //   return;
-    // }
+    if (!book) {
+      return null;
+    }
 
     return (
       <div name="books">
@@ -70,33 +65,14 @@ class BookDetailTobeRequested extends Component {
                 extra={book.b_cat}
               />
               <Card.Body>{book.b_description}</Card.Body>
-              <Card.Footer content={book.b_lang} />
+              <Card.Footer
+                content={
+                  <Button onClick={() => this.makeRequest()} type="ghost">
+                    Send Request
+                  </Button>
+                }
+              />
             </Card>
-            <Button onClick={() => this.requestBook()}>
-              Borrow from owner
-            </Button>
-            {/* <Popup opened={requestPopupOpened}>
-              <Navbar title="Request Handling">
-                <NavRight>
-                  <Link
-                    onClick={() => this.setState({ requestPopupOpened: false })}
-                  >
-                    Close
-                  </Link>
-                </NavRight>
-              </Navbar>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                  height: '100%'
-                }}
-              >
-                {progressOn && <Progressbar infinite />}
-                {requestSuccess && 'Your request is successfully sent'}
-              </div>
-            </Popup>{' '} */}
             <AppTabBar />
           </Fragment>
         )}

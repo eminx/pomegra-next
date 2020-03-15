@@ -14,13 +14,15 @@ const ListItem = List.Item;
 
 import { Requests } from '../../imports/api/collections';
 import AppTabBar from '../reusables/AppTabBar';
+import { Redirect } from 'react-router-dom';
 
 const requestTypeValues = ['All', 'By Me', 'From Me'];
 
 class RequestsList extends Component {
   state = {
     filterValue: '',
-    requestType: 'All'
+    requestType: 'All',
+    gotoRequest: null
   };
 
   handleFilter = value => {
@@ -47,16 +49,16 @@ class RequestsList extends Component {
   };
 
   viewRequestInDetail = request => {
-    this.$f7router.navigate('/request/', {
-      props: {
-        request
-      }
-    });
+    this.setState({ gotoRequest: request._id });
   };
 
   render() {
     const { requests, currentUser } = this.props;
-    const { filterValue, requestType } = this.state;
+    const { filterValue, requestType, gotoRequest } = this.state;
+
+    if (gotoRequest) {
+      return <Redirect to={`/request/${gotoRequest}`} />;
+    }
 
     if (!requests || !currentUser) {
       return (
@@ -108,6 +110,7 @@ class RequestsList extends Component {
             filteredRequests.map(request => (
               <ListItem
                 key={request._id}
+                multipleLine
                 thumb={request.book_image_url}
                 extra={
                   currentUser.username === request.owner_name
