@@ -51,10 +51,18 @@ class Request extends Component {
     sheetVisible: false,
     typingMessage: null,
     menuOpened: false,
-    chatInputValue: ''
+    chatInputValue: '',
+    isAccordionOpen: true
   };
 
-  componentDidMount() {}
+  componentDidMount() {
+    // const { messages } = this.props;
+    // if (!messages.is_seen_by_other) {
+    //   this.setState({
+    //     isAccordionOpen: false
+    //   })
+    // }
+  }
 
   sendMessage = event => {
     event && event.preventDefault();
@@ -245,7 +253,12 @@ class Request extends Component {
 
   render() {
     const { currentUser, request, isLoading } = this.props;
-    const { menuOpened, backToRequests, chatInputValue } = this.state;
+    const {
+      menuOpened,
+      backToRequests,
+      chatInputValue,
+      isAccordionOpen
+    } = this.state;
 
     if (!currentUser) {
       return null;
@@ -285,10 +298,19 @@ class Request extends Component {
           <b>{this.getOthersName()}</b>
         </NavBar>
 
-        <Accordion className="request-accordion">
+        <Accordion
+          className="request-accordion"
+          activeKey={isAccordionOpen ? 'only-panel' : 'no-panel'}
+          onChange={() => this.setState({ isAccordionOpen: !isAccordionOpen })}
+        >
           <Accordion.Panel
+            key="only-panel"
             header={request.book_name}
-            style={{ textAlign: 'center' }}
+            style={{
+              textAlign: 'center',
+              backgroundColor:
+                requestedNotResponded && iAmTheOwner ? '#e94f4f' : null
+            }}
           >
             <WingBlank>
               {requestedNotResponded && iAmTheOwner ? (
@@ -380,6 +402,7 @@ class Request extends Component {
                 value={chatInputValue}
                 onChange={value => this.setState({ chatInputValue: value })}
                 placeholder="enter message"
+                onFocus={() => this.setState({ isAccordionOpen: false })}
               />
             </form>
           </Flex.Item>
