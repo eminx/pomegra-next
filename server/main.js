@@ -67,7 +67,6 @@ Meteor.methods({
 
       if (Requests.findOne({ req_b_id: bookId, req_by: currentUserId })) {
         throw new Meteor.Error('You have already requested this item');
-        return;
       }
 
       const reqId = Requests.insert({
@@ -79,9 +78,9 @@ Meteor.methods({
         owner_name: theBook.owner_name,
         requester_name: currentUser.username,
         book_image_url: theBook.image_url || null,
-        // owner_profile_image: (owner.profile && owner.profile.image_url) || null,
-        // requester_profile_image:
-        //   currentUser.profile || currentUser.profile.image_url || null,
+        owner_profile_image: (owner.profile && owner.profile.image_url) || null,
+        requester_profile_image:
+          currentUser.profile || currentUser.profile.image_url || null,
         date_requested: new Date()
       });
       Messages.insert({
@@ -291,6 +290,7 @@ Meteor.methods({
 
   addMessage: (requestId, message) => {
     const currentUserId = Meteor.userId();
+    currentUser = Meteor.user();
     if (!currentUserId) {
       return false;
     }
@@ -310,7 +310,8 @@ Meteor.methods({
           messages: {
             text: message,
             from: currentUserId,
-            date: new Date()
+            date: new Date(),
+            senderName: currentUser.username
           }
         },
         $set: {
@@ -320,25 +321,25 @@ Meteor.methods({
       }
     );
 
-    let othersId;
-    const theRequest = Requests.findOne(requestId);
-    if (theRequest.owner_name === Meteor.user().username) {
-      othersId = theRequest.req_by;
-    } else {
-      othersId = theRequest.req_from;
-    }
+    // let othersId;
+    // const theRequest = Requests.findOne(requestId);
+    // if (theRequest.owner_name === currentUser.username) {
+    //   othersId = theRequest.req_by;
+    // } else {
+    //   othersId = theRequest.req_from;
+    // }
 
-    if (
-      Messages.findOne({
-        is_seen_by_other: false,
-        req_id: requestId
-      })
-    ) {
-      const myName = Meteor.user().username;
-      const subjectEmail = 'You have a new message!';
-      const textEmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
-      // Meteor.call('sendEmail', othersId, subjectEmail, textEmail);
-    }
+    // if (
+    //   Messages.findOne({
+    //     is_seen_by_other: false,
+    //     req_id: requestId
+    //   })
+    // ) {
+    // const myName = Meteor.user().username;
+    // const subjectEmail = 'You have a new message!';
+    // const textEmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
+    // Meteor.call('sendEmail', othersId, subjectEmail, textEmail);
+    // }
   }
 });
 
@@ -401,5 +402,22 @@ Meteor.publish('myMessages', function(reqId) {
   return Messages.find({
     req_id: reqId,
     $or: [{ borrower_id: currentUserId }, { lender_id: currentUserId }]
+  });
+});
+
+Meteor.startup(function() {
+  Requests.find().forEach(function(request) {
+    if (Messages.find({ req_id: request._id })) {
+      console.log('great');
+    } else {
+      console.log(request._id, request.req_by);
+      Messages.insert({
+        req_id: request._id,
+        borrower_id: request.req_by,
+        lender_id: request.req_from,
+        is_seen_by_other: true,
+        messages: new Array()
+      });
+    }
   });
 });
