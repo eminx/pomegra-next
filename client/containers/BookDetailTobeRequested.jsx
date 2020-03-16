@@ -1,20 +1,11 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Button, Card, List, NavBar, Modal, Toast } from 'antd-mobile';
+import React, { Component, Fragment } from 'react';
+import { Redirect } from 'react-router-dom';
+import { Button, Card, NavBar, Toast } from 'antd-mobile';
 
 import AppTabBar from '../reusables/AppTabBar';
-import { Redirect } from 'react-router-dom';
-
-// import BookCard from '../../imports/ui/BookCard'
-
-function errorDialog(text) {
-  Toast.fail(text, 3);
-}
-
-function successDialog(text) {
-  Toast.success(text, 3);
-}
+import { errorDialog, successDialog } from '../functions';
 
 class BookDetailTobeRequested extends Component {
   state = {

@@ -105,27 +105,34 @@ class RequestsList extends Component {
 
         <WhiteSpace size="md" />
 
-        <List renderHeader={() => 'Your Previous Requests'}>
+        <List
+          renderHeader={() => 'Your Previous Requests'}
+          style={{ marginBottom: 64 }}
+        >
           {filteredRequests &&
             filteredRequests.map(request => (
               <ListItem
                 key={request._id}
                 multipleLine
+                align="top"
                 thumb={request.book_image_url}
                 extra={
-                  currentUser.username === request.owner_name
-                    ? request.requester_name
-                    : request.owner_name
+                  request.date_requested &&
+                  request.date_requested.toLocaleDateString()
                 }
                 onClick={() => this.viewRequestInDetail(request)}
               >
-                {request.book_name}
-                <span style={{ visibility: 'hidden' }} className="item-extra">
-                  {request.book_author}
-                </span>
+                <b>
+                  {currentUser.username === request.owner_name
+                    ? request.requester_name
+                    : request.owner_name}
+                </b>
+                <ListItem.Brief>{request.book_name}</ListItem.Brief>
               </ListItem>
             ))}
         </List>
+        <WhiteSpace size={50} />
+
         <AppTabBar />
       </div>
     );

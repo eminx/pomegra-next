@@ -6,17 +6,16 @@
   width: 100%;
   float: none;
   box-shadow: inset 0 0 1px 0 rgba(50, 50, 50, 0.5);
-  /* background-color: White; */
 }
 
 .chattery-window {
   display: flex;
   flex-direction: column;
   font-size: 14px;
-  max-height: 80vh;
-  min-height: 400px;
   overflow-y: scroll;
   overflow-x: hidden;
+  height: calc(100vh - 133px);
+  margin-top: 43px;
 }
 
 .chattery-inputform-container {
@@ -87,13 +86,13 @@ body {
 
 /* CSS talk bubble */
 .talk-bubble {
-  margin: 10px 20px;
+  margin: 6px 20px;
   display: inline-block;
   position: relative;
   width: 240px;
   height: auto;
   background-color: #fff;
-  bottom: 30px;
+  bottom: 10px;
   /* transition: all 0.5s ease; */
 }
 

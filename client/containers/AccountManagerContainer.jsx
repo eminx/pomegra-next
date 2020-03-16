@@ -14,12 +14,10 @@ import {
   WingBlank,
   WhiteSpace
 } from 'antd-mobile';
+
 import CreateAccount from '../reusables/CreateAccount';
 import AppTabBar from '../reusables/AppTabBar';
-
-function errorDialog(error) {
-  Toast.fail(error.reason, 3);
-}
+import { errorDialog } from '../functions';
 
 class AccountManager extends Component {
   state = {
@@ -38,7 +36,7 @@ class AccountManager extends Component {
       if (error) {
         console.log('error!!');
         console.log(error);
-        errorDialog(error);
+        errorDialog(error.reason);
         this.setState({ isLoading: false });
         return;
       }

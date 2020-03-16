@@ -290,7 +290,7 @@ class Request extends Component {
     const iAmTheOwner = currentUser._id === request.req_from;
 
     return (
-      <div style={{ paddingBottom: 44 }}>
+      <div>
         <NavBar
           mode="light"
           leftContent={<Icon type="left" />}
@@ -299,96 +299,102 @@ class Request extends Component {
         >
           <b>{this.getOthersName()}</b>
         </NavBar>
-
-        <Accordion
-          className="request-accordion"
-          activeKey={isAccordionOpen ? 'only-panel' : 'no-panel'}
-          onChange={() => this.setState({ isAccordionOpen: !isAccordionOpen })}
-        >
-          <Accordion.Panel
-            key="only-panel"
-            header={request.book_name}
-            style={{
-              textAlign: 'center',
-              backgroundColor:
-                requestedNotResponded && iAmTheOwner ? '#e94f4f' : null
-            }}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <Accordion
+            style={{ position: 'absolute', top: 0, width: '100%' }}
+            className="request-accordion"
+            activeKey={isAccordionOpen ? 'only-panel' : 'no-panel'}
+            onChange={() =>
+              this.setState({ isAccordionOpen: !isAccordionOpen })
+            }
           >
-            <WingBlank>
-              {requestedNotResponded && iAmTheOwner ? (
-                <div>
-                  <WhiteSpace size="lg" />
-                  <Result
-                    img={myImg(request.book_image_url)}
-                    title={request.book_name}
-                    message={`${request.requester_name} would like to read your book`}
-                    buttonText="Accept"
-                    buttonType="primary"
-                    onButtonClick={() => this.acceptRequest()}
-                  />
-                  <WhiteSpace />
-                  <Flex justify="center">
-                    <Button
-                      inline
-                      type="warning"
-                      onClick={() => this.denyRequest()}
-                    >
-                      Deny
-                    </Button>
-                  </Flex>
-                  <WhiteSpace size="lg" />
-                </div>
-              ) : (
-                <div>
-                  <Flex justify="center">{myImg(request.book_image_url)}</Flex>
-                  <WhiteSpace size="lg" />
+            <Accordion.Panel
+              key="only-panel"
+              header={request.book_name}
+              style={{
+                textAlign: 'center',
+                backgroundColor:
+                  requestedNotResponded && iAmTheOwner ? '#e94f4f' : null
+              }}
+            >
+              <WingBlank>
+                {requestedNotResponded && iAmTheOwner ? (
                   <div>
-                    <Steps
-                      current={this.getCurrentStatus()}
-                      direction="horizontal"
-                      size="small"
-                    >
-                      {steps}
-                    </Steps>
+                    <WhiteSpace size="lg" />
+                    <Result
+                      img={myImg(request.book_image_url)}
+                      title={request.book_name}
+                      message={`${request.requester_name} would like to read your book`}
+                      buttonText="Accept"
+                      buttonType="primary"
+                      onButtonClick={() => this.acceptRequest()}
+                    />
+                    <WhiteSpace />
+                    <Flex justify="center">
+                      <Button
+                        inline
+                        type="warning"
+                        onClick={() => this.denyRequest()}
+                      >
+                        Deny
+                      </Button>
+                    </Flex>
+                    <WhiteSpace size="lg" />
                   </div>
-                </div>
-              )}
-            </WingBlank>
-
-            <WingBlank>
-              {request.is_confirmed &&
-                !request.is_handed &&
-                currentUser._id === request.req_from && (
-                  <Flex justify="center" style={{ padding: 12 }}>
-                    <Button
-                      inline
-                      size="small"
-                      type="primary"
-                      onClick={() => this.isHanded()}
-                    >
-                      I've handed over the book
-                    </Button>
-                  </Flex>
+                ) : (
+                  <div>
+                    <Flex justify="center">
+                      {myImg(request.book_image_url)}
+                    </Flex>
+                    <WhiteSpace size="lg" />
+                    <div>
+                      <Steps
+                        current={this.getCurrentStatus()}
+                        direction="horizontal"
+                        size="small"
+                      >
+                        {steps}
+                      </Steps>
+                    </div>
+                  </div>
                 )}
+              </WingBlank>
 
-              {request.is_handed &&
-                !request.is_returned &&
-                currentUser._id === request.req_from && (
-                  <Flex justify="center" style={{ padding: 12 }}>
-                    <Button
-                      inline
-                      size="small"
-                      type="primary"
-                      onClick={() => this.isReturned()}
-                    >
-                      I've received my book back
-                    </Button>
-                  </Flex>
-                )}
-            </WingBlank>
-            <WhiteSpace size="lg" />
-          </Accordion.Panel>
-        </Accordion>
+              <WingBlank>
+                {request.is_confirmed &&
+                  !request.is_handed &&
+                  currentUser._id === request.req_from && (
+                    <Flex justify="center" style={{ padding: 12 }}>
+                      <Button
+                        inline
+                        size="small"
+                        type="primary"
+                        onClick={() => this.isHanded()}
+                      >
+                        I've handed over the book
+                      </Button>
+                    </Flex>
+                  )}
+
+                {request.is_handed &&
+                  !request.is_returned &&
+                  currentUser._id === request.req_from && (
+                    <Flex justify="center" style={{ padding: 12 }}>
+                      <Button
+                        inline
+                        size="small"
+                        type="primary"
+                        onClick={() => this.isReturned()}
+                      >
+                        I've received my book back
+                      </Button>
+                    </Flex>
+                  )}
+              </WingBlank>
+              <WhiteSpace size="lg" />
+            </Accordion.Panel>
+          </Accordion>
+        </div>
 
         {messages && (
           <ChatteryWindow
