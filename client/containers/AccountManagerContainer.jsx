@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 import {
+  ActivityIndicator,
   List,
   Flex,
   Button,
@@ -106,11 +107,10 @@ class AccountManager extends Component {
     //       style={{
     //         display: 'flex',
     //         justifyContent: 'center',
-    //         height: '100vh',
-    //         marginTop: 'calc(50vh - 24px)'
+    //         marginTop: 50
     //       }}
     //     >
-    //       <Preloader size={48} color="multi"></Preloader>
+    //       <ActivityIndicator text="Loading..." />
     //     </div>
     //   );
     // }
@@ -272,7 +272,7 @@ class AccountManager extends Component {
           </List>
         </Modal>
 
-        <AppTabBar />
+        {currentUser && <AppTabBar />}
       </div>
     );
   }
@@ -280,6 +280,7 @@ class AccountManager extends Component {
 
 export default AccountManagerContainer = withTracker(props => {
   const currentUserSub = Meteor.subscribe('me');
+  console.log(currentUserSub);
   const currentUser = Meteor.user();
   const isLoading = !currentUserSub.ready();
 

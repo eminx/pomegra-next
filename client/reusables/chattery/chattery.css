@@ -92,8 +92,15 @@ body {
   position: relative;
   width: 240px;
   height: auto;
-  background-color: #eee;
+  background-color: #fff;
+  bottom: 30px;
+  /* transition: all 0.5s ease; */
 }
+
+.talk-bubble:not(.animate-bubble) {
+  transition: all 0.5s ease;
+}
+
 .border {
   border: 8px solid #666;
 }
@@ -101,6 +108,13 @@ body {
   border-radius: 10px;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
+}
+
+.talk-bubble.animate-bubble {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 0;
 }
 
 /* Right triangle placed top left flush. */
@@ -126,7 +140,7 @@ body {
   top: 0px;
   bottom: auto;
   border: 22px solid;
-  border-color: #eee transparent transparent transparent;
+  border-color: #fff transparent transparent transparent;
 }
 
 /* Right triangle, left side slightly down */
@@ -152,7 +166,7 @@ body {
   top: 10px;
   bottom: auto;
   border: 12px solid;
-  border-color: #eee #eee transparent transparent;
+  border-color: #fff #fff transparent transparent;
 }
 
 /*Right triangle, placed bottom left side slightly in*/
@@ -178,7 +192,7 @@ body {
   top: auto;
   bottom: -20px;
   border: 22px solid;
-  border-color: transparent transparent transparent #eee;
+  border-color: transparent transparent transparent #fff;
 }
 
 /*Right triangle, placed bottom left side slightly in*/
@@ -204,7 +218,7 @@ body {
   top: auto;
   bottom: -20px;
   border: 12px solid;
-  border-color: #eee transparent transparent #eee;
+  border-color: #fff transparent transparent #fff;
 }
 
 /*Right triangle, placed bottom right side slightly in*/
@@ -228,7 +242,7 @@ body {
   right: 38px;
   bottom: -20px;
   border: 12px solid;
-  border-color: #eee #eee transparent transparent;
+  border-color: #fff #fff transparent transparent;
 }
 /*
 	left: -8px;
@@ -242,7 +256,7 @@ body {
   top: auto;
 	bottom: -20px;
 	border: 22px solid;
-	border-color: transparent transparent transparent #eee;
+	border-color: transparent transparent transparent #fff;
 
 /*Right triangle, placed bottom right side slightly in*/
 .tri-right.border.btm-right:before {
@@ -265,7 +279,7 @@ body {
   right: 0px;
   bottom: -20px;
   border: 12px solid;
-  border-color: #eee #eee transparent transparent;
+  border-color: #fff #fff transparent transparent;
 }
 
 /* Right triangle, right side slightly down*/
@@ -291,7 +305,7 @@ body {
   top: 10px;
   bottom: auto;
   border: 12px solid;
-  border-color: #eee transparent transparent #eee;
+  border-color: #fff transparent transparent #fff;
 }
 
 /* Right triangle placed top right flush. */
@@ -317,7 +331,7 @@ body {
   top: 0px;
   bottom: auto;
   border: 20px solid;
-  border-color: #eee transparent transparent transparent;
+  border-color: #fff transparent transparent transparent;
 }
 
 /* talk bubble contents */

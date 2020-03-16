@@ -20,7 +20,15 @@ class ChatteryBubble extends React.Component {
   };
 
   render() {
-    const { senderUsername, createdDate, isFromMe, children } = this.props;
+    const {
+      senderUsername,
+      createdDate,
+      isFromMe,
+      isAnimating,
+      children,
+      lastItem
+    } = this.props;
+
     let bubbleClass = 'talk-bubble tri-right round ';
     let bubbleClassContainer = 'talk-bubble-container ';
     if (isFromMe) {
@@ -29,6 +37,10 @@ class ChatteryBubble extends React.Component {
     } else {
       bubbleClass += 'left-in';
       bubbleClassContainer += 'left-in';
+    }
+
+    if (isAnimating && lastItem) {
+      bubbleClass += ' animate-bubble';
     }
 
     return (

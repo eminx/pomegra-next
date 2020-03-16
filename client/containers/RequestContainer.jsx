@@ -20,10 +20,8 @@ import {
 import { IoMdSend } from 'react-icons/io';
 
 import { Requests } from '../../imports/api/collections';
-import AppTabBar from '../reusables/AppTabBar';
 import { ChatteryWindow } from '../reusables/chattery/ChatteryWindow';
 import { Redirect } from 'react-router-dom';
-// import Chattery from '../reusables/chattery';
 
 const Step = Steps.Step;
 
@@ -40,7 +38,9 @@ const steps = [
     title: 'Returned',
     description: 'Borrower has returned the book to the owner'
   }
-].map((s, i) => <Step key={i} title={s.title} description={s.description} />);
+].map((step, index) => (
+  <Step key={step.title} title={step.title} description={step.description} />
+));
 
 const myImg = src => <img src={src} alt="" width={48} height={66} />;
 
@@ -228,11 +228,13 @@ class Request extends Component {
     const { request } = this.props;
 
     if (request.is_returned) {
-      return 2;
+      return steps[2].title;
     } else if (request.is_handed) {
-      return 1;
+      return steps[1].title;
     } else if (request.is_confirmed) {
-      return 0;
+      return steps[0].title;
+    } else {
+      return null;
     }
   };
 

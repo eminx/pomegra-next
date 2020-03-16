@@ -404,20 +404,3 @@ Meteor.publish('myMessages', function(reqId) {
     $or: [{ borrower_id: currentUserId }, { lender_id: currentUserId }]
   });
 });
-
-Meteor.startup(function() {
-  Requests.find().forEach(function(request) {
-    if (Messages.find({ req_id: request._id })) {
-      console.log('great');
-    } else {
-      console.log(request._id, request.req_by);
-      Messages.insert({
-        req_id: request._id,
-        borrower_id: request.req_by,
-        lender_id: request.req_from,
-        is_seen_by_other: true,
-        messages: new Array()
-      });
-    }
-  });
-});
