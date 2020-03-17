@@ -3,23 +3,39 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import {
-  Page,
-  Navbar,
-  Block,
-  Searchbar,
+  ActivityIndicator,
+  WingBlank,
+  WhiteSpace,
+  NavBar,
+  SearchBar,
   List,
-  ListItem,
-  Preloader
-} from 'framework7-react';
+  Modal
+} from 'antd-mobile';
+
+import BookDetailTobeAdded from './BookDetailTobeAdded';
+import AppTabBar from '../reusables/AppTabBar';
+import { successDialog, errorDialog } from '../functions';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
+
+const ListItem = List.Item;
+const Brief = ListItem.Brief;
 
 class AddBook extends Component {
   state = {
     isLoading: false,
     searchResults: [],
     searchbarInput: '',
-    searchbarFocused: false
+    searchbarFocused: false,
+    bookInDetail: null
+  };
+
+  componentDidMount() {
+    this.autoFocusSearchBar();
+  }
+
+  autoFocusSearchBar = () => {
+    this.searchBar && this.searchBar.focus();
   };
 
   searchbarSearch = () => {
@@ -35,85 +51,138 @@ class AddBook extends Component {
         this.setState({
           isLoading: false,
           searchResults: parsedResults.items
-          // searchbarFocused: false,
         });
       });
   };
 
   viewBookInDetail = result => {
-    this.$f7router.navigate('/book-detail-tobe-added/', {
-      props: {
-        bookInfo: result
-      }
+    this.setState({
+      bookInDetail: result
     });
   };
+
+  insertBook = book => {
+    // if (this.alreadyOwnsBook(book)) {
+    //   errorDialog('You already own this book');
+    //   return;
+    // }
+
+    Meteor.call('insertBook', book, (error, respond) => {
+      console.log(respond);
+      if (error) {
+        errorDialog(error.reason);
+      } else if (respond && respond.error) {
+        errorDialog(respond.error);
+      }
+      successDialog('Book is successfully added to your virtual shelf');
+      this.closeModal();
+    });
+  };
+
+  alreadyOwnsBook = book => {
+    const { currentUser } = this.props;
+    return Books.findOne({
+      b_title: book.b_title,
+      added_by: currentUser._id
+    });
+  };
+
+  closeModal = () => {
+    this.setState(
+      {
+        bookInDetail: null
+      },
+      () => {
+        this.autoFocusSearchBar();
+      }
+    );
+  };
+
   render() {
-    const { searchResults, searchbarInput, isLoading } = this.state;
+    const { currentUser } = this.props;
+
+    if (!currentUser) {
+      <ActivityIndicator text="Loading..." />;
+    }
+
+    const {
+      searchResults,
+      searchbarInput,
+      isLoading,
+      bookInDetail
+    } = this.state;
     return (
-      <Page name="add">
-        <Navbar title="Add new book to your shelf" backLink />
-        <Searchbar
-          form
+      <div>
+        <NavBar mode="light">Add book to your virtual shelf</NavBar>
+        <SearchBar
           placeholder="title, author, ISBN etc"
-          customSearch
-          noShadow
           value={searchbarInput}
-          onChange={event =>
-            this.setState({ searchbarInput: event.target.value })
-          }
+          onChange={value => this.setState({ searchbarInput: value })}
           onSubmit={() => this.searchbarSearch()}
           onClear={() => console.log('shsh')}
+          cancelText="Cancel"
+          ref={ref => (this.searchBar = ref)}
         />
 
-        <Block className="text-align-center">
-          {isLoading && <Preloader />}
-        </Block>
+        {isLoading && (
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: 50
+            }}
+          >
+            <ActivityIndicator text="Loading..." />
+          </div>
+        )}
 
-        <List mediaList>
+        <List>
           {searchResults &&
             searchResults.length > 0 &&
             searchResults.map(result => (
               <ListItem
-                mediaItem
                 key={result.id || result.volumeInfo.title}
-                link="#"
-                after={
+                align="top"
+                thumb={
+                  <img
+                    style={{ width: 33, height: 44 }}
+                    src={
+                      result.volumeInfo.imageLinks &&
+                      result.volumeInfo.imageLinks.smallThumbnail
+                    }
+                  />
+                }
+                extra={
                   result.volumeInfo.categories &&
                   result.volumeInfo.categories[0]
                 }
-                title={result.volumeInfo.title}
-                subtitle={
-                  result.volumeInfo.authors &&
-                  result.volumeInfo.authors.map(author => <span>{author}</span>)
-                }
-                text={result.volumeInfo.description}
                 onClick={() => this.viewBookInDetail(result)}
               >
-                <img
-                  slot="media"
-                  src={
-                    result.volumeInfo.imageLinks &&
-                    result.volumeInfo.imageLinks.smallThumbnail
-                  }
-                  width={40}
-                  height={60}
-                />
+                <b>{result.volumeInfo.title}</b>
+                <Brief>
+                  {result.volumeInfo.authors &&
+                    result.volumeInfo.authors.map(author => (
+                      <span>{author}</span>
+                    ))}
+                </Brief>
               </ListItem>
             ))}
         </List>
+        <Modal
+          visible={currentUser && bookInDetail}
+          // position="top"
+          closable
+          onClose={() => this.setState({ bookInDetail: null })}
+          title="Do you own a copy?"
+        >
+          <BookDetailTobeAdded
+            bookInfo={bookInDetail}
+            insertBook={this.insertBook}
+          />
+        </Modal>
 
-        {searchResults && searchResults.length === 0 && !isLoading && (
-          <Block style={{ display: 'flex', justifyContent: 'center' }}>
-            Type and press enter
-          </Block>
-        )}
-
-        {!searchResults && searchResults.length === 0 && (
-          <Block>
-            <p>No books found with this keyword. Please try another way.</p>
-          </Block>
-        )}
-      </Page>
+        <AppTabBar />
+      </div>
     );
   }
 }

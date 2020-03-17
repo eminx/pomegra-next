@@ -1,60 +1,18 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { Block, Page, Navbar, Link } from 'framework7-react';
+import { WhiteSpace, Result } from 'antd-mobile';
 
-import BookCard from '../../imports/ui/BookCard';
+const myImg = src => <img src={src} alt="" width={48} height={66} />;
 
-class BookDetailTobeAdded extends Component {
-  state = {};
-
-  insertBook = book => {
-    const { currentUser } = this.props;
-    const bookExists = Books.findOne({
-      b_title: book.b_title,
-      added_by: currentUser._id,
-    });
-
-    if (bookExists) {
-      const app = this.$f7;
-      const notification = app.notification.create({
-        icon: '<i class="icon demo-icon"></i>',
-        title: 'Book already added',
-        subtitle:
-          'A book with same title is already added to your virtual shelf',
-        closeButton: true,
-        closeTimeout: 10000,
-        opened: true,
-      });
-      notification.open();
-      this.$f7router.back();
-    }
-
-    Meteor.call('insertBook', book, (error, respond) => {
-      if (!error) {
-        // Create notification with click to close
-        this.showSuccessNotification();
-        this.$f7router.back();
-      }
-    });
-  };
-
-  showSuccessNotification = () => {
-    const app = this.$f7;
-    const notification = app.notification.create({
-      icon: '<i class="icon demo-icon"></i>',
-      title: 'Book added',
-      subtitle: 'Your book is now added to your shelf',
-      closeButton: true,
-      closeTimeout: 10000,
-      opened: true,
-    });
-    notification.open();
-  };
-
+class BookDetailTobeAdded extends PureComponent {
   render() {
     const { currentUser, bookInfo } = this.props;
-    const volumeInfo = bookInfo.volumeInfo;
+    const volumeInfo = bookInfo && bookInfo.volumeInfo;
+
+    if (!volumeInfo) {
+      return null;
+    }
 
     const authors = (
       <div
@@ -64,7 +22,7 @@ class BookDetailTobeAdded extends Component {
           wordBreak: 'break-all',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
-          textOverflow: 'ellipsis',
+          textOverflow: 'ellipsis'
         }}
       >
         {volumeInfo.authors &&
@@ -77,22 +35,19 @@ class BookDetailTobeAdded extends Component {
     );
 
     return (
-      <Page name="books">
-        <Navbar title="Do you own a copy of this book?" backLink />
-        <Block style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Link>Add to my Wishlist</Link>
-          <Link onClick={() => this.insertBook(volumeInfo)}>Yes I do</Link>
-        </Block>
-
-        <BookCard
-          volumeInfo={volumeInfo}
-          footerComponents={
-            <Link onClick={() => this.insertBook(volumeInfo)}>
-              Yes, I own a copy. Please add to my shelf
-            </Link>
-          }
+      <div>
+        <WhiteSpace size="lg" />
+        <Result
+          img={volumeInfo.imageLinks && myImg(volumeInfo.imageLinks.thumbnail)}
+          title={volumeInfo.title}
+          message="Yes I own a copy of this book!"
+          buttonText="Add to my virtual shelf"
+          buttonType="primary"
+          onButtonClick={() => this.props.insertBook(volumeInfo)}
         />
-      </Page>
+        <WhiteSpace />
+        Add to my Wishlist
+      </div>
     );
   }
 }
@@ -100,6 +55,6 @@ class BookDetailTobeAdded extends Component {
 export default BookDetailTobeAddedContainer = withTracker(props => {
   const currentUser = Meteor.user();
   return {
-    currentUser,
+    currentUser
   };
 })(BookDetailTobeAdded);

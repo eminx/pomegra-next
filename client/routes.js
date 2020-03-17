@@ -21,7 +21,7 @@ export const renderRoutes = () => (
       <Layout history={browserHistory}>
         <Route exact path="/" component={AccountManagerContainer} />
         <Route exact path="/add" component={AddBookContainer} />
-        <Route exact path="/add-book" component={BookDetailTobeAdded} />
+        {/* <Route exact path="/add-book" component={BookDetailTobeAdded} /> */}
         <Route exact path="/my-shelf" component={MyBooksContainer} />
         <Route exact path="/my-book/:id" component={MyBookContainer} />
 

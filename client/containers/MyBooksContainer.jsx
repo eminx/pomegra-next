@@ -13,6 +13,9 @@ import {
 
 import AppTabBar from '../reusables/AppTabBar';
 
+const ListItem = List.Item;
+const Brief = ListItem.Brief;
+
 const sortByMethods = [
   'last added',
   'book title',
@@ -118,21 +121,21 @@ class MyBooks extends Component {
         <List className="larger-thumb-list">
           {filteredSortedBooks &&
             filteredSortedBooks.map(myBook => (
-              <List.Item
+              <ListItem
                 key={myBook._id}
+                align="top"
                 thumb={
                   <img
                     style={{ width: 33, height: 44 }}
                     src={myBook.image_url}
                   />
                 }
-                align="top"
                 extra={myBook.b_cat}
                 onClick={() => this.viewBookInDetail(myBook)}
               >
                 <b>{myBook.b_title}</b>
-                <List.Item.Brief>{myBook.b_author}</List.Item.Brief>
-              </List.Item>
+                <Brief>{myBook.b_author}</Brief>
+              </ListItem>
             ))}
         </List>
         <AppTabBar />

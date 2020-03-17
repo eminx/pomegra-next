@@ -2,7 +2,13 @@ import React, { Component } from 'react';
 import { TabBar } from 'antd-mobile';
 import { withRouter } from 'react-router-dom';
 import { GiBookshelf } from 'react-icons/gi';
-import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
+import {
+  GoHome,
+  GoPlus,
+  GoBook,
+  GoCommentDiscussion,
+  GoSearch
+} from 'react-icons/go';
 
 const iconSize = 24;
 
@@ -11,6 +17,11 @@ const iconRoutes = [
     title: 'Home',
     path: '/',
     icon: <GoHome size={iconSize} />
+  },
+  {
+    title: 'Add',
+    path: '/add',
+    icon: <GoPlus size={iconSize} />
   },
   {
     title: 'My Shelf',
