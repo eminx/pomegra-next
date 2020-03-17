@@ -14,7 +14,6 @@ class Find extends Component {
   };
 
   viewBookInDetail = suggestedBookId => {
-    console.log(suggestedBookId);
     this.setState({
       redirectToBookDetail: suggestedBookId
     });
@@ -42,12 +41,17 @@ class Find extends Component {
               <ListItem
                 key={suggestedBook._id}
                 align="top"
-                thumb={suggestedBook.image_url}
+                thumb={
+                  <img
+                    style={{ width: 33, height: 44 }}
+                    src={suggestedBook.image_url}
+                  />
+                }
                 multipleLine
                 extra={suggestedBook.b_cat}
                 onClick={() => this.viewBookInDetail(suggestedBook._id)}
               >
-                {suggestedBook.b_title}
+                <b>{suggestedBook.b_title}</b>
                 <Brief>{suggestedBook.b_author}</Brief>
               </ListItem>
             ))}

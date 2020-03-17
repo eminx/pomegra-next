@@ -22,10 +22,10 @@ export const renderRoutes = () => (
         <Route exact path="/" component={AccountManagerContainer} />
         <Route exact path="/add" component={AddBookContainer} />
         <Route exact path="/add-book" component={BookDetailTobeAdded} />
-        <Route exact path="/my-books" component={MyBooksContainer} />
+        <Route exact path="/my-shelf" component={MyBooksContainer} />
         <Route exact path="/my-book/:id" component={MyBookContainer} />
 
-        <Route exact path="/find" component={FindContainer} />
+        <Route exact path="/discover" component={FindContainer} />
         <Route exact path="/book/:id" component={BookDetailTobeRequested} />
 
         <Route exact path="/messages" component={RequestsList} />

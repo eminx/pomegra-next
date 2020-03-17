@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Redirect } from 'react-router-dom';
 import {
   ActivityIndicator,
   NavBar,
@@ -21,7 +22,7 @@ import { IoMdSend } from 'react-icons/io';
 
 import { Requests } from '../../imports/api/collections';
 import { ChatteryWindow } from '../reusables/chattery/ChatteryWindow';
-import { Redirect } from 'react-router-dom';
+import { successDialog, errorDialog } from '../functions';
 
 const Step = Steps.Step;
 
@@ -121,24 +122,11 @@ class Request extends Component {
       return;
     }
 
-    const self = this;
-    const app = self.$f7;
-
     Meteor.call('acceptRequest', request._id, (error, respond) => {
       if (error) {
-        app.dialog.alert(`${error.reason}`, 'Error', () => {
-          console.log(error);
-        });
+        errorDialog(error.reason);
       } else {
-        const notification = app.notification.create({
-          // icon: '<i class="icon success"></i>',
-          title: 'Great!',
-          subtitle: 'Thank you for being a generous human being',
-          closeButton: true,
-          closeTimeout: 6000,
-          opened: true
-        });
-        notification.open();
+        successDialog('Thank you for being a generous human being');
       }
     });
   };

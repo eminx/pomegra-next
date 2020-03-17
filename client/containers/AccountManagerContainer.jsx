@@ -278,7 +278,6 @@ class AccountManager extends Component {
 
 export default AccountManagerContainer = withTracker(props => {
   const currentUserSub = Meteor.subscribe('me');
-  console.log(currentUserSub);
   const currentUser = Meteor.user();
   const isLoading = !currentUserSub.ready();
 

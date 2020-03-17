@@ -1,11 +1,33 @@
 import React, { Component } from 'react';
-import { TabBar, Icon } from 'antd-mobile';
+import { TabBar } from 'antd-mobile';
 import { withRouter } from 'react-router-dom';
-import { AiOutlineMessage, AiFillMessage } from 'react-icons/ai';
-import { FaRegUser, FaUserAlt } from 'react-icons/fa';
 import { GiBookshelf } from 'react-icons/gi';
-import { IoIosSearch } from 'react-icons/io';
 import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
+
+const iconSize = 24;
+
+const iconRoutes = [
+  {
+    title: 'Home',
+    path: '/',
+    icon: <GoHome size={iconSize} />
+  },
+  {
+    title: 'My Shelf',
+    path: '/my-shelf',
+    icon: <GoBook size={iconSize} />
+  },
+  {
+    title: 'Discover',
+    path: '/discover',
+    icon: <GoSearch size={iconSize} />
+  },
+  {
+    title: 'Messages',
+    path: '/messages',
+    icon: <GoCommentDiscussion size={iconSize} />
+  }
+];
 
 class AppTabBar extends Component {
   changeRoute = route => {
@@ -28,53 +50,19 @@ class AppTabBar extends Component {
       >
         <TabBar
           unselectedTintColor="#949494"
-          tintColor="#33A3F4"
+          tintColor="#4b4b4b"
           barTintColor="white"
         >
-          <TabBar.Item
-            key="home"
-            title="Home"
-            icon={<GoHome />}
-            selectedIcon={<GoHome />}
-            selected={pathname === '/'}
-            onPress={() => this.changeRoute('/')}
-          ></TabBar.Item>
-
-          <TabBar.Item
-            key="my-books"
-            title="My Books"
-            icon={<GoBook />}
-            selectedIcon={<GoBook />}
-            selected={pathname === '/my-books'}
-            onPress={() => this.changeRoute('/my-books')}
-          ></TabBar.Item>
-
-          <TabBar.Item
-            key="find"
-            title="Find"
-            icon={<GoSearch />}
-            selectedIcon={<GoSearch />}
-            selected={pathname === '/find'}
-            onPress={() => this.changeRoute('/find')}
-          ></TabBar.Item>
-
-          <TabBar.Item
-            key="messages"
-            title="Messages"
-            icon={<GoCommentDiscussion />}
-            selectedIcon={<GoCommentDiscussion />}
-            selected={pathname === '/messages'}
-            onPress={() => this.changeRoute('/messages')}
-          ></TabBar.Item>
-
-          {/* <TabBar.Item
-            key="my-profile"
-            title="My Profile"
-            icon={<FaRegUser />}
-            selectedIcon={<FaUserAlt />}
-            selected={pathname === '/my-profile'}
-            onPress={() => this.changeRoute('/my-profile')}
-          ></TabBar.Item> */}
+          {iconRoutes.map((icon, index) => (
+            <TabBar.Item
+              key={icon.path}
+              title={icon.title}
+              icon={icon.icon}
+              selectedIcon={icon.icon}
+              selected={pathname === icon.path}
+              onPress={() => this.changeRoute(icon.path)}
+            />
+          ))}
         </TabBar>
       </div>
     );

@@ -5,7 +5,7 @@ import {
   WhiteSpace,
   NavBar,
   List,
-  Subnavbar,
+  Flex,
   SearchBar,
   Button,
   Picker
@@ -106,7 +106,11 @@ class MyBooks extends Component {
           dismissText="Cancel"
           onOk={value => this.handleSortByChange(value)}
         >
-          <List.Item arrow="horizontal">{sortBy}</List.Item>
+          <Flex justify="center">
+            <Anchor label="sorted by" style={{ marginTop: 12 }}>
+              {sortBy}
+            </Anchor>
+          </Flex>
         </Picker>
 
         <WhiteSpace size="md" />
@@ -116,7 +120,12 @@ class MyBooks extends Component {
             filteredSortedBooks.map(myBook => (
               <List.Item
                 key={myBook._id}
-                thumb={myBook.image_url}
+                thumb={
+                  <img
+                    style={{ width: 33, height: 44 }}
+                    src={myBook.image_url}
+                  />
+                }
                 align="top"
                 extra={myBook.b_cat}
                 onClick={() => this.viewBookInDetail(myBook)}
@@ -143,3 +152,19 @@ export default MyBooksContainer = withTracker(props => {
     myBooks
   };
 })(MyBooks);
+
+const Anchor = ({ label, children, ...otherProps }) => (
+  <span {...otherProps}>
+    <span>{label} </span>
+    <a
+      {...otherProps}
+      href="#"
+      style={{
+        color: '#108ee9',
+        borderBottom: '1px solid #108ee9'
+      }}
+    >
+      {children}
+    </a>
+  </span>
+);
