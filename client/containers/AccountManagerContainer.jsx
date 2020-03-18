@@ -12,12 +12,18 @@ import {
   Modal,
   Toast,
   WingBlank,
-  WhiteSpace
+  WhiteSpace,
+  Result
 } from 'antd-mobile';
+import { GiBookshelf } from 'react-icons/gi';
+import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
+import { GoBook } from 'react-icons/go';
 
 import CreateAccount from '../reusables/CreateAccount';
 import AppTabBar from '../reusables/AppTabBar';
 import { errorDialog } from '../functions';
+
+const iconSize = 72;
 
 class AccountManager extends Component {
   state = {
@@ -119,7 +125,11 @@ class AccountManager extends Component {
 
     return (
       <div>
-        <NavBar mode="light">Your Account</NavBar>
+        {currentUser ? (
+          <NavBar mode="light">Welcome to Librella</NavBar>
+        ) : (
+          <NavBar>Please Create an Account</NavBar>
+        )}
 
         {!currentUser && (
           <div>
@@ -140,10 +150,48 @@ class AccountManager extends Component {
             </div>
           </div>
         )}
+
         <WhiteSpace />
 
         {currentUser && (
+          <div>
+            <Result
+              img={<GiBookshelf size={iconSize} color="orange" />}
+              title="Discover & Borrow"
+              message="Discover Books, both as an inspiration to read, and to borrow from others. You can borrow a book from your friends, neighbors and other interesting readers in your town. See what
+                      books people have"
+              buttonText="Discover"
+              buttonType="primary"
+              onButtonClick={() => this.redirectTo('/discover')}
+            />
+            <WhiteSpace size="lg" />
+            <Result
+              img={<IoMdAddCircle size={iconSize} color="purple" />}
+              title="Add & Lend"
+              message="You can virtualise your book shelf. Let the others see your
+                      books by adding some of your books at home to your virtual shelf. So others can see it"
+              buttonText="Add a Book"
+              buttonType="primary"
+              onButtonClick={() => this.redirectTo('/add')}
+            />
+            <WhiteSpace size="lg" />
+
+            <Result
+              img={<IoIosChatboxes size={iconSize} color="green" />}
+              title="Chat & Inspire"
+              message="For every book lending process, you can chat with others to
+                      manage your book lending process. Inspire from amazing readers"
+              buttonText="Messages"
+              buttonType="primary"
+              onButtonClick={() => this.redirectTo('/messages')}
+            />
+            <WhiteSpace size="lg" />
+          </div>
+        )}
+
+        {currentUser && (
           <WingBlank size="lg">
+            <WhiteSpace size="lg" />
             <Flex justify="center">
               <Button
                 size="small"
@@ -155,73 +203,6 @@ class AccountManager extends Component {
               </Button>
             </Flex>
           </WingBlank>
-        )}
-
-        {currentUser && (
-          <div>
-            <List
-              style={{
-                backgroundColor: 'white',
-                // position: 'fixed',
-                // bottom: 50,
-                marginTop: 200
-              }}
-            >
-              <List.Item
-                extra={
-                  <Button size="small" onClick={() => this.redirectTo('/find')}>
-                    Borrow
-                  </Button>
-                }
-                multipleLine
-              >
-                Borrow
-                <List.Item.Brief>
-                  Borrow Books from others to Read
-                  {/* You can borrow a book from your friends and others. See what
-                  books people have */}
-                </List.Item.Brief>
-              </List.Item>
-
-              <List.Item
-                extra={
-                  <Button
-                    size="small"
-                    onClick={() => this.redirectTo('/my-books')}
-                  >
-                    My Shelf
-                  </Button>
-                }
-                multipleLine
-              >
-                Lend
-                <List.Item.Brief>
-                  Lend Books to Friends and neighbors
-                  {/* You can virtualise your book shelf. Let the others see your
-                  books and borrow from you. */}
-                </List.Item.Brief>
-              </List.Item>
-
-              <List.Item
-                extra={
-                  <Button
-                    size="small"
-                    onClick={() => this.redirectTo('/messages')}
-                  >
-                    My Messages
-                  </Button>
-                }
-                multipleLine
-              >
-                Message
-                <List.Item.Brief>
-                  Message with People
-                  {/* For every book lending process, you can chat with others to
-                  manage your book lending process */}
-                </List.Item.Brief>
-              </List.Item>
-            </List>
-          </div>
         )}
 
         <Modal
@@ -260,7 +241,7 @@ class AccountManager extends Component {
               <Button
                 size="small"
                 inline
-                ghost
+                type="ghost"
                 onClick={() => this.forgotPassword()}
                 style={{ margin: '16px 0' }}
               >
@@ -269,6 +250,8 @@ class AccountManager extends Component {
             </div>
           </List>
         </Modal>
+
+        <div style={{ width: '100%', height: 100 }} />
 
         {currentUser && <AppTabBar />}
       </div>
