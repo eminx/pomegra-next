@@ -15,7 +15,6 @@
   overflow-y: scroll;
   overflow-x: hidden;
   height: calc(100vh - 133px);
-  margin-top: 43px;
 }
 
 .chattery-inputform-container {

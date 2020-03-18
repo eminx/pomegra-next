@@ -9,13 +9,12 @@ import {
   Flex,
   Result,
   Icon,
-  Link,
-  List,
+  Tabs,
+  Badge,
   InputItem,
   Steps,
   WingBlank,
   WhiteSpace,
-  Menu,
   Accordion
 } from 'antd-mobile';
 import { IoMdSend } from 'react-icons/io';
@@ -25,6 +24,12 @@ import { ChatteryWindow } from '../reusables/chattery/ChatteryWindow';
 import { successDialog, errorDialog } from '../functions';
 
 const Step = Steps.Step;
+const FlexItem = Flex.Item;
+
+const tabs = [
+  { title: <Badge dot>Status</Badge> },
+  { title: <Badge text={'3'}>Messages</Badge> }
+];
 
 const steps = [
   {
@@ -53,7 +58,7 @@ class Request extends Component {
     typingMessage: null,
     menuOpened: false,
     chatInputValue: '',
-    isAccordionOpen: true
+    openTab: 'status'
   };
 
   componentDidMount() {
@@ -287,125 +292,129 @@ class Request extends Component {
         >
           <b>{this.getOthersName()}</b>
         </NavBar>
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <Accordion
-            style={{ position: 'absolute', top: 0, width: '100%' }}
-            className="request-accordion"
-            activeKey={isAccordionOpen ? 'only-panel' : 'no-panel'}
-            onChange={() =>
-              this.setState({ isAccordionOpen: !isAccordionOpen })
-            }
-          >
-            <Accordion.Panel
-              key="only-panel"
-              header={request.book_name}
-              style={{
-                textAlign: 'center',
-                backgroundColor:
-                  requestedNotResponded && iAmTheOwner ? '#e94f4f' : null
-              }}
-            >
-              <WingBlank>
-                {requestedNotResponded && iAmTheOwner ? (
+
+        <Tabs
+          tabs={tabs}
+          initialPage={1}
+          onChange={(tab, index) => {
+            // this.setState({openTab: tab.title})
+            console.log(tab);
+          }}
+          onTabClick={(tab, index) => {
+            console.log('onTabClick', index, tab);
+          }}
+        >
+          <div>
+            <WingBlank>
+              {requestedNotResponded && iAmTheOwner ? (
+                <div>
+                  <WhiteSpace size="lg" />
+                  <Result
+                    img={myImg(request.book_image_url)}
+                    title={request.book_name}
+                    message={`${request.requester_name} would like to read your book`}
+                    buttonText="Accept"
+                    buttonType="primary"
+                    onButtonClick={() => this.acceptRequest()}
+                  />
+                  <WhiteSpace />
+                  <Flex justify="center">
+                    <Button
+                      inline
+                      type="warning"
+                      onClick={() => this.denyRequest()}
+                    >
+                      Deny
+                    </Button>
+                  </Flex>
+                  <WhiteSpace size="lg" />
+                </div>
+              ) : (
+                <div>
+                  <WhiteSpace size="lg" />
+                  <Flex justify="center">{myImg(request.book_image_url)}</Flex>
                   <div>
-                    <WhiteSpace size="lg" />
-                    <Result
-                      img={myImg(request.book_image_url)}
-                      title={request.book_name}
-                      message={`${request.requester_name} would like to read your book`}
-                      buttonText="Accept"
-                      buttonType="primary"
-                      onButtonClick={() => this.acceptRequest()}
-                    />
-                    <WhiteSpace />
-                    <Flex justify="center">
-                      <Button
-                        inline
-                        type="warning"
-                        onClick={() => this.denyRequest()}
-                      >
-                        Deny
-                      </Button>
-                    </Flex>
-                    <WhiteSpace size="lg" />
+                    <Steps
+                      current={this.getCurrentStatus()}
+                      direction="horizontal"
+                      size="small"
+                    >
+                      {steps}
+                    </Steps>
                   </div>
-                ) : (
-                  <div>
-                    <Flex justify="center">
-                      {myImg(request.book_image_url)}
-                    </Flex>
+                </div>
+              )}
+            </WingBlank>
+
+            <WingBlank>
+              {request.is_confirmed &&
+                !request.is_handed &&
+                currentUser._id === request.req_from && (
+                  <Flex justify="center" style={{ padding: 12 }}>
                     <WhiteSpace size="lg" />
-                    <div>
-                      <Steps
-                        current={this.getCurrentStatus()}
-                        direction="horizontal"
-                        size="small"
-                      >
-                        {steps}
-                      </Steps>
-                    </div>
-                  </div>
+                    <Button
+                      inline
+                      size="small"
+                      type="primary"
+                      onClick={() => this.isHanded()}
+                    >
+                      I've handed over the book
+                    </Button>
+                  </Flex>
                 )}
-              </WingBlank>
 
-              <WingBlank>
-                {request.is_confirmed &&
-                  !request.is_handed &&
-                  currentUser._id === request.req_from && (
-                    <Flex justify="center" style={{ padding: 12 }}>
-                      <Button
-                        inline
-                        size="small"
-                        type="primary"
-                        onClick={() => this.isHanded()}
-                      >
-                        I've handed over the book
-                      </Button>
-                    </Flex>
-                  )}
-
-                {request.is_handed &&
-                  !request.is_returned &&
-                  currentUser._id === request.req_from && (
-                    <Flex justify="center" style={{ padding: 12 }}>
-                      <Button
-                        inline
-                        size="small"
-                        type="primary"
-                        onClick={() => this.isReturned()}
-                      >
-                        I've received my book back
-                      </Button>
-                    </Flex>
-                  )}
-              </WingBlank>
-              <WhiteSpace size="lg" />
-            </Accordion.Panel>
-          </Accordion>
-        </div>
-
-        {messages && (
-          <ChatteryWindow
-            messages={messages}
-            // removeNotification={this.removeNotification}
-          />
-        )}
-
-        <Flex style={{ position: 'fixed', bottom: 0, width: '100%' }}>
-          <Flex.Item>
-            <form onSubmit={event => this.sendMessage(event)}>
-              <InputItem
-                value={chatInputValue}
-                onChange={value => this.setState({ chatInputValue: value })}
-                placeholder="enter message"
-                onFocus={() => this.setState({ isAccordionOpen: false })}
+              {request.is_handed &&
+                !request.is_returned &&
+                currentUser._id === request.req_from && (
+                  <Flex justify="center" style={{ padding: 12 }}>
+                    <WhiteSpace size="lg" />
+                    <Button
+                      inline
+                      size="small"
+                      type="primary"
+                      onClick={() => this.isReturned()}
+                    >
+                      I've received my book back
+                    </Button>
+                  </Flex>
+                )}
+            </WingBlank>
+          </div>
+          <div>
+            <Flex direction="column" justify="between">
+              <ChatteryWindow
+                messages={messages}
+                // removeNotification={this.removeNotification}
               />
-            </form>
-          </Flex.Item>
-          <Flex.Item style={{ flexGrow: 0, flexBasis: 36 }}>
-            <IoMdSend size={24} onClick={() => this.sendMessage()} />
-          </Flex.Item>
-        </Flex>
+
+              <Flex style={{ flexGrow: 0, width: '100%' }}>
+                <FlexItem>
+                  <form onSubmit={event => this.sendMessage(event)}>
+                    <InputItem
+                      value={chatInputValue}
+                      onChange={value =>
+                        this.setState({ chatInputValue: value })
+                      }
+                      placeholder="enter message"
+                      onFocus={() => this.setState({ isAccordionOpen: false })}
+                    />
+                  </form>
+                </FlexItem>
+                <FlexItem
+                  style={{
+                    flexGrow: 0,
+                    flexBasis: 48,
+                    display: 'flex',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <IoMdSend size={24} onClick={() => this.sendMessage()} />
+                </FlexItem>
+              </Flex>
+            </Flex>
+          </div>
+        </Tabs>
+        <WhiteSpace />
       </div>
     );
   }
