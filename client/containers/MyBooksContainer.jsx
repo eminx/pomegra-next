@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Redirect } from 'react-router-dom';
 import {
   WhiteSpace,
   NavBar,
@@ -10,6 +11,8 @@ import {
   Button,
   Picker
 } from 'antd-mobile';
+import { GoPlus } from 'react-icons/go';
+import { IoMdAddCircle } from 'react-icons/io';
 
 import AppTabBar from '../reusables/AppTabBar';
 
@@ -27,7 +30,8 @@ const sortByMethods = [
 class MyBooks extends Component {
   state = {
     sortBy: 'last added',
-    filterValue: ''
+    filterValue: '',
+    gotoAddBook: false
   };
 
   viewBookInDetail = myBook => {
@@ -74,7 +78,11 @@ class MyBooks extends Component {
   };
 
   render() {
-    const { sortBy, filterValue } = this.state;
+    const { sortBy, filterValue, gotoAddBook } = this.state;
+
+    if (gotoAddBook) {
+      return <Redirect to="/add" />;
+    }
 
     const sortedBooks = this.sortedBooks();
 
@@ -93,6 +101,19 @@ class MyBooks extends Component {
     return (
       <div>
         <NavBar mode="light">My Books</NavBar>
+
+        <Flex justify="center" direction="column">
+          <WhiteSpace />
+          <Button
+            inline
+            icon={<IoMdAddCircle size={24} />}
+            onClick={() => this.setState({ gotoAddBook: true })}
+          >
+            Add Book
+          </Button>
+          <WhiteSpace />
+        </Flex>
+
         <SearchBar
           placeholder="Filter"
           cancelText="Cancel"

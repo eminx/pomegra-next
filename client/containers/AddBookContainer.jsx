@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   WingBlank,
   WhiteSpace,
+  Icon,
   NavBar,
   SearchBar,
   List,
@@ -15,6 +16,7 @@ import {
 import BookDetailTobeAdded from './BookDetailTobeAdded';
 import AppTabBar from '../reusables/AppTabBar';
 import { successDialog, errorDialog } from '../functions';
+import { Redirect } from 'react-router-dom';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
@@ -27,7 +29,8 @@ class AddBook extends Component {
     searchResults: [],
     searchbarInput: '',
     searchbarFocused: false,
-    bookInDetail: null
+    bookInDetail: null,
+    backToShelf: false
   };
 
   componentDidMount() {
@@ -100,6 +103,11 @@ class AddBook extends Component {
 
   render() {
     const { currentUser } = this.props;
+    const { backToShelf } = this.state;
+
+    if (backToShelf) {
+      return <Redirect to="/my-shelf" />;
+    }
 
     if (!currentUser) {
       <ActivityIndicator text="Loading..." />;
@@ -113,7 +121,17 @@ class AddBook extends Component {
     } = this.state;
     return (
       <div>
-        <NavBar mode="light">Add book to your virtual shelf</NavBar>
+        <NavBar
+          mode="light"
+          leftContent={<Icon type="left" />}
+          onLeftClick={() =>
+            this.setState({
+              backToShelf: true
+            })
+          }
+        >
+          Add book to your virtual shelf
+        </NavBar>
         <SearchBar
           placeholder="title, author, ISBN etc"
           value={searchbarInput}

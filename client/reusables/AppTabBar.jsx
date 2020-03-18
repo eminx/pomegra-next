@@ -19,19 +19,14 @@ const iconRoutes = [
     icon: <GoHome size={iconSize} />
   },
   {
-    title: 'Add',
-    path: '/add',
-    icon: <GoPlus size={iconSize} />
+    title: 'Discover',
+    path: '/discover',
+    icon: <GoSearch size={iconSize} />
   },
   {
     title: 'My Shelf',
     path: '/my-shelf',
     icon: <GoBook size={iconSize} />
-  },
-  {
-    title: 'Discover',
-    path: '/discover',
-    icon: <GoSearch size={iconSize} />
   },
   {
     title: 'Messages',
