@@ -186,13 +186,7 @@ class Request extends Component {
   };
 
   getTabs = () => {
-    const { request, messages, currentUser } = this.props;
-    const foundContext = currentUser.notifications.find(notification => {
-      console.log(notification);
-      return notification.contextId === request._id;
-    });
-
-    const notificationsCount = foundContext && foundContext.count;
+    const notificationsCount = this.getNotificationsCount();
 
     let dottedStatus = true;
 
@@ -200,6 +194,15 @@ class Request extends Component {
       { title: <Badge dot={dottedStatus}>Status</Badge> },
       { title: <Badge text={notificationsCount}>Messages</Badge> }
     ];
+  };
+
+  getNotificationsCount = () => {
+    const { request, currentUser } = this.props;
+    const foundContext = currentUser.notifications.find(notification => {
+      return notification.contextId === request._id;
+    });
+
+    return foundContext && foundContext.count;
   };
 
   getOthersName = () => {

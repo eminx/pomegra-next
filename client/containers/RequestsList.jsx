@@ -1,20 +1,22 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
+
 import {
+  ActivityIndicator,
   NavBar,
   List,
   SearchBar,
   SegmentedControl,
   WhiteSpace,
-  WingBlank
+  WingBlank,
+  Badge
 } from 'antd-mobile';
 
 const ListItem = List.Item;
 
 import { Requests } from '../../imports/api/collections';
-import AppTabBar from '../reusables/AppTabBar';
-import { Redirect } from 'react-router-dom';
 
 const requestTypeValues = ['All', 'By Me', 'From Me'];
 
@@ -52,6 +54,15 @@ class RequestsList extends Component {
     this.setState({ gotoRequest: request._id });
   };
 
+  getNotificationsCount = request => {
+    const { currentUser } = this.props;
+    const foundContext = currentUser.notifications.find(notification => {
+      return notification.contextId === request._id;
+    });
+
+    return foundContext && foundContext.count;
+  };
+
   render() {
     const { requests, currentUser } = this.props;
     const { filterValue, requestType, gotoRequest } = this.state;
@@ -62,9 +73,14 @@ class RequestsList extends Component {
 
     if (!requests || !currentUser) {
       return (
-        <div>
-          <NavBar>No account</NavBar>
-          <div style={{ textAlign: 'center' }}>Please create an account</div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 50
+          }}
+        >
+          <ActivityIndicator text="Loading..." />
         </div>
       );
     }
@@ -116,18 +132,22 @@ class RequestsList extends Component {
                 multipleLine
                 align="top"
                 thumb={request.book_image_url}
+                onClick={() => this.viewRequestInDetail(request)}
                 extra={
                   request.date_requested &&
                   request.date_requested.toLocaleDateString()
                 }
-                onClick={() => this.viewRequestInDetail(request)}
               >
-                <b>
-                  {currentUser.username === request.owner_name
-                    ? request.requester_name
-                    : request.owner_name}
-                </b>
-                <ListItem.Brief>{request.book_name}</ListItem.Brief>
+                <div>
+                  <Badge dot={this.getNotificationsCount(request)}>
+                    <b>
+                      {currentUser.username === request.owner_name
+                        ? request.requester_name
+                        : request.owner_name}
+                    </b>
+                  </Badge>
+                  <ListItem.Brief>{request.book_name}</ListItem.Brief>
+                </div>
               </ListItem>
             ))}
         </List>
