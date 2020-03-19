@@ -187,8 +187,12 @@ class Request extends Component {
 
   getTabs = () => {
     const { request, messages, currentUser } = this.props;
+    const foundContext = currentUser.notifications.find(notification => {
+      console.log(notification);
+      return notification.contextId === request._id;
+    });
 
-    const notificationsCount = notificationsCounter(currentUser.notifications);
+    const notificationsCount = foundContext && foundContext.count;
 
     let dottedStatus = true;
 
@@ -366,7 +370,6 @@ class Request extends Component {
             </Flex>
           </div>
         </Tabs>
-        <WhiteSpace />
       </div>
     );
   }

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 
 import AppTabBar from '../reusables/AppTabBar';
 import { notificationsCounter } from '../functions';
+import { WhiteSpace } from 'antd-mobile';
 
 const routesWithTabBar = ['/', '/discover', '/my-shelf', '/messages'];
 
@@ -38,13 +39,16 @@ class Layout extends React.Component {
     return (
       <div>
         {children}
-        <div style={{ width: '100%', height: 80 }} />
+
         {shouldRenderTabBar && (
-          <AppTabBar
-            pathname={pathname}
-            changeRoute={this.changeRoute}
-            messageNotificationCount={this.getMessageNotificationCount()}
-          />
+          <Fragment>
+            <AppTabBar
+              pathname={pathname}
+              changeRoute={this.changeRoute}
+              messageNotificationCount={this.getMessageNotificationCount()}
+            />
+            <WhiteSpace size={80} />
+          </Fragment>
         )}
       </div>
     );
