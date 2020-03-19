@@ -39,7 +39,7 @@ class MyBook extends PureComponent {
         <NavBar
           mode="light"
           leftContent={<Icon type="left" />}
-          onLeftClick={() => this.setState({ backToDiscover: true })}
+          onLeftClick={() => this.setState({ backToBooks: true })}
           rightContent={<Icon type="ellipsis" />}
         >
           Details
