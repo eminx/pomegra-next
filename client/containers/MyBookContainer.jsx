@@ -1,82 +1,88 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-  Block,
-  Page,
-  Navbar,
-  Link,
-  List,
-  ListItem,
-} from 'framework7-react';
+import React, { Fragment, PureComponent } from 'react';
+import { Redirect } from 'react-router-dom';
+import { WhiteSpace, WingBlank, Modal, NavBar, Icon } from 'antd-mobile';
 
-class MyBook extends Component {
-  state = {};
+import { BookCard } from '../reusables/BookCard';
+
+const myImg = src => <img src={src} alt="" width={48} height={66} />;
+
+class MyBook extends PureComponent {
+  state = {
+    isEditDialogOpen: false,
+    backToBooks: false
+  };
+
+  openEditDialog = () => {
+    this.setState({
+      isEditDialogOpen: true
+    });
+  };
+
+  closeEditDialog = () => {
+    this.setState({
+      isEditDialogOpen: false
+    });
+  };
 
   render() {
-    const { currentUser, myBook } = this.props;
+    const { currentUser, book } = this.props;
+    const { isEditDialogOpen, backToBooks } = this.state;
 
-    const detailListItemStyle = {
-      justifyContent: 'flex-end',
-      height: 18,
-      fontSize: 12,
-    };
-
-    if (!myBook) {
-      return;
+    if (backToBooks) {
+      return <Redirect to="my-books" />;
     }
 
     return (
-      <Page name="books">
-        <Navbar title="Details" backLink></Navbar>
-        <Card className="demo-card-header-pic" title={myBook.b_title}>
-          <CardHeader
-            className="no-border"
-            valign="bottom"
-            style={{
-              backgroundImage: myBook.image_url && `url(${myBook.image_url})`,
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              backgroundColor: '#010101',
-              height: 120,
-              backgroundSize: 'contain',
-            }}
-          ></CardHeader>
-          <CardContent>
-            <Block>
-              <List
-                simpleList
-                style={{ paddingTop: 12, paddingBottom: 12 }}
-                noHairlinesBetween
-              >
-                <ListItem style={{ paddingLeft: 0 }}>
-                  {myBook.b_author}
-                </ListItem>
-                <ListItem style={detailListItemStyle}>
-                  {myBook.b_lang.toUpperCase()},{' '}
-                </ListItem>
-                <ListItem style={detailListItemStyle}>{myBook.b_cat}</ListItem>
-              </List>
-            </Block>
-            <p>{myBook.b_description}</p>
-          </CardContent>
-          <CardFooter style={{ display: 'flex', justifyContent: 'center' }}>
-            {/* <Link>Close</Link> */}
-            <Link>Edit</Link>
-          </CardFooter>
-        </Card>
-      </Page>
+      <div>
+        <NavBar
+          mode="light"
+          leftContent={<Icon type="left" />}
+          onLeftClick={() => this.setState({ backToDiscover: true })}
+          rightContent={<Icon type="ellipsis" />}
+        >
+          Details
+        </NavBar>
+
+        {book && (
+          <Fragment>
+            <WhiteSpace size="lg" />
+            <WingBlank>
+              <BookCard
+                book={book}
+                onButtonClick={this.openEditDialog}
+                buttonType="ghost"
+                buttonText="Edit"
+              />
+            </WingBlank>
+          </Fragment>
+        )}
+
+        <Modal
+          visible={currentUser && isEditDialogOpen}
+          position="top"
+          closable
+          onClose={this.closeEditDialog}
+          title="Edit Details of the Book"
+        >
+          edit dialog
+        </Modal>
+      </div>
     );
   }
 }
 
 export default MyBookContainer = withTracker(props => {
   const currentUser = Meteor.user();
+  const bookId = props.match.params.id;
+  const bookSub = Meteor.subscribe('singleBook', bookId);
+  const book = currentUser && Books.findOne(bookId);
+  const isLoading = !bookSub.ready();
+
   return {
     currentUser,
+    book,
+    isLoading
   };
 })(MyBook);

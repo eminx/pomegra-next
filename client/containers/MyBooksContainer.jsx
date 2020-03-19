@@ -11,10 +11,7 @@ import {
   Button,
   Picker
 } from 'antd-mobile';
-import { GoPlus } from 'react-icons/go';
 import { IoMdAddCircle } from 'react-icons/io';
-
-import AppTabBar from '../reusables/AppTabBar';
 
 const ListItem = List.Item;
 const Brief = ListItem.Brief;
@@ -31,11 +28,12 @@ class MyBooks extends Component {
   state = {
     sortBy: 'last added',
     filterValue: '',
-    gotoAddBook: false
+    gotoAddBook: false,
+    gotoSingleBook: false
   };
 
-  viewBookInDetail = myBook => {
-    this.setState({});
+  viewBookInDetail = book => {
+    this.setState({ gotoSingleBook: book._id });
   };
 
   handleSortByChange = value => {
@@ -78,10 +76,12 @@ class MyBooks extends Component {
   };
 
   render() {
-    const { sortBy, filterValue, gotoAddBook } = this.state;
+    const { sortBy, filterValue, gotoAddBook, gotoSingleBook } = this.state;
 
     if (gotoAddBook) {
       return <Redirect to="/add" />;
+    } else if (gotoSingleBook) {
+      return <Redirect to={`/my-book/${gotoSingleBook}`} />;
     }
 
     const sortedBooks = this.sortedBooks();
@@ -141,21 +141,18 @@ class MyBooks extends Component {
 
         <List className="larger-thumb-list">
           {filteredSortedBooks &&
-            filteredSortedBooks.map(myBook => (
+            filteredSortedBooks.map(book => (
               <ListItem
-                key={myBook._id}
+                key={book._id}
                 align="top"
                 thumb={
-                  <img
-                    style={{ width: 33, height: 44 }}
-                    src={myBook.image_url}
-                  />
+                  <img style={{ width: 33, height: 44 }} src={book.image_url} />
                 }
-                extra={myBook.b_cat}
-                onClick={() => this.viewBookInDetail(myBook)}
+                extra={book.b_cat}
+                onClick={() => this.viewBookInDetail(book)}
               >
-                <b>{myBook.b_title}</b>
-                <Brief>{myBook.b_author}</Brief>
+                <b>{book.b_title}</b>
+                <Brief>{book.b_author}</Brief>
               </ListItem>
             ))}
         </List>
