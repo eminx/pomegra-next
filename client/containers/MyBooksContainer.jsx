@@ -159,7 +159,6 @@ class MyBooks extends Component {
               </ListItem>
             ))}
         </List>
-        <AppTabBar />
       </div>
     );
   }

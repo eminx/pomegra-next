@@ -20,7 +20,7 @@ import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
 import { GoBook } from 'react-icons/go';
 
 import CreateAccount from '../reusables/CreateAccount';
-import AppTabBar from '../reusables/AppTabBar';
+
 import { errorDialog } from '../functions';
 
 const iconSize = 72;
@@ -252,8 +252,6 @@ class AccountManager extends Component {
         </Modal>
 
         <div style={{ width: '100%', height: 100 }} />
-
-        {currentUser && <AppTabBar />}
       </div>
     );
   }

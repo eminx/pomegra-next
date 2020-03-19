@@ -198,8 +198,6 @@ class AddBook extends Component {
             insertBook={this.insertBook}
           />
         </Modal>
-
-        <AppTabBar />
       </div>
     );
   }

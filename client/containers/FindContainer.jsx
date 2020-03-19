@@ -56,8 +56,6 @@ class Find extends Component {
               </ListItem>
             ))}
         </List>
-
-        <AppTabBar />
       </div>
     );
   }

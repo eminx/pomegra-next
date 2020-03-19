@@ -131,9 +131,6 @@ class RequestsList extends Component {
               </ListItem>
             ))}
         </List>
-        <WhiteSpace size={50} />
-
-        <AppTabBar />
       </div>
     );
   }

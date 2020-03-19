@@ -1,48 +1,46 @@
 import React, { Component } from 'react';
-import { TabBar } from 'antd-mobile';
-import { withRouter } from 'react-router-dom';
-import { GiBookshelf } from 'react-icons/gi';
-import {
-  GoHome,
-  GoPlus,
-  GoBook,
-  GoCommentDiscussion,
-  GoSearch
-} from 'react-icons/go';
+import { TabBar, Badge } from 'antd-mobile';
+import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
 
 const iconSize = 24;
 
-const iconRoutes = [
-  {
-    title: 'Home',
-    path: '/',
-    icon: <GoHome size={iconSize} />
-  },
-  {
-    title: 'Discover',
-    path: '/discover',
-    icon: <GoSearch size={iconSize} />
-  },
-  {
-    title: 'My Shelf',
-    path: '/my-shelf',
-    icon: <GoBook size={iconSize} />
-  },
-  {
-    title: 'Messages',
-    path: '/messages',
-    icon: <GoCommentDiscussion size={iconSize} />
-  }
-];
+const renderIconRoutes = messageNotificationCount => {
+  return [
+    {
+      title: 'Home',
+      path: '/',
+      icon: <GoHome size={iconSize} />
+    },
+    {
+      title: 'Discover',
+      path: '/discover',
+      icon: <GoSearch size={iconSize} />
+    },
+    {
+      title: 'My Shelf',
+      path: '/my-shelf',
+      icon: <GoBook size={iconSize} />
+    },
+    {
+      title: 'Messages',
+      path: '/messages',
+      icon: (
+        <Badge
+          text={messageNotificationCount && messageNotificationCount.toString()}
+        >
+          <GoCommentDiscussion size={iconSize} />
+        </Badge>
+      )
+    }
+  ];
+};
 
 class AppTabBar extends Component {
-  changeRoute = route => {
-    this.props.history.push(route);
-  };
-
   render() {
-    const { history } = this.props;
-    const pathname = history && location.pathname;
+    const { pathname, messageNotificationCount, changeRoute } = this.props;
+
+    const iconRoutes = renderIconRoutes(messageNotificationCount);
+    console.log(messageNotificationCount);
 
     return (
       <div
@@ -66,7 +64,7 @@ class AppTabBar extends Component {
               icon={icon.icon}
               selectedIcon={icon.icon}
               selected={pathname === icon.path}
-              onPress={() => this.changeRoute(icon.path)}
+              onPress={() => changeRoute(icon.path)}
             />
           ))}
         </TabBar>
@@ -75,4 +73,4 @@ class AppTabBar extends Component {
   }
 }
 
-export default withRouter(AppTabBar);
+export default AppTabBar;

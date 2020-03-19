@@ -10,4 +10,15 @@ function successDialog(text) {
   Toast.success(text, toastDuration);
 }
 
-export { errorDialog, successDialog };
+function notificationsCounter(notifications) {
+  let notificationsCount = 0;
+  if (notifications && notifications.length > 0) {
+    notifications.forEach(notification => {
+      notificationsCount += notification.count;
+    });
+  }
+
+  return notificationsCount;
+}
+
+export { errorDialog, successDialog, notificationsCounter };

@@ -85,7 +85,6 @@ class BookDetailTobeRequested extends Component {
                 />
               </Card>
             </WingBlank>
-            <AppTabBar />
           </Fragment>
         )}
       </div>

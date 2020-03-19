@@ -21,15 +21,10 @@ import { IoMdSend } from 'react-icons/io';
 
 import { Requests } from '../../imports/api/collections';
 import { ChatteryWindow } from '../reusables/chattery/ChatteryWindow';
-import { successDialog, errorDialog } from '../functions';
+import { successDialog, errorDialog, notificationsCounter } from '../functions';
 
 const Step = Steps.Step;
 const FlexItem = Flex.Item;
-
-const tabs = [
-  { title: <Badge dot>Status</Badge> },
-  { title: <Badge text={'3'}>Messages</Badge> }
-];
 
 const steps = [
   {
@@ -53,27 +48,14 @@ const myImg = src => <img src={src} alt="" width={48} height={66} />;
 class Request extends Component {
   state = {
     messageInput: '',
-    attachments: [],
-    sheetVisible: false,
     typingMessage: null,
-    menuOpened: false,
-    chatInputValue: '',
-    openTab: 'status'
+    openTab: 0
   };
-
-  componentDidMount() {
-    // const { messages } = this.props;
-    // if (!messages.is_seen_by_other) {
-    //   this.setState({
-    //     isAccordionOpen: false
-    //   })
-    // }
-  }
 
   sendMessage = event => {
     event && event.preventDefault();
     const { request } = this.props;
-    const messageInput = this.state.chatInputValue;
+    const messageInput = this.state.messageInput;
     if (messageInput === '') {
       return;
     }
@@ -86,7 +68,7 @@ class Request extends Component {
     });
 
     this.setState({
-      chatInputValue: ''
+      messageInput: ''
     });
   };
 
@@ -147,19 +129,11 @@ class Request extends Component {
 
     Meteor.call('denyRequest', request._id, (error, respond) => {
       if (error) {
-        app.dialog.alert(`${error.reason}`, 'Error', () => {
-          console.log(error);
-        });
+        errorDialog(error.reason);
       } else {
-        const notification = app.notification.create({
-          // icon: '<i class="icon success"></i>',
-          title: 'Sorry...',
-          subtitle: 'We are sorry to have you deny this request',
-          closeButton: true,
-          closeTimeout: 6000,
-          opened: true
-        });
-        notification.open();
+        successDialog(
+          'Request denied. We are sorry to have you deny this request'
+        );
       }
     });
   };
@@ -172,19 +146,9 @@ class Request extends Component {
 
     Meteor.call('isHanded', request._id, (error, respond) => {
       if (error) {
-        app.dialog.alert(`${error.reason}`, 'Error', () => {
-          console.log(error);
-        });
+        errorDialog(error.reason);
       } else {
-        const notification = app.notification.create({
-          // icon: '<i class="icon success"></i>',
-          title: 'Success!',
-          subtitle: 'Great that you have handed over the book!',
-          closeButton: true,
-          closeTimeout: 6000,
-          opened: true
-        });
-        notification.open();
+        successDialog('Great that you have handed over the book!');
       }
     });
   };
@@ -200,19 +164,9 @@ class Request extends Component {
 
     Meteor.call('isReturned', request._id, (error, respond) => {
       if (error) {
-        app.dialog.alert(`${error.reason}`, 'Error', () => {
-          console.log(error);
-        });
+        errorDialog(error.reason);
       } else {
-        const notification = app.notification.create({
-          // icon: '<i class="icon success"></i>',
-          title: 'Success!',
-          subtitle: 'Your book is back and available at your shelf <3',
-          closeButton: true,
-          closeTimeout: 6000,
-          opened: true
-        });
-        notification.open();
+        successDialog('Your book is back and available at your shelf <3');
       }
     });
   };
@@ -231,10 +185,17 @@ class Request extends Component {
     }
   };
 
-  toggleMenu = () => {
-    this.setState({
-      menuOpened: !this.state.menuOpened
-    });
+  getTabs = () => {
+    const { request, messages, currentUser } = this.props;
+
+    const notificationsCount = notificationsCounter(currentUser.notifications);
+
+    let dottedStatus = true;
+
+    return [
+      { title: <Badge dot={dottedStatus}>Status</Badge> },
+      { title: <Badge text={notificationsCount}>Messages</Badge> }
+    ];
   };
 
   getOthersName = () => {
@@ -248,12 +209,7 @@ class Request extends Component {
 
   render() {
     const { currentUser, request, isLoading } = this.props;
-    const {
-      menuOpened,
-      backToRequests,
-      chatInputValue,
-      isAccordionOpen
-    } = this.state;
+    const { backToRequests, messageInput, openTab } = this.state;
 
     if (!currentUser) {
       return null;
@@ -294,92 +250,90 @@ class Request extends Component {
         </NavBar>
 
         <Tabs
-          tabs={tabs}
-          initialPage={1}
-          onChange={(tab, index) => {
-            // this.setState({openTab: tab.title})
-            console.log(tab);
-          }}
+          tabs={this.getTabs()}
+          page={openTab}
           onTabClick={(tab, index) => {
-            console.log('onTabClick', index, tab);
+            this.setState({ openTab: index });
           }}
         >
           <div>
-            <WingBlank>
-              {requestedNotResponded && iAmTheOwner ? (
+            <WhiteSpace />
+            {requestedNotResponded && iAmTheOwner ? (
+              <div>
+                <Result
+                  img={myImg(request.book_image_url)}
+                  title={request.book_name}
+                  message={`${request.requester_name}`}
+                  buttonText="Accept"
+                  buttonType="primary"
+                  onButtonClick={() => this.acceptRequest()}
+                />
+                <WhiteSpace size="lg" />
+                <Flex justify="center">
+                  <Button
+                    inline
+                    type="warning"
+                    onClick={() => this.denyRequest()}
+                  >
+                    Deny
+                  </Button>
+                </Flex>
+                <WhiteSpace size="lg" />
+              </div>
+            ) : (
+              <div>
+                <Result
+                  img={myImg(request.book_image_url)}
+                  title={request.book_name}
+                  message={`${request.requester_name}`}
+                />
+                <WhiteSpace size="lg" />
+                <Flex justify="center">{myImg(request.book_image_url)}</Flex>
                 <div>
-                  <WhiteSpace size="lg" />
-                  <Result
-                    img={myImg(request.book_image_url)}
-                    title={request.book_name}
-                    message={`${request.requester_name} would like to read your book`}
-                    buttonText="Accept"
-                    buttonType="primary"
-                    onButtonClick={() => this.acceptRequest()}
-                  />
-                  <WhiteSpace />
-                  <Flex justify="center">
-                    <Button
-                      inline
-                      type="warning"
-                      onClick={() => this.denyRequest()}
-                    >
-                      Deny
-                    </Button>
-                  </Flex>
-                  <WhiteSpace size="lg" />
+                  <Steps
+                    current={this.getCurrentStatus()}
+                    direction="horizontal"
+                    size="small"
+                  >
+                    {steps}
+                  </Steps>
                 </div>
-              ) : (
-                <div>
+              </div>
+            )}
+
+            {request.is_confirmed &&
+              !request.is_handed &&
+              currentUser._id === request.req_from && (
+                <Flex justify="center" style={{ padding: 12 }}>
                   <WhiteSpace size="lg" />
-                  <Flex justify="center">{myImg(request.book_image_url)}</Flex>
-                  <div>
-                    <Steps
-                      current={this.getCurrentStatus()}
-                      direction="horizontal"
-                      size="small"
-                    >
-                      {steps}
-                    </Steps>
-                  </div>
-                </div>
+                  <Button
+                    inline
+                    size="small"
+                    type="primary"
+                    onClick={() => this.isHanded()}
+                  >
+                    I've handed over the book
+                  </Button>
+                </Flex>
               )}
-            </WingBlank>
 
-            <WingBlank>
-              {request.is_confirmed &&
-                !request.is_handed &&
-                currentUser._id === request.req_from && (
-                  <Flex justify="center" style={{ padding: 12 }}>
-                    <WhiteSpace size="lg" />
-                    <Button
-                      inline
-                      size="small"
-                      type="primary"
-                      onClick={() => this.isHanded()}
-                    >
-                      I've handed over the book
-                    </Button>
-                  </Flex>
-                )}
-
-              {request.is_handed &&
-                !request.is_returned &&
-                currentUser._id === request.req_from && (
-                  <Flex justify="center" style={{ padding: 12 }}>
-                    <WhiteSpace size="lg" />
-                    <Button
-                      inline
-                      size="small"
-                      type="primary"
-                      onClick={() => this.isReturned()}
-                    >
-                      I've received my book back
-                    </Button>
-                  </Flex>
-                )}
-            </WingBlank>
+            {request.is_handed &&
+              !request.is_returned &&
+              currentUser._id === request.req_from && (
+                <Flex justify="center" style={{ padding: 12 }}>
+                  <WhiteSpace size="lg" />
+                  <Button
+                    inline
+                    size="small"
+                    type="primary"
+                    onClick={() => this.isReturned()}
+                  >
+                    I've received my book back
+                  </Button>
+                </Flex>
+              )}
           </div>
+
           <div>
             <Flex direction="column" justify="between">
               <ChatteryWindow
@@ -391,10 +345,8 @@ class Request extends Component {
                 <FlexItem>
                   <form onSubmit={event => this.sendMessage(event)}>
                     <InputItem
-                      value={chatInputValue}
-                      onChange={value =>
-                        this.setState({ chatInputValue: value })
-                      }
+                      value={messageInput}
+                      onChange={value => this.setState({ messageInput: value })}
                       placeholder="enter message"
                       onFocus={() => this.setState({ isAccordionOpen: false })}
                     />
@@ -439,3 +391,44 @@ export default RequestContainer = withTracker(props => {
     isLoading
   };
 })(Request);
+
+// Template.allNotifications.helpers({
+//   unreadMessage: () => {
+//     const currentUserId = Meteor.userId();
+
+//     if (
+//       Messages.findOne({
+//         is_seen_by_other: 0,
+//         last_msg_by: { $exists: true, $ne: currentUserId }
+//       })
+//     ) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   },
+
+//   unseenRequestReply: () => {
+//     const currentUserId = Meteor.userId();
+
+//     if (
+//       Requests.findOne({
+//         is_replied_and_not_seen: 1,
+//         req_by: currentUserId
+//       })
+//     ) {
+//       return true;
+//     } else {
+//       return false;
+//     }
+//   },
+
+//   openRequest: () => {
+//     const isOpenReq = Books.findOne({
+//       added_by: Meteor.userId(),
+//       on_request: 1
+//     });
+
+//     return isOpenReq;
+//   }
+// });
