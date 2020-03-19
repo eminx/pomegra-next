@@ -69,6 +69,8 @@ Meteor.methods({
         throw new Meteor.Error('You have already requested this item');
       }
 
+      console.log(bookId, 'bookId', owner);
+
       const reqId = Requests.insert({
         req_b_id: bookId,
         req_by: currentUserId,
@@ -83,6 +85,9 @@ Meteor.methods({
           currentUser.profile || currentUser.profile.image_url || null,
         date_requested: new Date()
       });
+
+      console.log(reqId, 'reqId');
+
       Messages.insert({
         req_id: reqId,
         borrower_id: currentUserId,

@@ -40,7 +40,6 @@ class AppTabBar extends Component {
     const { pathname, messageNotificationCount, changeRoute } = this.props;
 
     const iconRoutes = renderIconRoutes(messageNotificationCount);
-    console.log(messageNotificationCount);
 
     return (
       <div

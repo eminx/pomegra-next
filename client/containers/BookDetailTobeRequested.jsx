@@ -21,8 +21,8 @@ class BookDetailTobeRequested extends Component {
       } else if (respond.error) {
         errorDialog(respond.error);
       } else {
-        successDialog('Your request is successfully sent!');
         console.log(respond);
+        successDialog('Your request is successfully sent!');
         this.setState({
           requestSuccess: respond
         });
@@ -64,7 +64,7 @@ class BookDetailTobeRequested extends Component {
             <WingBlank>
               <BookCard
                 book={book}
-                onButtonClick={this.makeRequest}
+                onButtonClick={() => this.makeRequest()}
                 buttonType="primary"
                 buttonText="Ask to Borrow"
               />

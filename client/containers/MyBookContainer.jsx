@@ -31,7 +31,7 @@ class MyBook extends PureComponent {
     const { isEditDialogOpen, backToBooks } = this.state;
 
     if (backToBooks) {
-      return <Redirect to="my-books" />;
+      return <Redirect to="/my-shelf" />;
     }
 
     return (

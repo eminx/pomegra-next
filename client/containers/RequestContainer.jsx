@@ -295,7 +295,7 @@ class Request extends Component {
                   message={`${request.requester_name}`}
                 />
                 <WhiteSpace size="lg" />
-                <Flex justify="center">{myImg(request.book_image_url)}</Flex>
+                {/* <Flex justify="center">{myImg(request.book_image_url)}</Flex> */}
                 <div>
                   <Steps
                     current={this.getCurrentStatus()}
