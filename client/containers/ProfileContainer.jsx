@@ -76,6 +76,10 @@ class Profile extends PureComponent {
     const { currentUser } = this.props;
     const { isEditDialogOpen } = this.state;
 
+    if (!currentUser) {
+      return null;
+    }
+
     return (
       <div>
         <NavBar
@@ -89,7 +93,16 @@ class Profile extends PureComponent {
         <Fragment>
           <WhiteSpace size="lg" />
           <WingBlank>
-            <Result />
+            <Result
+              imgUrl="https://pomegra-profile-images.s3-eu-central-1.amazonaws.com/emin/emin.jpeg"
+              title={
+                <div>
+                  <h3>{currentUser.username}</h3>
+                  <p>{currentUser.firstName + ' ' + currentUser.lastName}</p>
+                </div>
+              }
+              message={currentUser.bio}
+            />
           </WingBlank>
         </Fragment>
 
