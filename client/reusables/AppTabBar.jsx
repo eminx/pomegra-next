@@ -5,6 +5,10 @@ import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
 const iconSize = 24;
 
 const renderIconRoutes = messageNotificationCount => {
+  console.log(messageNotificationCount, typeof messageNotificationCount);
+  const shownBadge =
+    messageNotificationCount !== '0' && messageNotificationCount;
+
   return [
     {
       title: 'Home',
@@ -25,9 +29,7 @@ const renderIconRoutes = messageNotificationCount => {
       title: 'Messages',
       path: '/messages',
       icon: (
-        <Badge
-          text={messageNotificationCount && messageNotificationCount.toString()}
-        >
+        <Badge text={shownBadge}>
           <GoCommentDiscussion size={iconSize} />
         </Badge>
       )

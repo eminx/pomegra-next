@@ -21,7 +21,6 @@ class BookDetailTobeRequested extends Component {
       } else if (respond.error) {
         errorDialog(respond.error);
       } else {
-        console.log(respond);
         successDialog('Your request is successfully sent!');
         this.setState({
           requestSuccess: respond

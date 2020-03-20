@@ -137,7 +137,6 @@ class AddBook extends Component {
           value={searchbarInput}
           onChange={value => this.setState({ searchbarInput: value })}
           onSubmit={() => this.searchbarSearch()}
-          onClear={() => console.log('shsh')}
           cancelText="Cancel"
           ref={ref => (this.searchBar = ref)}
         />

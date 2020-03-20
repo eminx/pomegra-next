@@ -23,7 +23,7 @@ class Layout extends React.Component {
       return '0';
     }
 
-    return notificationsCounter(currentUser.notifications);
+    return notificationsCounter(currentUser.notifications).toString();
   };
 
   changeRoute = route => {

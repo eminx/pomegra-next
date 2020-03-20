@@ -69,8 +69,6 @@ Meteor.methods({
         throw new Meteor.Error('You have already requested this item');
       }
 
-      console.log(bookId, 'bookId', owner);
-
       const reqId = Requests.insert({
         req_b_id: bookId,
         req_by: currentUserId,
@@ -79,14 +77,12 @@ Meteor.methods({
         book_author: theBook.b_author,
         owner_name: theBook.owner_name,
         requester_name: currentUser.username,
-        book_image_url: theBook.image_url || null,
-        owner_profile_image: (owner.profile && owner.profile.image_url) || null,
+        book_image_url: theBook.image_url || '',
+        owner_profile_image: (owner.profile && owner.profile.image_url) || '',
         requester_profile_image:
-          currentUser.profile || currentUser.profile.image_url || null,
+          (currentUser.profile && currentUser.profile.image_url) || '',
         date_requested: new Date()
       });
-
-      console.log(reqId, 'reqId');
 
       Messages.insert({
         req_id: reqId,
@@ -105,15 +101,14 @@ Meteor.methods({
 
       return reqId;
 
-      const subjectEmail = 'Someone is interested in reading your book';
-      var textEmail =
-        'Hi ' +
-        ownerName +
-        '. ' +
-        requesterName +
-        ' has requested to borrow a book from you. Please go ahead and reply at: https://app.pomegra.org/my-requests/';
-      Meteor.call('sendEmail', ownerId, subjectEmail, textEmail);
-      return 'success';
+      // const subjectEmail = 'Someone is interested in reading your book';
+      // var textEmail =
+      //   'Hi ' +
+      //   ownerName +
+      //   '. ' +
+      //   requesterName +
+      //   ' has requested to borrow a book from you. Please go ahead and reply at: https://app.pomegra.org/my-requests/';
+      // Meteor.call('sendEmail', ownerId, subjectEmail, textEmail);
     } catch (error) {
       return error;
     }
