@@ -82,13 +82,7 @@ class Profile extends PureComponent {
 
     return (
       <div>
-        <NavBar
-          mode="light"
-          leftContent="Edit"
-          onLeftClick={() => this.openEditDialog()}
-        >
-          My Profile
-        </NavBar>
+        <NavBar mode="light">My Profile</NavBar>
 
         <Fragment>
           <WhiteSpace size="lg" />
@@ -102,6 +96,9 @@ class Profile extends PureComponent {
                 </div>
               }
               message={currentUser.bio}
+              buttonText="Edit"
+              buttonType="ghost"
+              onButtonClick={this.openEditDialog}
             />
           </WingBlank>
         </Fragment>
