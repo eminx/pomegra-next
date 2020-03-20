@@ -56,9 +56,11 @@ class RequestsList extends Component {
 
   getNotificationsCount = request => {
     const { currentUser } = this.props;
-    const foundContext = currentUser.notifications.find(notification => {
-      return notification.contextId === request._id;
-    });
+    const foundContext =
+      currentUser.notifications &&
+      currentUser.notifications.find(notification => {
+        return notification.contextId === request._id;
+      });
 
     return foundContext && foundContext.count;
   };

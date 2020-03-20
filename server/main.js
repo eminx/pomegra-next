@@ -13,7 +13,7 @@ Meteor.methods({
 
   updateProfile: (values, languages) => {
     const currentUser = Meteor.user();
-    console.log(languages);
+
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
@@ -571,4 +571,35 @@ Meteor.publish('myMessages', function(reqId) {
     req_id: reqId,
     $or: [{ borrower_id: currentUserId }, { lender_id: currentUserId }]
   });
+});
+
+Meteor.startup(function() {
+  Meteor.users
+    .find({ notifications: { $exists: false } })
+    .forEach(function(user) {
+      Meteor.users.update(user._id, {
+        $set: {
+          notifications: []
+        }
+      });
+    });
+});
+
+// getWelcomeEmailText = username => {
+//   return `Hi ${username},\n\nWe are delighted to have you at Skogen.\nBy being a subscriber, you can easily take part in our public events and groups.\n\nRegards,\nSkogen Team`;
+// };
+
+Accounts.onCreateUser((options, user) => {
+  user.notifications = [];
+  user.following = [];
+  user.followedBy = [];
+
+  // Meteor.call(
+  //   'sendEmail',
+  //   user.emails[0].address,
+  //   'Welcome to Skogen',
+  //   getWelcomeEmailText(user.username),
+  //   true // is new user
+  // );
+  return user;
 });
