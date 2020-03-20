@@ -3,12 +3,29 @@ import { Books, Requests, Messages } from '/imports/api/collections';
 import { Accounts } from 'meteor/accounts-base';
 
 Meteor.methods({
-  registerUser(user) {
+  registerUser: user => {
     Accounts.createUser({
       email: user.email,
       username: user.username,
       password: user.password
     });
+  },
+
+  updateProfile: (values, languages) => {
+    const currentUser = Meteor.user();
+    console.log(languages);
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          bio: values.bio,
+          languages: languages
+        }
+      });
+    } catch (error) {
+      return error;
+    }
   },
 
   insertBook: theBook => {

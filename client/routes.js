@@ -12,6 +12,7 @@ import FindContainer from './containers/FindContainer';
 import BookDetailTobeRequested from './containers/BookDetailTobeRequested';
 import RequestsList from './containers/RequestsList';
 import RequestContainer from './containers/RequestContainer';
+import ProfileContainer from './containers/ProfileContainer';
 
 const browserHistory = createBrowserHistory();
 
@@ -30,6 +31,8 @@ export const renderRoutes = () => (
 
         <Route exact path="/messages" component={RequestsList} />
         <Route exact path="/request/:id" component={RequestContainer} />
+
+        <Route exact path="/profile" component={ProfileContainer} />
       </Layout>
     </Switch>
   </Router>
