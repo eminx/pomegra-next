@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { TabBar, Badge } from 'antd-mobile';
 import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
+import { FaRegUser } from 'react-icons/fa';
 
 const iconSize = 24;
 
@@ -32,6 +33,11 @@ const renderIconRoutes = messageNotificationCount => {
           <GoCommentDiscussion size={iconSize} />
         </Badge>
       )
+    },
+    {
+      title: 'My Account',
+      path: '/profile',
+      icon: <FaRegUser size={iconSize} />
     }
   ];
 };

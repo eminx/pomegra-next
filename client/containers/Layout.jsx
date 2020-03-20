@@ -5,7 +5,13 @@ import AppTabBar from '../reusables/AppTabBar';
 import { notificationsCounter } from '../functions';
 import { WhiteSpace } from 'antd-mobile';
 
-const routesWithTabBar = ['/', '/discover', '/my-shelf', '/messages'];
+const routesWithTabBar = [
+  '/',
+  '/discover',
+  '/my-shelf',
+  '/messages',
+  '/profile'
+];
 
 class Layout extends React.Component {
   shouldRenderTabBar = () => {

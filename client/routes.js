@@ -5,7 +5,6 @@ import { createBrowserHistory } from 'history';
 import Layout from './containers/Layout';
 import AccountManagerContainer from './containers/AccountManagerContainer';
 import AddBookContainer from './containers/AddBookContainer';
-import BookDetailTobeAdded from './containers/BookDetailTobeAdded';
 import MyBooksContainer from './containers/MyBooksContainer';
 import MyBookContainer from './containers/MyBookContainer';
 import FindContainer from './containers/FindContainer';
@@ -22,7 +21,6 @@ export const renderRoutes = () => (
       <Layout history={browserHistory}>
         <Route exact path="/" component={AccountManagerContainer} />
         <Route exact path="/add" component={AddBookContainer} />
-        {/* <Route exact path="/add-book" component={BookDetailTobeAdded} /> */}
         <Route exact path="/my-shelf" component={MyBooksContainer} />
         <Route exact path="/my-book/:id" component={MyBookContainer} />
 
