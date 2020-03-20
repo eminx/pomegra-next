@@ -75,7 +75,7 @@ class EditBookUI extends Component {
 
           <InputItem
             {...getFieldProps('isbn', {
-              initialValue: book && book.b_ISBN
+              initialValue: book && book.b_ISBN && book.b_ISBN.identifier
             })}
             clear
             error={!!getFieldError('isbn')}

@@ -62,7 +62,6 @@ Meteor.methods({
     if (theBook.added_by !== Meteor.userId()) {
       return;
     }
-    console.log(values);
     try {
       Books.update(
         { _id: bookId },
@@ -71,7 +70,7 @@ Meteor.methods({
             b_title: values.title,
             b_author: values.author,
             b_lang: values.b_lang,
-            b_ISBN: values.isbn,
+            'b_ISBN.identifier': values.isbn,
             b_description: values.description
           }
         }
