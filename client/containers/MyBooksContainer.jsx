@@ -128,6 +128,7 @@ class MyBooks extends Component {
           cols={1}
           okText="Confirm"
           dismissText="Cancel"
+          value={[sortBy]}
           onOk={value => this.handleSortByChange(value)}
         >
           <Flex justify="center">

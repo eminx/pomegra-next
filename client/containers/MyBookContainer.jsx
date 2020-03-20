@@ -5,8 +5,8 @@ import { Redirect } from 'react-router-dom';
 import { WhiteSpace, WingBlank, Modal, NavBar, Icon } from 'antd-mobile';
 
 import { BookCard } from '../reusables/BookCard';
-
-const myImg = src => <img src={src} alt="" width={48} height={66} />;
+import EditBook from '../reusables/EditBook';
+import { errorDialog, successDialog } from '../functions';
 
 class MyBook extends PureComponent {
   state = {
@@ -23,6 +23,25 @@ class MyBook extends PureComponent {
   closeEditDialog = () => {
     this.setState({
       isEditDialogOpen: false
+    });
+  };
+
+  updateBook = values => {
+    const { book } = this.props;
+
+    if (values.language) {
+      values.b_lang = values.language[0];
+    } else {
+      values.b_lang = book.b_lang;
+    }
+
+    Meteor.call('updateBook', book._id, values, (error, respond) => {
+      if (error) {
+        console.log(error);
+        errorDialog(error.reason);
+      } else {
+        successDialog('Your book is successfully updated');
+      }
     });
   };
 
@@ -64,9 +83,9 @@ class MyBook extends PureComponent {
           position="top"
           closable
           onClose={this.closeEditDialog}
-          title="Edit Details of the Book"
+          title="Edit Book"
         >
-          edit dialog
+          <EditBook book={book} onSubmit={this.updateBook} />
         </Modal>
       </div>
     );

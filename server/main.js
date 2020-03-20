@@ -54,6 +54,49 @@ Meteor.methods({
     });
   },
 
+  updateBook: (bookId, values) => {
+    if (!Meteor.userId()) {
+      return false;
+    }
+    const theBook = Books.findOne(bookId);
+    if (theBook.added_by !== Meteor.userId()) {
+      return;
+    }
+    console.log(values);
+    try {
+      Books.update(
+        { _id: bookId },
+        {
+          $set: {
+            b_title: values.title,
+            b_author: values.author,
+            b_lang: values.b_lang,
+            b_ISBN: values.isbn,
+            b_description: values.description
+          }
+        }
+      );
+    } catch (error) {
+      return error;
+    }
+  },
+
+  removeBook: bookId => {
+    if (!Meteor.userId()) {
+      return;
+    }
+    const theBook = Books.findOne(bookId);
+    if (theBook.added_by !== Meteor.userId()) {
+      return;
+    }
+
+    try {
+      Books.remove({ _id: bookId });
+    } catch (error) {
+      return error;
+    }
+  },
+
   makeRequest: bookId => {
     const currentUserId = Meteor.userId();
     if (!currentUserId) {
