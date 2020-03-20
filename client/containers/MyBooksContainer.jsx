@@ -92,9 +92,14 @@ class MyBooks extends Component {
 
     const filteredSortedBooks = sortedBooks.filter(book => {
       return (
-        book.b_title.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
-        book.b_author.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
-        book.b_cat.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1
+        (book.b_title &&
+          book.b_title.toLowerCase().indexOf(filterValue.toLowerCase())) !==
+          -1 ||
+        (book.b_author &&
+          book.b_author.toLowerCase().indexOf(filterValue.toLowerCase())) !==
+          -1 ||
+        (book.b_cat &&
+          book.b_cat.toLowerCase().indexOf(filterValue.toLowerCase())) !== -1
       );
     });
 
