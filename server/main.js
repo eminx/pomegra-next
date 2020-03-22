@@ -1,6 +1,33 @@
 import { Meteor } from 'meteor/meteor';
 import { Books, Requests, Messages } from '/imports/api/collections';
 import { Accounts } from 'meteor/accounts-base';
+const s3Settings = Meteor.settings.AWSs3;
+
+Slingshot.fileRestrictions('groupImageUpload', {
+  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+  maxSize: 5 * 3024 * 3024
+});
+
+Slingshot.createDirective('groupImageUpload', Slingshot.S3Storage, {
+  AWSAccessKeyId: s3Settings.AWSAccessKeyId,
+  AWSSecretAccessKey: s3Settings.AWSSecretAccessKey,
+  bucket: s3Settings.AWSBucketName,
+  acl: 'public-read',
+  region: s3Settings.AWSRegion,
+
+  authorize: function() {
+    if (!this.userId) {
+      var message = 'Please login before posting images';
+      throw new Meteor.Error('Login Required', message);
+    }
+    return true;
+  },
+
+  key: function(file) {
+    var currentUser = Meteor.user();
+    return currentUser.username + '/' + file.name;
+  }
+});
 
 Meteor.methods({
   registerUser: user => {
@@ -510,7 +537,7 @@ Meteor.methods({
     }
   },
 
-  setUploadedImagesToProfile(uploadedImages) {
+  setNewCoverImages(newImageSet) {
     const currentUser = Meteor.user();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
@@ -519,7 +546,7 @@ Meteor.methods({
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          coverImages: uploadedImages
+          coverImages: newImageSet
         }
       });
     } catch (error) {

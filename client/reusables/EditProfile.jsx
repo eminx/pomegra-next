@@ -8,10 +8,12 @@ import {
   Picker,
   TextareaItem,
   Tabs,
-  WhiteSpace
+  WhiteSpace,
+  Progress
 } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Resizer from 'react-image-file-resizer';
+import Dropzone from 'react-dropzone';
 
 import allLanguages from '../allLanguages';
 import { dataURLtoFile } from '../functions';
@@ -38,9 +40,9 @@ class EditProfileUI extends Component {
     openTab: 0,
     coverImages: [],
     avatarImage: [],
-    newCoverImages: [],
     parsedAvatarImage: [],
-    resizingCoverImages: false,
+    uploadingImages: false,
+    progress: 0,
     resizingAvatarImage: false,
     uploadingCoverImages: false,
     uploadingAvatarImage: false
@@ -52,7 +54,8 @@ class EditProfileUI extends Component {
       return;
     }
     this.setState({
-      languages: currentUser.languages || []
+      languages: currentUser.languages || [],
+      coverImages: currentUser.coverImages || []
     });
   }
 
@@ -112,15 +115,27 @@ class EditProfileUI extends Component {
     }
   };
 
-  handleCoverImagePick = (images, type, index) => {
-    console.log(images, type, index);
+  handleCoverImagePick = pickedImages => {
+    const { coverImages } = this.state;
+    const imageSet = pickedImages.map(image => ({
+      file: image,
+      dataUrl: URL.createObjectURL(image),
+      isNewImage: true
+    }));
     this.setState({
-      coverImages: images
+      coverImages: [...coverImages, ...imageSet]
+    });
+  };
+
+  handleRemoveImage = imageIndex => {
+    const { coverImages } = this.state;
+
+    this.setState({
+      coverImages: coverImages.filter((image, index) => imageIndex !== index)
     });
   };
 
   handleAvatarImagePick = (images, type, index) => {
-    console.log(images, type, index);
     this.setState({
       avatarImage: images
     });
@@ -131,14 +146,19 @@ class EditProfileUI extends Component {
   };
 
   resizeImages = () => {
-    const { coverImages } = this.state;
+    const { coverImages, progress } = this.state;
     this.setState({
-      resizingCoverImages: true
+      uploadingImages: true,
+      progress: 10
     });
 
     const uploadedImages = [];
 
-    coverImages.forEach((image, index) => {
+    const uploadableCoverImages = coverImages.filter(
+      image => image.isNewImage && image.file
+    );
+
+    uploadableCoverImages.forEach((image, index) => {
       Resizer.imageFileResizer(
         image.file,
         resizedImageWidth,
@@ -148,24 +168,23 @@ class EditProfileUI extends Component {
         0,
         uri => {
           const uploadableImage = dataURLtoFile(uri, image.file.name);
-          console.log(uploadableImage);
           uploadProfileImage(uploadableImage, (error, respond) => {
+            console.log(respond);
             if (error) {
               console.log('error!', error);
+              return;
             }
-            console.log(respond);
             uploadedImages.push({
-              imageUrl: respond,
-              name: image.file.name
+              url: respond,
+              name: image.file.name,
+              uploadDate: new Date()
             });
-            coverImages.length === index + 1 &&
-              this.setState(
-                {
-                  resizingCoverImages: false,
-                  uploadedImages
-                },
-                () => this.addImageToProfile()
-              );
+            this.setState({
+              progress: 100 / uploadableCoverImages.length + progress
+            });
+            console.log(uploadableCoverImages.length, index);
+            uploadableCoverImages.length === index + 1 &&
+              this.setState({ uploadedImages }, () => this.setNewCoverImages());
           });
         },
         'base64'
@@ -173,39 +192,22 @@ class EditProfileUI extends Component {
     });
   };
 
-  addImageToProfile = () => {
-    const { uploadedImages } = this.state;
+  setNewCoverImages = () => {
+    const { uploadedImages, coverImages } = this.state;
+    console.log(uploadedImages, coverImages);
 
-    Meteor.call(
-      'setUploadedImagesToProfile',
-      uploadedImages,
-      (error, respond) => {
-        if (error) {
-          console.log(error);
-        }
-        console.log(respond);
+    const newImageSet = coverImages
+      .filter(image => !image.file)
+      .concat(uploadedImages);
+
+    console.log(newImageSet);
+
+    Meteor.call('setNewCoverImages', newImageSet, (error, respond) => {
+      if (error) {
+        console.log(error);
       }
-    );
-  };
-
-  uploadNewImages = () => {
-    const { newCoverImages } = this.state;
-    newCoverImages.forEach(image => {
-      uploadProfileImage(image, (error, respond) => {
-        if (error) {
-          console.log('error!', error);
-        }
-        console.log(respond);
-      });
+      console.log(respond);
     });
-  };
-
-  parseCoverImagesTogether = () => {
-    const { currentUser } = this.props;
-    const { newCoverImages } = this.state;
-    if (!currentUser.coverImages) {
-      return newCoverImages;
-    }
   };
 
   render() {
@@ -216,7 +218,8 @@ class EditProfileUI extends Component {
       openTab,
       coverImages,
       avatarImage,
-      resizingCoverImages
+      uploadingImages,
+      progress
     } = this.state;
 
     return (
@@ -229,21 +232,44 @@ class EditProfileUI extends Component {
           }}
         >
           <div>
-            {resizingCoverImages && 'resizing cover images...'}
+            {uploadingImages && (
+              <div>
+                <Progress percent={progress} />
+                'resizing cover images...'
+              </div>
+            )}
             <h2>Manage Your Images</h2>
             <h3>Cover Images</h3>
-            <h4>Current Cover Images</h4>
-            {}
-
-            <h4>New Cover Images</h4>
-            <ImagePicker
+            {/* <ImagePicker
               files={coverImages.map(file => ({ url: file.url }))}
               onChange={this.handleCoverImagePick}
               onImageClick={(index, fs) => console.log(index, fs)}
               selectable={coverImages.length < 8}
               accept="image/jpeg,image/jpg,image/png"
               multiple
-            />
+            /> */}
+
+            {coverImages.map(image => (
+              <img width={80} height={60} src={image.dataUrl || image.url} />
+            ))}
+
+            <Dropzone
+              onDrop={this.handleCoverImagePick}
+              accepted={['image/jpeg', 'image/jpg', 'image/png']}
+              multiple
+              noDrag
+            >
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <p>
+                      Drag 'n' drop some files here, or click to select files
+                    </p>
+                  </div>
+                </section>
+              )}
+            </Dropzone>
 
             <WhiteSpace size="lg" />
 
