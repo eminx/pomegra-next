@@ -149,7 +149,7 @@ class EditProfileUI extends Component {
     const { coverImages, progress } = this.state;
     this.setState({
       uploadingImages: true,
-      progress: 10
+      progress: 5
     });
 
     const uploadedImages = [];
@@ -158,6 +158,7 @@ class EditProfileUI extends Component {
       image => image.isNewImage && image.file
     );
 
+    let progressCounter = progress;
     uploadableCoverImages.forEach((image, index) => {
       Resizer.imageFileResizer(
         image.file,
@@ -169,7 +170,6 @@ class EditProfileUI extends Component {
         uri => {
           const uploadableImage = dataURLtoFile(uri, image.file.name);
           uploadProfileImage(uploadableImage, (error, respond) => {
-            console.log(respond);
             if (error) {
               console.log('error!', error);
               return;
@@ -179,11 +179,12 @@ class EditProfileUI extends Component {
               name: image.file.name,
               uploadDate: new Date()
             });
+            progressCounter =
+              (80 * uploadedImages.length) / uploadableCoverImages.length;
             this.setState({
-              progress: 100 / uploadableCoverImages.length + progress
+              progress: progressCounter
             });
-            console.log(uploadableCoverImages.length, index);
-            uploadableCoverImages.length === index + 1 &&
+            uploadedImages.length === uploadableCoverImages.length &&
               this.setState({ uploadedImages }, () => this.setNewCoverImages());
           });
         },
@@ -194,19 +195,19 @@ class EditProfileUI extends Component {
 
   setNewCoverImages = () => {
     const { uploadedImages, coverImages } = this.state;
-    console.log(uploadedImages, coverImages);
-
     const newImageSet = coverImages
       .filter(image => !image.file)
       .concat(uploadedImages);
 
-    console.log(newImageSet);
-
     Meteor.call('setNewCoverImages', newImageSet, (error, respond) => {
       if (error) {
         console.log(error);
+        return;
       }
-      console.log(respond);
+      this.setState({
+        progress: 100,
+        uploadingImages: false
+      });
     });
   };
 
@@ -224,6 +225,7 @@ class EditProfileUI extends Component {
 
     return (
       <div>
+        <Progress percent={progress} />
         <Tabs
           tabs={[{ title: 'Images' }, { title: 'Info' }]}
           page={openTab}
@@ -232,25 +234,16 @@ class EditProfileUI extends Component {
           }}
         >
           <div>
-            {uploadingImages && (
-              <div>
-                <Progress percent={progress} />
-                'resizing cover images...'
-              </div>
-            )}
+            {uploadingImages && 'resizing cover images...'}
             <h2>Manage Your Images</h2>
             <h3>Cover Images</h3>
-            {/* <ImagePicker
-              files={coverImages.map(file => ({ url: file.url }))}
-              onChange={this.handleCoverImagePick}
-              onImageClick={(index, fs) => console.log(index, fs)}
-              selectable={coverImages.length < 8}
-              accept="image/jpeg,image/jpg,image/png"
-              multiple
-            /> */}
-
             {coverImages.map(image => (
-              <img width={80} height={60} src={image.dataUrl || image.url} />
+              <img
+                key={image.url}
+                width={80}
+                height={60}
+                src={image.dataUrl || image.url}
+              />
             ))}
 
             <Dropzone
@@ -263,9 +256,7 @@ class EditProfileUI extends Component {
                 <section>
                   <div {...getRootProps()}>
                     <input {...getInputProps()} />
-                    <p>
-                      Drag 'n' drop some files here, or click to select files
-                    </p>
+                    <Button>Select Images</Button>
                   </div>
                 </section>
               )}
@@ -285,8 +276,8 @@ class EditProfileUI extends Component {
             <WhiteSpace size="lg" />
 
             <Item>
-              <Button type="ghost" onClick={this.handleSaveImages}>
-                Save
+              <Button type="parimary" onClick={this.handleSaveImages}>
+                Upload & Save
               </Button>
             </Item>
           </div>
@@ -373,7 +364,7 @@ class EditProfileUI extends Component {
             </List>
           </div>
         </Tabs>
-        <WhiteSpace size={30} />
+        <WhiteSpace size={100} />
       </div>
     );
   }

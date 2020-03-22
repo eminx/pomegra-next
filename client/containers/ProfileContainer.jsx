@@ -1,14 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { Fragment, PureComponent } from 'react';
-import { Redirect } from 'react-router-dom';
 import {
+  Carousel,
+  Flex,
+  Button,
   WhiteSpace,
   WingBlank,
   Modal,
-  NavBar,
-  Icon,
-  Result
+  NavBar
 } from 'antd-mobile';
 
 import EditProfile from '../reusables/EditProfile';
@@ -81,26 +81,38 @@ class Profile extends PureComponent {
     }
 
     return (
-      <div>
-        <NavBar mode="light">My Profile</NavBar>
+      <div style={{ height: '100%' }}>
+        <NavBar mode="light">{currentUser.username}</NavBar>
 
         <Fragment>
-          <WhiteSpace size="lg" />
+          <Carousel
+            autoplay={false}
+            // infinite
+          >
+            {currentUser.coverImages &&
+              currentUser.coverImages.map(image => (
+                <div key={image.url} style={slideStyle(image.url)} />
+              ))}
+          </Carousel>
+
           <WingBlank>
-            <Result
-              imgUrl="https://pomegra-profile-images.s3-eu-central-1.amazonaws.com/emin/emin.jpeg"
-              title={
-                <div>
-                  <h3>{currentUser.username}</h3>
-                  <p>{currentUser.firstName + ' ' + currentUser.lastName}</p>
-                </div>
-              }
-              message={currentUser.bio}
-              buttonText="Edit"
-              buttonType="ghost"
-              onButtonClick={this.openEditDialog}
-            />
+            <Flex>
+              <div
+                style={avatarStyle(
+                  'https://pomegra-profile-images.s3-eu-central-1.amazonaws.com/emin/emin.jpeg'
+                )}
+              />
+              <div>
+                <h2>{currentUser.username}</h2>
+                <h4>{currentUser.firstName + ' ' + currentUser.lastName}</h4>
+              </div>
+            </Flex>
+            <WingBlank>
+              <p style={{ textAlign: 'center' }}>{currentUser.bio}</p>
+            </WingBlank>
           </WingBlank>
+          <WhiteSpace />
+          <Button onClick={this.openEditDialog}>Edit</Button>
         </Fragment>
 
         <Modal
@@ -120,6 +132,30 @@ class Profile extends PureComponent {
     );
   }
 }
+
+const slideStyle = backgroundImage => ({
+  width: '100%',
+  height: '40vh',
+  minHeight: 180,
+  backgroundImage: `url('${backgroundImage}')`,
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  touchAction: 'none'
+});
+
+const avatarStyle = backgroundImage => ({
+  width: 80,
+  height: 80,
+  margin: 12,
+  flexBasis: 80,
+  flexGrow: 0,
+  flexShrink: 0,
+  backgroundImage: `url('${backgroundImage}')`,
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  borderRadius: '50%',
+  boxShadow: '0 0 5px'
+});
 
 export default ProfileContainer = withTracker(props => {
   const currentUser = Meteor.user();
