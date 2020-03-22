@@ -233,9 +233,8 @@ class EditProfileUI extends Component {
             this.setState({ openTab: index });
           }}
         >
-          <div>
+          <div style={{ marginBottom: 80 }}>
             {uploadingImages && 'resizing cover images...'}
-            <h2>Manage Your Images</h2>
             <h3>Cover Images</h3>
             {coverImages.map(image => (
               <img
@@ -265,28 +264,23 @@ class EditProfileUI extends Component {
             <WhiteSpace size="lg" />
 
             <h3>Avatar</h3>
-            <ImagePicker
+            {/* <ImagePicker
               files={avatarImage || []}
               onChange={this.handleAvatarImagePick}
               selectable={avatarImage && avatarImage.length < 1}
               accept="image/jpeg,image/jpg,image/png"
-            />
+            /> */}
 
             <WhiteSpace size="lg" />
 
             <Item>
-              <Button type="parimary" onClick={this.handleSaveImages}>
+              <Button type="primary" onClick={this.handleSaveImages}>
                 Upload & Save
               </Button>
             </Item>
           </div>
-          <div>
-            <List
-              renderHeader={() => 'Edit your details'}
-              renderFooter={() =>
-                getFieldError('account') && getFieldError('account').join(',')
-              }
-            >
+          <div style={{ marginBottom: 80 }}>
+            <List renderHeader={() => 'Edit your details'}>
               <InputItem value={currentUser.username} editable={false}>
                 username
               </InputItem>
@@ -356,7 +350,7 @@ class EditProfileUI extends Component {
               </div>
 
               <Item>
-                <Button type="ghost" onClick={this.handleDetailsFormSubmit}>
+                <Button type="primary" onClick={this.handleDetailsFormSubmit}>
                   Save
                 </Button>
               </Item>
