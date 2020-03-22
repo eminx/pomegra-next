@@ -268,7 +268,7 @@ class EditProfileUI extends Component {
             <ImagePicker
               files={avatarImage}
               onChange={this.handleAvatarImagePick}
-              selectable={avatarImage.length < 1}
+              selectable={avatarImage && avatarImage.length < 1}
               accept="image/jpeg,image/jpg,image/png"
             />
 
