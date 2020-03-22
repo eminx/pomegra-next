@@ -3,12 +3,12 @@ import { Books, Requests, Messages } from '/imports/api/collections';
 import { Accounts } from 'meteor/accounts-base';
 const s3Settings = Meteor.settings.AWSs3;
 
-Slingshot.fileRestrictions('groupImageUpload', {
+Slingshot.fileRestrictions('profileImageUpload', {
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
   maxSize: 5 * 3024 * 3024
 });
 
-Slingshot.createDirective('groupImageUpload', Slingshot.S3Storage, {
+Slingshot.createDirective('profileImageUpload', Slingshot.S3Storage, {
   AWSAccessKeyId: s3Settings.AWSAccessKeyId,
   AWSSecretAccessKey: s3Settings.AWSSecretAccessKey,
   bucket: s3Settings.AWSBucketName,

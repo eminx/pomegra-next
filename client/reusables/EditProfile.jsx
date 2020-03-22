@@ -23,7 +23,7 @@ const Item = List.Item;
 const resizedImageWidth = 800;
 
 function uploadProfileImage(image, callback) {
-  const upload = new Slingshot.Upload('groupImageUpload');
+  const upload = new Slingshot.Upload('profileImageUpload');
 
   upload.send(image, (error, downloadUrl) => {
     if (error) {
@@ -268,7 +268,6 @@ class EditProfileUI extends Component {
             <ImagePicker
               files={avatarImage}
               onChange={this.handleAvatarImagePick}
-              onImageClick={(index, fs) => console.log(index, fs)}
               selectable={avatarImage.length < 1}
               accept="image/jpeg,image/jpg,image/png"
             />
