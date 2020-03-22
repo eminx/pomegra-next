@@ -236,16 +236,17 @@ class EditProfileUI extends Component {
           <div style={{ marginBottom: 80 }}>
             {uploadingImages && 'resizing cover images...'}
             <h3>Cover Images</h3>
-            {coverImages.map(image => (
-              <img
-                key={image.url}
-                width={80}
-                height={60}
-                src={image.dataUrl || image.url}
-              />
-            ))}
+            {coverImages &&
+              coverImages.map(image => (
+                <img
+                  key={image.url}
+                  width={80}
+                  height={60}
+                  src={image.dataUrl || image.url}
+                />
+              ))}
 
-            <Dropzone
+            {/* <Dropzone
               onDrop={this.handleCoverImagePick}
               accepted={['image/jpeg', 'image/jpg', 'image/png']}
               multiple
@@ -259,17 +260,17 @@ class EditProfileUI extends Component {
                   </div>
                 </section>
               )}
-            </Dropzone>
+            </Dropzone> */}
 
             <WhiteSpace size="lg" />
 
             <h3>Avatar</h3>
-            {/* <ImagePicker
+            <ImagePicker
               files={avatarImage || []}
               onChange={this.handleAvatarImagePick}
               selectable={avatarImage && avatarImage.length < 1}
               accept="image/jpeg,image/jpg,image/png"
-            /> */}
+            />
 
             <WhiteSpace size="lg" />
 
