@@ -9,14 +9,15 @@ import {
   TextareaItem,
   Tabs,
   WhiteSpace,
-  Progress
+  Progress,
+  WingBlank
 } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Resizer from 'react-image-file-resizer';
 import Dropzone from 'react-dropzone';
 
 import allLanguages from '../allLanguages';
-import { dataURLtoFile } from '../functions';
+import { dataURLtoFile, successDialog } from '../functions';
 
 const Item = List.Item;
 
@@ -119,7 +120,7 @@ class EditProfileUI extends Component {
     const { coverImages } = this.state;
     const imageSet = pickedImages.map(image => ({
       file: image,
-      dataUrl: URL.createObjectURL(image),
+      url: URL.createObjectURL(image),
       isNewImage: true
     }));
     this.setState({
@@ -208,6 +209,7 @@ class EditProfileUI extends Component {
         progress: 100,
         uploadingImages: false
       });
+      successDialog('Your images successfully upload');
     });
   };
 
@@ -234,43 +236,42 @@ class EditProfileUI extends Component {
           }}
         >
           <div style={{ marginBottom: 80 }}>
-            {uploadingImages && 'resizing cover images...'}
+            {uploadingImages && 'uploading images...'}
             <h3>Cover Images</h3>
             {coverImages &&
               coverImages.map(image => (
-                <img
-                  key={image.url}
-                  width={80}
-                  height={60}
-                  src={image.dataUrl || image.url}
-                />
+                <img key={image.url} width={80} height={60} src={image.url} />
               ))}
 
-            <Dropzone
-              onDrop={this.handleCoverImagePick}
-              accepted={['image/jpeg', 'image/jpg', 'image/png']}
-              multiple
-              noDrag
-            >
-              {({ getRootProps, getInputProps }) => (
-                <section>
-                  <div {...getRootProps()}>
-                    <input {...getInputProps()} />
-                    <Button>Select Images</Button>
-                  </div>
-                </section>
-              )}
-            </Dropzone>
+            <WingBlank>
+              <Dropzone
+                onDrop={this.handleCoverImagePick}
+                accepted={['image/jpeg', 'image/jpg', 'image/png']}
+                multiple
+                noDrag
+              >
+                {({ getRootProps, getInputProps }) => (
+                  <section>
+                    <div {...getRootProps()} style={pickerStyle}>
+                      <input {...getInputProps()} />
+                      Select images from your device
+                    </div>
+                  </section>
+                )}
+              </Dropzone>
+            </WingBlank>
 
             <WhiteSpace size="lg" />
 
             <h3>Avatar</h3>
-            <ImagePicker
-              files={avatarImage || []}
-              onChange={this.handleAvatarImagePick}
-              selectable={avatarImage && avatarImage.length < 1}
-              accept="image/jpeg,image/jpg,image/png"
-            />
+            <WingBlank>
+              <ImagePicker
+                files={avatarImage || []}
+                onChange={this.handleAvatarImagePick}
+                selectable={avatarImage && avatarImage.length < 1}
+                accept="image/jpeg,image/jpg,image/png"
+              />
+            </WingBlank>
 
             <WhiteSpace size="lg" />
 
@@ -363,6 +364,16 @@ class EditProfileUI extends Component {
     );
   }
 }
+
+const pickerStyle = {
+  width: '100%',
+  backgroundColor: '#108ee9',
+  padding: 12,
+  marginTop: 24,
+  borderRadius: 5,
+  color: 'white',
+  touchAction: 'none'
+};
 
 const EditProfile = createForm()(EditProfileUI);
 

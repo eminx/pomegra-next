@@ -81,13 +81,14 @@ class Profile extends PureComponent {
     }
 
     return (
-      <div style={{ height: '100%' }}>
+      <div style={{ height: '100%', marginBottom: 80 }}>
         <NavBar mode="light">{currentUser.username}</NavBar>
 
         <Fragment>
           <Carousel
             autoplay={false}
             // infinite
+            style={{ minHeight: 180 }}
           >
             {currentUser.coverImages &&
               currentUser.coverImages.map(image => (
@@ -110,9 +111,10 @@ class Profile extends PureComponent {
             <WingBlank>
               <p style={{ textAlign: 'center' }}>{currentUser.bio}</p>
             </WingBlank>
+
+            <WhiteSpace />
+            <Button onClick={this.openEditDialog}>Edit</Button>
           </WingBlank>
-          <WhiteSpace />
-          <Button onClick={this.openEditDialog}>Edit</Button>
         </Fragment>
 
         <Modal
