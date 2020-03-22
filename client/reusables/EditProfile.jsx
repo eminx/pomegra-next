@@ -20,13 +20,25 @@ const Item = List.Item;
 
 const resizedImageWidth = 800;
 
+function uploadProfileImage(image, callback) {
+  const upload = new Slingshot.Upload('groupImageUpload');
+
+  upload.send(image, (error, downloadUrl) => {
+    if (error) {
+      callback(error);
+    } else {
+      callback(error, downloadUrl);
+    }
+  });
+}
+
 class EditProfileUI extends Component {
   state = {
     languages: [],
     openTab: 0,
     coverImages: [],
     avatarImage: [],
-    parsedCoverImages: [],
+    newCoverImages: [],
     parsedAvatarImage: [],
     resizingCoverImages: false,
     resizingAvatarImage: false,
@@ -118,13 +130,13 @@ class EditProfileUI extends Component {
     this.resizeImages();
   };
 
-  resizeImages = async () => {
+  resizeImages = () => {
     const { coverImages } = this.state;
     this.setState({
       resizingCoverImages: true
     });
 
-    const parsedImages = [];
+    const uploadedImages = [];
 
     coverImages.forEach((image, index) => {
       Resizer.imageFileResizer(
@@ -135,28 +147,65 @@ class EditProfileUI extends Component {
         95,
         0,
         uri => {
-          console.log(image, uri);
-          parsedImages.push({
-            uploadableImage: dataURLtoFile(uri, image.file.name),
-            localUri: uri
+          const uploadableImage = dataURLtoFile(uri, image.file.name);
+          console.log(uploadableImage);
+          uploadProfileImage(uploadableImage, (error, respond) => {
+            if (error) {
+              console.log('error!', error);
+            }
+            console.log(respond);
+            uploadedImages.push({
+              imageUrl: respond,
+              name: image.file.name
+            });
+            coverImages.length === index + 1 &&
+              this.setState(
+                {
+                  resizingCoverImages: false,
+                  uploadedImages
+                },
+                () => this.addImageToProfile()
+              );
           });
-          coverImages.length === index + 1 &&
-            this.setState(
-              {
-                resizingCoverImages: false,
-                parsedCoverImages: parsedImages
-              },
-              () => this.uploadImages()
-            );
         },
         'base64'
       );
     });
   };
 
-  uploadImages = () => {
-    const { parsedCoverImages } = this.state;
-    console.log('tf finished bro', parsedCoverImages);
+  addImageToProfile = () => {
+    const { uploadedImages } = this.state;
+
+    Meteor.call(
+      'setUploadedImagesToProfile',
+      uploadedImages,
+      (error, respond) => {
+        if (error) {
+          console.log(error);
+        }
+        console.log(respond);
+      }
+    );
+  };
+
+  uploadNewImages = () => {
+    const { newCoverImages } = this.state;
+    newCoverImages.forEach(image => {
+      uploadProfileImage(image, (error, respond) => {
+        if (error) {
+          console.log('error!', error);
+        }
+        console.log(respond);
+      });
+    });
+  };
+
+  parseCoverImagesTogether = () => {
+    const { currentUser } = this.props;
+    const { newCoverImages } = this.state;
+    if (!currentUser.coverImages) {
+      return newCoverImages;
+    }
   };
 
   render() {

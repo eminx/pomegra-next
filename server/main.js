@@ -508,6 +508,24 @@ Meteor.methods({
       console.log('error', error);
       throw new Meteor.Error(error);
     }
+  },
+
+  setUploadedImagesToProfile(uploadedImages) {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          coverImages: uploadedImages
+        }
+      });
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
   }
 });
 
