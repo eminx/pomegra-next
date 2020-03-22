@@ -620,11 +620,11 @@ Meteor.publish('myMessages', function(reqId) {
 
 Meteor.startup(function() {
   Meteor.users
-    .find({ notifications: { $exists: false } })
+    .find({ coverImages: { $exists: false } })
     .forEach(function(user) {
       Meteor.users.update(user._id, {
         $set: {
-          notifications: []
+          coverImages: []
         }
       });
     });

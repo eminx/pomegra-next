@@ -246,7 +246,7 @@ class EditProfileUI extends Component {
                 />
               ))}
 
-            {/* <Dropzone
+            <Dropzone
               onDrop={this.handleCoverImagePick}
               accepted={['image/jpeg', 'image/jpg', 'image/png']}
               multiple
@@ -260,7 +260,7 @@ class EditProfileUI extends Component {
                   </div>
                 </section>
               )}
-            </Dropzone> */}
+            </Dropzone>
 
             <WhiteSpace size="lg" />
 
