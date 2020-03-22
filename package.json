@@ -26,6 +26,7 @@
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-icons": "^3.9.0",
+    "react-image-file-resizer": "^0.2.1",
     "react-meteor-data": "^0.2.11",
     "react-router-dom": "^5.1.2",
     "react-visibility-sensor": "^5.1.1",

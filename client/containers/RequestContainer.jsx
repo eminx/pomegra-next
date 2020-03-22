@@ -175,13 +175,13 @@ class Request extends Component {
     const { request } = this.props;
 
     if (request.is_returned) {
-      return steps[2].title;
+      return 3;
     } else if (request.is_handed) {
-      return steps[1].title;
+      return 2;
     } else if (request.is_confirmed) {
-      return steps[0].title;
+      return 1;
     } else {
-      return null;
+      return 0;
     }
   };
 
@@ -344,11 +344,23 @@ class Request extends Component {
           <div>
             <Flex direction="column" justify="between">
               <ChatteryWindow
-                messages={messages}
+                messages={messages || []}
                 // removeNotification={this.removeNotification}
               />
 
-              <Flex style={{ flexGrow: 0, width: '100%' }}>
+              <div style={{ height: 44 }} />
+            </Flex>
+
+            <div
+              style={{
+                position: 'fixed',
+                height: 44,
+                width: '100%',
+                bottom: 0,
+                zIndex: 9
+              }}
+            >
+              <Flex style={{ width: '100%' }} justify="center">
                 <FlexItem>
                   <form onSubmit={event => this.sendMessage(event)}>
                     <InputItem
@@ -356,6 +368,7 @@ class Request extends Component {
                       onChange={value => this.setState({ messageInput: value })}
                       placeholder="enter message"
                       onFocus={() => this.setState({ isAccordionOpen: false })}
+                      style={{ fontSize: 14 }}
                     />
                   </form>
                 </FlexItem>
@@ -370,7 +383,7 @@ class Request extends Component {
                   <IoMdSend size={24} onClick={() => this.sendMessage()} />
                 </FlexItem>
               </Flex>
-            </Flex>
+            </div>
           </div>
         </Tabs>
       </div>

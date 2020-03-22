@@ -1,23 +1,37 @@
 import React, { Component } from 'react';
 import {
   List,
+  ImagePicker,
   Button,
   InputItem,
   Tag,
   Picker,
   TextareaItem,
+  Tabs,
   WhiteSpace
 } from 'antd-mobile';
 import { createForm } from 'rc-form';
-import { shallowEqualArrays } from 'shallow-equal';
+import Resizer from 'react-image-file-resizer';
 
 import allLanguages from '../allLanguages';
+import { dataURLtoFile } from '../functions';
 
 const Item = List.Item;
 
+const resizedImageWidth = 800;
+
 class EditProfileUI extends Component {
   state = {
-    languages: []
+    languages: [],
+    openTab: 0,
+    coverImages: [],
+    avatarImage: [],
+    parsedCoverImages: [],
+    parsedAvatarImage: [],
+    resizingCoverImages: false,
+    resizingAvatarImage: false,
+    uploadingCoverImages: false,
+    uploadingAvatarImage: false
   };
 
   componentDidMount() {
@@ -62,7 +76,7 @@ class EditProfileUI extends Component {
     this.props.isAnyValueChanged();
   };
 
-  onSubmit = () => {
+  handleDetailsFormSubmit = () => {
     const { languages } = this.state;
     this.props.form.validateFields({ force: true }, error => {
       if (!error) {
@@ -86,93 +100,204 @@ class EditProfileUI extends Component {
     }
   };
 
+  handleCoverImagePick = (images, type, index) => {
+    console.log(images, type, index);
+    this.setState({
+      coverImages: images
+    });
+  };
+
+  handleAvatarImagePick = (images, type, index) => {
+    console.log(images, type, index);
+    this.setState({
+      avatarImage: images
+    });
+  };
+
+  handleSaveImages = () => {
+    this.resizeImages();
+  };
+
+  resizeImages = async () => {
+    const { coverImages } = this.state;
+    this.setState({
+      resizingCoverImages: true
+    });
+
+    const parsedImages = [];
+
+    coverImages.forEach((image, index) => {
+      Resizer.imageFileResizer(
+        image.file,
+        resizedImageWidth,
+        (resizedImageWidth * image.height) / image.width,
+        'JPEG',
+        95,
+        0,
+        uri => {
+          console.log(image, uri);
+          parsedImages.push({
+            uploadableImage: dataURLtoFile(uri, image.file.name),
+            localUri: uri
+          });
+          coverImages.length === index + 1 &&
+            this.setState(
+              {
+                resizingCoverImages: false,
+                parsedCoverImages: parsedImages
+              },
+              () => this.uploadImages()
+            );
+        },
+        'base64'
+      );
+    });
+  };
+
+  uploadImages = () => {
+    const { parsedCoverImages } = this.state;
+    console.log('tf finished bro', parsedCoverImages);
+  };
+
   render() {
     const { currentUser, isAnyValueChanged } = this.props;
     const { getFieldProps, getFieldError } = this.props.form;
-    const { languages } = this.state;
+    const {
+      languages,
+      openTab,
+      coverImages,
+      avatarImage,
+      resizingCoverImages
+    } = this.state;
 
     return (
       <div>
-        <List
-          renderHeader={() => 'Edit your details'}
-          renderFooter={() =>
-            getFieldError('account') && getFieldError('account').join(',')
-          }
+        <Tabs
+          tabs={[{ title: 'Images' }, { title: 'Info' }]}
+          page={openTab}
+          onTabClick={(tab, index) => {
+            this.setState({ openTab: index });
+          }}
         >
-          <InputItem value={currentUser.username} editable={false}>
-            username
-          </InputItem>
-
-          <InputItem
-            {...getFieldProps('firstName', {
-              rules: [
-                { required: false, message: 'please enter your first name' }
-              ],
-              initialValue: currentUser.firstName,
-              onChange: isAnyValueChanged
-            })}
-            clear
-            // error={!!getFieldError('firstName')}
-            placeholder="first name"
-          >
-            first name
-          </InputItem>
-
-          <InputItem
-            {...getFieldProps('lastName', {
-              initialValue: currentUser.lastName,
-              onChange: isAnyValueChanged
-            })}
-            clear
-            // error={!!getFieldError('lastName')}
-            placeholder="last name"
-          >
-            last name
-          </InputItem>
-
-          <TextareaItem
-            {...getFieldProps('bio', {
-              initialValue: currentUser.bio,
-              onChange: isAnyValueChanged
-            })}
-            title="bio"
-            placeholder="bio"
-            rows={5}
-          />
-
-          <Picker
-            {...getFieldProps('language')}
-            data={allLanguages}
-            cols={1}
-            okText="Confirm"
-            dismissText="Cancel"
-            extra="add language"
-            onOk={this.handleLanguageSelect}
-          >
-            <Item arrow="horizontal">spoken languages</Item>
-          </Picker>
-
-          <WhiteSpace />
-
           <div>
-            {languages.map(language => (
-              <Tag
-                key={language.value}
-                style={{ margin: 8 }}
-                closable
-                onClose={() => this.handleRemoveLanguage(language.value)}
-              >
-                {language.label}
-              </Tag>
-            ))}
-          </div>
+            {resizingCoverImages && 'resizing cover images...'}
+            <h2>Manage Your Images</h2>
+            <h3>Cover Images</h3>
+            <h4>Current Cover Images</h4>
+            {}
 
-          <Item>
-            <Button type="ghost" onClick={this.onSubmit}>
-              Save
-            </Button>
-          </Item>
-        </List>
+            <h4>New Cover Images</h4>
+            <ImagePicker
+              files={coverImages.map(file => ({ url: file.url }))}
+              onChange={this.handleCoverImagePick}
+              onImageClick={(index, fs) => console.log(index, fs)}
+              selectable={coverImages.length < 8}
+              accept="image/jpeg,image/jpg,image/png"
+              multiple
+            />
+
+            <WhiteSpace size="lg" />
+
+            <h3>Avatar</h3>
+            <ImagePicker
+              files={avatarImage}
+              onChange={this.handleAvatarImagePick}
+              onImageClick={(index, fs) => console.log(index, fs)}
+              selectable={avatarImage.length < 1}
+              accept="image/jpeg,image/jpg,image/png"
+            />
+
+            <WhiteSpace size="lg" />
+
+            <Item>
+              <Button type="ghost" onClick={this.handleSaveImages}>
+                Save
+              </Button>
+            </Item>
+          </div>
+          <div>
+            <List
+              renderHeader={() => 'Edit your details'}
+              renderFooter={() =>
+                getFieldError('account') && getFieldError('account').join(',')
+              }
+            >
+              <InputItem value={currentUser.username} editable={false}>
+                username
+              </InputItem>
+
+              <InputItem
+                {...getFieldProps('firstName', {
+                  rules: [
+                    { required: false, message: 'please enter your first name' }
+                  ],
+                  initialValue: currentUser.firstName,
+                  onChange: isAnyValueChanged
+                })}
+                clear
+                // error={!!getFieldError('firstName')}
+                placeholder="first name"
+              >
+                first name
+              </InputItem>
+
+              <InputItem
+                {...getFieldProps('lastName', {
+                  initialValue: currentUser.lastName,
+                  onChange: isAnyValueChanged
+                })}
+                clear
+                // error={!!getFieldError('lastName')}
+                placeholder="last name"
+              >
+                last name
+              </InputItem>
+
+              <TextareaItem
+                {...getFieldProps('bio', {
+                  initialValue: currentUser.bio,
+                  onChange: isAnyValueChanged
+                })}
+                title="bio"
+                placeholder="bio"
+                rows={5}
+              />
+
+              <Picker
+                {...getFieldProps('language')}
+                data={allLanguages}
+                cols={1}
+                okText="Confirm"
+                dismissText="Cancel"
+                extra="add language"
+                onOk={this.handleLanguageSelect}
+              >
+                <Item arrow="horizontal">spoken languages</Item>
+              </Picker>
+
+              <WhiteSpace />
+
+              <div>
+                {languages.map(language => (
+                  <Tag
+                    key={language.value}
+                    style={{ margin: 8 }}
+                    closable
+                    onClose={() => this.handleRemoveLanguage(language.value)}
+                  >
+                    {language.label}
+                  </Tag>
+                ))}
+              </div>
+
+              <Item>
+                <Button type="ghost" onClick={this.handleDetailsFormSubmit}>
+                  Save
+                </Button>
+              </Item>
+            </List>
+          </div>
+        </Tabs>
         <WhiteSpace size={30} />
       </div>
     );

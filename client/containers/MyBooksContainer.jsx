@@ -145,7 +145,7 @@ class MyBooks extends Component {
 
         <WhiteSpace size="md" />
 
-        <List className="larger-thumb-list">
+        <List style={{ marginBottom: 80 }}>
           {filteredSortedBooks &&
             filteredSortedBooks.map(book => (
               <ListItem
