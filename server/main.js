@@ -73,7 +73,7 @@ Meteor.methods({
 
     let image_url = theBook.imageLinks && theBook.imageLinks.thumbnail;
 
-    if (image_url && image_url.substring(0, 5 === 'http:')) {
+    if (image_url && image_url.substring(0, 5) === 'http:') {
       image_url = image_url.slice(0, 4) + 's' + image_url.slice(4);
     }
 
@@ -663,29 +663,7 @@ Meteor.publish('myMessages', function(reqId) {
 });
 
 Meteor.startup(function() {
-  Books.find().forEach(function(book) {
-    const image_url = book.image_url;
-    if (image_url && image_url.substring(0, 5) === 'http:') {
-      const newUrl = image_url.slice(0, 4) + 's' + image_url.slice(4);
-      Books.update(book._id, {
-        $set: {
-          image_url: newUrl
-        }
-      });
-    }
-  });
-
-  Requests.find().forEach(function(request) {
-    const image_url = request.book_image_url;
-    if (image_url && image_url.substring(0, 5) === 'http:') {
-      const newUrl = image_url.slice(0, 4) + 's' + image_url.slice(4);
-      Requests.update(request._id, {
-        $set: {
-          book_image_url: newUrl
-        }
-      });
-    }
-  });
+  console.log('Meteor successfully started');
 });
 
 // getWelcomeEmailText = username => {
