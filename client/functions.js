@@ -1,4 +1,5 @@
 import { Toast } from 'antd-mobile';
+import Resizer from 'react-image-file-resizer';
 
 const toastDuration = 2;
 
@@ -33,4 +34,25 @@ function dataURLtoFile(dataurl, filename) {
   return new File([u8arr], filename, { type: mime });
 }
 
-export { errorDialog, successDialog, notificationsCounter, dataURLtoFile };
+function resizeImage(image, desiredImageWidth, callback) {
+  Resizer.imageFileResizer(
+    image.file,
+    desiredImageWidth,
+    400,
+    'JPEG',
+    100,
+    0,
+    uri => {
+      callback(uri);
+    },
+    'base64'
+  );
+}
+
+export {
+  errorDialog,
+  successDialog,
+  notificationsCounter,
+  dataURLtoFile,
+  resizeImage
+};

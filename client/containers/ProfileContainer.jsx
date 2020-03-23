@@ -11,14 +11,15 @@ import {
   NavBar,
   Progress
 } from 'antd-mobile';
-import Resizer from 'react-image-file-resizer';
 import arrayMove from 'array-move';
 
 import EditProfile from '../reusables/EditProfile';
-import { errorDialog, successDialog, dataURLtoFile } from '../functions';
-
-const resizedImageWidth = 500;
-const resizedImageWidthAvatar = 200;
+import {
+  errorDialog,
+  successDialog,
+  dataURLtoFile,
+  resizeImage
+} from '../functions';
 
 function uploadProfileImage(image, callback) {
   const upload = new Slingshot.Upload('profileImageUpload');
@@ -168,36 +169,27 @@ class Profile extends PureComponent {
 
     let progressCounter = progress;
     uploadableCoverImages.forEach((image, index) => {
-      Resizer.imageFileResizer(
-        image.file,
-        resizedImageWidth,
-        (resizedImageWidth * image.height) / image.width,
-        'JPEG',
-        100,
-        0,
-        uri => {
-          const uploadableImage = dataURLtoFile(uri, image.file.name);
-          uploadProfileImage(uploadableImage, (error, respond) => {
-            if (error) {
-              console.log('error!', error);
-              return;
-            }
-            uploadedImages.push({
-              url: respond,
-              name: image.file.name,
-              uploadDate: new Date()
-            });
-            progressCounter =
-              (80 * uploadedImages.length) / uploadableCoverImages.length;
-            this.setState({
-              progress: progressCounter
-            });
-            uploadedImages.length === uploadableCoverImages.length &&
-              this.setState({ uploadedImages }, () => this.setNewImages());
+      resizeImage(image, 500, uri => {
+        const uploadableImage = dataURLtoFile(uri, image.file.name);
+        uploadProfileImage(uploadableImage, (error, respond) => {
+          if (error) {
+            console.log('error!', error);
+            return;
+          }
+          uploadedImages.push({
+            url: respond,
+            name: image.file.name,
+            uploadDate: new Date()
           });
-        },
-        'base64'
-      );
+          progressCounter =
+            (80 * uploadedImages.length) / uploadableCoverImages.length;
+          this.setState({
+            progress: progressCounter
+          });
+          uploadedImages.length === uploadableCoverImages.length &&
+            this.setState({ uploadedImages }, () => this.setNewImages());
+        });
+      });
     });
   };
 
@@ -255,37 +247,28 @@ class Profile extends PureComponent {
         return;
       }
       if (avatarChange && avatarImage) {
-        Resizer.imageFileResizer(
-          avatarImage.file,
-          resizedImageWidthAvatar,
-          (resizedImageWidthAvatar * avatarImage.height) / avatarImage.width,
-          'JPEG',
-          100,
-          0,
-          uri => {
-            const uploadableImage = dataURLtoFile(uri, avatarImage.file.name);
-            uploadProfileImage(uploadableImage, (error, respond) => {
+        resizeImage(avatarImage, 180, uri => {
+          const uploadableImage = dataURLtoFile(uri, avatarImage.file.name);
+          uploadProfileImage(uploadableImage, (error, respond) => {
+            if (error) {
+              console.log('error!', error);
+              errorDialog(error.reason);
+              return;
+            }
+            const avatar = {
+              name: avatarImage.file.name,
+              url: respond,
+              uploadDate: new Date()
+            };
+            Meteor.call('setNewAvatar', avatar, (error, respond) => {
               if (error) {
-                console.log('error!', error);
+                console.log(error);
                 errorDialog(error.reason);
                 return;
               }
-              const avatar = {
-                name: avatarImage.file.name,
-                url: respond,
-                uploadDate: new Date()
-              };
-              Meteor.call('setNewAvatar', avatar, (error, respond) => {
-                if (error) {
-                  console.log(error);
-                  errorDialog(error.reason);
-                  return;
-                }
-              });
             });
-          },
-          'base64'
-        );
+          });
+        });
       } else {
         Meteor.call('setAvatarEmpty', (error, respond) => {
           if (error) {
