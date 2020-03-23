@@ -122,8 +122,6 @@ class EditProfileUI extends Component {
           animated={false}
         >
           <div style={{ marginBottom: 80 }}>
-            {uploadingImages && 'uploading images...'}
-
             <h3>Avatar</h3>
             <WingBlank>
               <ImagePicker

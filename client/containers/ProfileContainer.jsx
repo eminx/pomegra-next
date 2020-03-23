@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { Fragment, PureComponent } from 'react';
 import {
+  ActivityIndicator,
   Carousel,
   Flex,
   Button,
@@ -269,7 +270,7 @@ class Profile extends PureComponent {
             });
           });
         });
-      } else {
+      } else if (avatarChange && !avatarImage) {
         Meteor.call('setAvatarEmpty', (error, respond) => {
           if (error) {
             console.log(error);
@@ -312,6 +313,14 @@ class Profile extends PureComponent {
         <NavBar mode="light">
           <h3>{currentUser.username}</h3>
         </NavBar>
+
+        {progress && (
+          <ActivityIndicator
+            toast
+            text="Proccesing your changes..."
+            animating={this.state.animating}
+          />
+        )}
 
         <Fragment>
           <Carousel
