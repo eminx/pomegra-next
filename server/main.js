@@ -553,6 +553,44 @@ Meteor.methods({
       console.log('error', error);
       throw new Meteor.Error(error);
     }
+  },
+
+  setNewAvatar(newAvatar) {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          avatar: newAvatar,
+          previousAvatar: currentUser.avatar
+        }
+      });
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
+  },
+
+  setAvatarEmpty() {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          avatar: null,
+          previousAvatar: currentUser.avatar
+        }
+      });
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
   }
 });
 

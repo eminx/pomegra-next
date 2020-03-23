@@ -17,7 +17,8 @@ import arrayMove from 'array-move';
 import EditProfile from '../reusables/EditProfile';
 import { errorDialog, successDialog, dataURLtoFile } from '../functions';
 
-const resizedImageWidth = 800;
+const resizedImageWidth = 500;
+const resizedImageWidthAvatar = 200;
 
 function uploadProfileImage(image, callback) {
   const upload = new Slingshot.Upload('profileImageUpload');
@@ -34,7 +35,7 @@ function uploadProfileImage(image, callback) {
 class Profile extends PureComponent {
   state = {
     coverImages: [],
-    avatarImage: [],
+    avatarImage: null,
     parsedAvatarImage: [],
     isEditDialogOpen: false,
     uploadingImages: false,
@@ -50,7 +51,8 @@ class Profile extends PureComponent {
 
     this.setState({
       isEditDialogOpen: true,
-      coverImages: currentUser && currentUser.coverImages
+      coverImages: (currentUser && currentUser.coverImages) || [],
+      avatarImage: currentUser && currentUser.avatar
     });
   };
 
@@ -60,7 +62,7 @@ class Profile extends PureComponent {
       this.setState({
         isEditDialogOpen: false,
         coverImages: [],
-        avatarImage: [],
+        avatarImage: null,
         unSavedImageChange: false,
         uploadingImages: false,
         unSavedInfoChange: false
@@ -128,7 +130,6 @@ class Profile extends PureComponent {
   };
 
   handleRemoveImage = imageIndex => {
-    console.log(imageIndex);
     const { coverImages } = this.state;
     this.setState({
       coverImages: coverImages.filter((image, index) => imageIndex !== index),
@@ -139,7 +140,7 @@ class Profile extends PureComponent {
 
   handleAvatarImagePick = (images, type, index) => {
     this.setState({
-      avatarImage: images,
+      avatarImage: images[0],
       unSavedImageChange: true,
       avatarChange: true
     });
@@ -147,7 +148,7 @@ class Profile extends PureComponent {
 
   handleAvatarImageRemove = (images, type, index) => {
     this.setState({
-      avatarImage: [],
+      avatarImage: null,
       unSavedImageChange: true,
       avatarChange: true
     });
@@ -172,7 +173,7 @@ class Profile extends PureComponent {
         resizedImageWidth,
         (resizedImageWidth * image.height) / image.width,
         'JPEG',
-        95,
+        100,
         0,
         uri => {
           const uploadableImage = dataURLtoFile(uri, image.file.name);
@@ -199,6 +200,8 @@ class Profile extends PureComponent {
       );
     });
   };
+
+  resizeAvatar = () => {};
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) {
@@ -251,8 +254,40 @@ class Profile extends PureComponent {
         errorDialog(error.reason);
         return;
       }
-      if (avatarChange) {
-        Meteor.call('setNewAvatarImage', avatarImage[0], (error, respond) => {
+      if (avatarChange && avatarImage) {
+        Resizer.imageFileResizer(
+          avatarImage.file,
+          resizedImageWidthAvatar,
+          (resizedImageWidthAvatar * avatarImage.height) / avatarImage.width,
+          'JPEG',
+          100,
+          0,
+          uri => {
+            const uploadableImage = dataURLtoFile(uri, avatarImage.file.name);
+            uploadProfileImage(uploadableImage, (error, respond) => {
+              if (error) {
+                console.log('error!', error);
+                errorDialog(error.reason);
+                return;
+              }
+              const avatar = {
+                name: avatarImage.file.name,
+                url: respond,
+                uploadDate: new Date()
+              };
+              Meteor.call('setNewAvatar', avatar, (error, respond) => {
+                if (error) {
+                  console.log(error);
+                  errorDialog(error.reason);
+                  return;
+                }
+              });
+            });
+          },
+          'base64'
+        );
+      } else {
+        Meteor.call('setAvatarEmpty', (error, respond) => {
           if (error) {
             console.log(error);
             errorDialog(error.reason);
@@ -311,7 +346,7 @@ class Profile extends PureComponent {
             <Flex>
               <div
                 style={avatarStyle(
-                  'https://pomegra-profile-images.s3-eu-central-1.amazonaws.com/emin/emin.jpeg'
+                  currentUser && currentUser.avatar && currentUser.avatar.url
                 )}
               />
               <div>

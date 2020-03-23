@@ -113,6 +113,7 @@ class MyBooks extends Component {
             inline
             icon={<IoMdAddCircle size={24} />}
             onClick={() => this.setState({ gotoAddBook: true })}
+            type="primary"
           >
             Add Book
           </Button>

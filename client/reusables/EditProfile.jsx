@@ -123,6 +123,21 @@ class EditProfileUI extends Component {
         >
           <div style={{ marginBottom: 80 }}>
             {uploadingImages && 'uploading images...'}
+
+            <h3>Avatar</h3>
+            <WingBlank>
+              <ImagePicker
+                files={avatarImage ? [avatarImage] : []}
+                onChange={handleAvatarImagePick}
+                selectable={!avatarImage}
+                accept="image/jpeg,image/jpg,image/png"
+                multiple={false}
+                length={3}
+              />
+            </WingBlank>
+
+            <WhiteSpace size="lg" />
+
             <h3>Cover Images</h3>
 
             <SortableContainer
@@ -161,18 +176,6 @@ class EditProfileUI extends Component {
                   </div>
                 )}
               </Dropzone>
-            </WingBlank>
-
-            <WhiteSpace size="lg" />
-
-            <h3>Avatar</h3>
-            <WingBlank>
-              <ImagePicker
-                files={avatarImage || []}
-                onChange={handleAvatarImagePick}
-                selectable={avatarImage && avatarImage.length < 1}
-                accept="image/jpeg,image/jpg,image/png"
-              />
             </WingBlank>
 
             <WhiteSpace size="lg" />
