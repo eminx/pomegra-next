@@ -109,6 +109,7 @@ class RequestsList extends Component {
           cancelText="Cancel"
           onChange={value => this.handleFilter(value)}
           onClear={() => this.setState({ filterValue: '' })}
+          style={{ touchAction: 'none' }}
         />
 
         <WingBlank size="md">
