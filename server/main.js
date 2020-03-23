@@ -665,7 +665,7 @@ Meteor.publish('myMessages', function(reqId) {
 Meteor.startup(function() {
   Books.find().forEach(function(book) {
     const image_url = book.image_url;
-    if (image_url && image_url.substring(0, 5 === 'http:')) {
+    if (image_url && image_url.substring(0, 5) === 'http:') {
       const newUrl = image_url.slice(0, 4) + 's' + image_url.slice(4);
       Books.update(book._id, {
         $set: {
@@ -677,7 +677,7 @@ Meteor.startup(function() {
 
   Requests.find().forEach(function(request) {
     const image_url = request.book_image_url;
-    if (image_url && image_url.substring(0, 5 === 'http:')) {
+    if (image_url && image_url.substring(0, 5) === 'http:') {
       const newUrl = image_url.slice(0, 4) + 's' + image_url.slice(4);
       Requests.update(request._id, {
         $set: {
