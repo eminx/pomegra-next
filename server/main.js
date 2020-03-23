@@ -71,6 +71,12 @@ Meteor.methods({
     //   throw new Meteor.Error('You have already added a book with same title');
     // }
 
+    let image_url = theBook.imageLinks && theBook.imageLinks.thumbnail;
+
+    if (image_url && image_url.substring(0, 5 === 'http:')) {
+      image_url = image_url.slice(0, 4) + "s" + image_url.slice(4);
+    } 
+
     const myBook = {
       date_added: new Date(),
       b_title: theBook.title,
@@ -78,7 +84,7 @@ Meteor.methods({
       b_author: theBook.authors && theBook.authors[0],
       b_author_lowercase: theBook.authors && theBook.authors[0].toLowerCase(),
       b_lang: theBook.language || '',
-      image_url: theBook.imageLinks && theBook.imageLinks.thumbnail,
+      image_url: image_url,
       b_cat: (theBook.categories && theBook.categories[0]) || '',
       b_ISBN: theBook.industryIdentifiers && theBook.industryIdentifiers[0],
       selfLinkGoogle: theBook.selfLink,
@@ -657,15 +663,29 @@ Meteor.publish('myMessages', function(reqId) {
 });
 
 Meteor.startup(function() {
-  Meteor.users
-    .find({ coverImages: { $exists: false } })
-    .forEach(function(user) {
-      Meteor.users.update(user._id, {
+  Books.find().forEach(function(book) {
+    const image_url = book.image_url;
+    if (image_url && image_url.substring(0, 5 === 'http:')) {
+      const newUrl = image_url.slice(0, 4) + "s" + image_url.slice(4);
+      Books.update(book._id, {
         $set: {
-          coverImages: []
+          image_url: newUrl
         }
       });
-    });
+    } 
+  });
+
+  Requests.find().forEach(function(request) {
+    const image_url = request.book_image_url;
+    if (image_url && image_url.substring(0, 5 === 'http:')) {
+      const newUrl = image_url.slice(0, 4) + "s" + image_url.slice(4);
+      Requests.update(request._id, {
+        $set: {
+          book_image_url: newUrl
+        }
+      });
+    } 
+  });
 });
 
 // getWelcomeEmailText = username => {
@@ -676,6 +696,8 @@ Accounts.onCreateUser((options, user) => {
   user.notifications = [];
   user.following = [];
   user.followedBy = [];
+  user.coverImages = [];
+  user.avatar = null,
 
   // Meteor.call(
   //   'sendEmail',
