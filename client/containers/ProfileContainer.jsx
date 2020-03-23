@@ -8,37 +8,80 @@ import {
   WhiteSpace,
   WingBlank,
   Modal,
-  NavBar
+  NavBar,
+  Progress
 } from 'antd-mobile';
+import Resizer from 'react-image-file-resizer';
+import arrayMove from 'array-move';
 
 import EditProfile from '../reusables/EditProfile';
-import { errorDialog, successDialog } from '../functions';
+import { errorDialog, successDialog, dataURLtoFile } from '../functions';
+
+const resizedImageWidth = 800;
+
+function uploadProfileImage(image, callback) {
+  const upload = new Slingshot.Upload('profileImageUpload');
+
+  upload.send(image, (error, downloadUrl) => {
+    if (error) {
+      callback(error);
+    } else {
+      callback(error, downloadUrl);
+    }
+  });
+}
 
 class Profile extends PureComponent {
   state = {
+    coverImages: [],
+    avatarImage: [],
+    parsedAvatarImage: [],
     isEditDialogOpen: false,
-    isAnyValueChanged: false
+    uploadingImages: false,
+    progress: null,
+    uploadingCoverImages: false,
+    uploadingAvatarImage: false,
+    unSavedImageChange: false,
+    unSavedInfoChange: false
   };
 
   openEditDialog = () => {
+    const { currentUser } = this.props;
+
     this.setState({
-      isEditDialogOpen: true
+      isEditDialogOpen: true,
+      coverImages: currentUser && currentUser.coverImages
     });
   };
 
   closeEditDialog = () => {
+    const { unSavedInfoChange, unSavedImageChange } = this.state;
     const closeEditDialog = () => {
       this.setState({
-        isEditDialogOpen: false
+        isEditDialogOpen: false,
+        coverImages: [],
+        avatarImage: [],
+        unSavedImageChange: false,
+        uploadingImages: false,
+        unSavedInfoChange: false
       });
     };
 
-    if (this.state.isAnyValueChanged) {
+    let changedTab = false;
+    if (unSavedInfoChange && unSavedImageChange) {
+      changedTab = 'images and info sections';
+    } else if (unSavedInfoChange) {
+      changedTab = 'info section';
+    } else if (unSavedImageChange) {
+      changedTab = 'images section';
+    }
+
+    if (changedTab) {
       Modal.alert(
-        'You have unsaved changes',
+        `You have unsaved changes in your ${changedTab}`,
         'Are you sure you want to skip them?',
         [
-          { text: 'Cancel', onPress: () => console.log('cancel') },
+          { text: 'Cancel', onPress: () => null },
           {
             text: 'Yes',
             onPress: () => closeEditDialog()
@@ -50,12 +93,10 @@ class Profile extends PureComponent {
     }
   };
 
-  isAnyValueChanged = () => {
-    if (!this.state.isAnyValueChanged) {
-      this.setState({
-        isAnyValueChanged: true
-      });
-    }
+  setUnSavedInfoChange = () => {
+    this.setState({
+      unSavedInfoChange: true
+    });
   };
 
   updateProfile = (values, languages) => {
@@ -72,9 +113,176 @@ class Profile extends PureComponent {
     });
   };
 
+  handleCoverImagePick = pickedImages => {
+    const { coverImages } = this.state;
+    const imageSet = pickedImages.map(image => ({
+      file: image,
+      url: URL.createObjectURL(image),
+      isNewImage: true
+    }));
+    this.setState({
+      coverImages: [...coverImages, ...imageSet],
+      unSavedImageChange: true,
+      coverChange: true
+    });
+  };
+
+  handleRemoveImage = imageIndex => {
+    console.log(imageIndex);
+    const { coverImages } = this.state;
+    this.setState({
+      coverImages: coverImages.filter((image, index) => imageIndex !== index),
+      unSavedImageChange: true,
+      coverChange: true
+    });
+  };
+
+  handleAvatarImagePick = (images, type, index) => {
+    this.setState({
+      avatarImage: images,
+      unSavedImageChange: true,
+      avatarChange: true
+    });
+  };
+
+  handleAvatarImageRemove = (images, type, index) => {
+    this.setState({
+      avatarImage: [],
+      unSavedImageChange: true,
+      avatarChange: true
+    });
+  };
+
+  resizeImages = () => {
+    const { coverImages, progress } = this.state;
+    this.setState({
+      uploadingImages: true
+    });
+
+    const uploadedImages = [];
+
+    const uploadableCoverImages = coverImages.filter(
+      image => image.isNewImage && image.file
+    );
+
+    let progressCounter = progress;
+    uploadableCoverImages.forEach((image, index) => {
+      Resizer.imageFileResizer(
+        image.file,
+        resizedImageWidth,
+        (resizedImageWidth * image.height) / image.width,
+        'JPEG',
+        95,
+        0,
+        uri => {
+          const uploadableImage = dataURLtoFile(uri, image.file.name);
+          uploadProfileImage(uploadableImage, (error, respond) => {
+            if (error) {
+              console.log('error!', error);
+              return;
+            }
+            uploadedImages.push({
+              url: respond,
+              name: image.file.name,
+              uploadDate: new Date()
+            });
+            progressCounter =
+              (80 * uploadedImages.length) / uploadableCoverImages.length;
+            this.setState({
+              progress: progressCounter
+            });
+            uploadedImages.length === uploadableCoverImages.length &&
+              this.setState({ uploadedImages }, () => this.setNewImages());
+          });
+        },
+        'base64'
+      );
+    });
+  };
+
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    if (oldIndex === newIndex) {
+      return;
+    }
+
+    this.setState(({ coverImages }) => ({
+      coverImages: arrayMove(coverImages, oldIndex, newIndex),
+      unSavedImageChange: true,
+      coverChange: true
+    }));
+  };
+
+  handleSaveImages = () => {
+    const { coverImages } = this.state;
+
+    this.setState({
+      progress: 5
+    });
+
+    const isThereNewImage = coverImages.some(image => image.isNewImage);
+    if (isThereNewImage) {
+      this.resizeImages();
+    } else {
+      this.setNewImages();
+    }
+  };
+
+  setNewImages = () => {
+    const {
+      uploadedImages,
+      coverImages,
+      avatarImage,
+      avatarChange
+    } = this.state;
+
+    let newImageSet;
+
+    if (!uploadedImages) {
+      newImageSet = coverImages;
+    } else {
+      newImageSet = coverImages
+        .filter(image => !image.file)
+        .concat(uploadedImages);
+    }
+
+    Meteor.call('setNewCoverImages', newImageSet, (error, respond) => {
+      if (error) {
+        console.log(error);
+        errorDialog(error.reason);
+        return;
+      }
+      if (avatarChange) {
+        Meteor.call('setNewAvatarImage', avatarImage[0], (error, respond) => {
+          if (error) {
+            console.log(error);
+            errorDialog(error.reason);
+            return;
+          }
+        });
+      }
+
+      this.setState({
+        progress: 100,
+        uploadingImages: false,
+        unSavedImageChange: false
+      });
+
+      successDialog('Your images are successfully  saved');
+      setTimeout(() => this.setState({ progress: null }), 2000);
+    });
+  };
+
   render() {
     const { currentUser } = this.props;
-    const { isEditDialogOpen } = this.state;
+    const {
+      isEditDialogOpen,
+      coverImages,
+      avatarImage,
+      unSavedImageChange,
+      unSavedInfoChange,
+      uploadingImages,
+      progress
+    } = this.state;
 
     if (!currentUser) {
       return null;
@@ -82,6 +290,7 @@ class Profile extends PureComponent {
 
     return (
       <div style={{ height: '100%', marginBottom: 80 }}>
+        {progress && <Progress percent={progress} />}
         <NavBar mode="light">
           <h3>{currentUser.username}</h3>
         </NavBar>
@@ -128,7 +337,18 @@ class Profile extends PureComponent {
           <EditProfile
             currentUser={currentUser}
             onSubmit={this.updateProfile}
-            isAnyValueChanged={() => this.isAnyValueChanged()}
+            coverImages={coverImages}
+            avatarImage={avatarImage}
+            uploadingImages={uploadingImages}
+            unSavedImageChange={unSavedImageChange}
+            unSavedInfoChange={unSavedInfoChange}
+            setUnSavedInfoChange={this.setUnSavedInfoChange}
+            onSortEnd={this.onSortEnd}
+            handleCoverImagePick={this.handleCoverImagePick}
+            handleRemoveImage={index => this.handleRemoveImage(index)}
+            handleAvatarImagePick={this.handleAvatarImagePick}
+            handleSaveImages={this.handleSaveImages}
+            handleTabClick={(tab, index) => this.setState({ openTab: index })}
           />
         </Modal>
       </div>
