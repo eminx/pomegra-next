@@ -262,6 +262,8 @@ class Request extends Component {
           onTabClick={(tab, index) => {
             this.setState({ openTab: index });
           }}
+          swipeable={false}
+          animated={false}
         >
           <div>
             <WhiteSpace />

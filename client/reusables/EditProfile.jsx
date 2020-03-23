@@ -17,6 +17,8 @@ import {
 import { createForm } from 'rc-form';
 import Resizer from 'react-image-file-resizer';
 import Dropzone from 'react-dropzone';
+import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+import arrayMove from 'array-move';
 
 import allLanguages from '../allLanguages';
 import { dataURLtoFile, successDialog } from '../functions';
@@ -49,7 +51,7 @@ class EditProfileUI extends Component {
     resizingAvatarImage: false,
     uploadingCoverImages: false,
     uploadingAvatarImage: false,
-    isPhotosChanged: false
+    isImagesUpdated: false
   };
 
   componentDidMount() {
@@ -128,7 +130,7 @@ class EditProfileUI extends Component {
     }));
     this.setState({
       coverImages: [...coverImages, ...imageSet],
-      isPhotosChanged: true
+      isImagesUpdated: true
     });
   };
 
@@ -137,21 +139,21 @@ class EditProfileUI extends Component {
 
     this.setState({
       coverImages: coverImages.filter((image, index) => imageIndex !== index),
-      isPhotosChanged: true
+      isImagesUpdated: true
     });
   };
 
   handleAvatarImagePick = (images, type, index) => {
     this.setState({
       avatarImage: images,
-      isPhotosChanged: true
+      isImagesUpdated: true
     });
   };
 
   handleAvatarImageRemove = (images, type, index) => {
     this.setState({
       avatarImage: images,
-      isPhotosChanged: true
+      isImagesUpdated: true
     });
   };
 
@@ -245,6 +247,13 @@ class EditProfileUI extends Component {
     });
   };
 
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    this.setState(({ coverImages }) => ({
+      coverImages: arrayMove(coverImages, oldIndex, newIndex),
+      isImagesUpdated: true
+    }));
+  };
+
   render() {
     const { currentUser, isAnyValueChanged } = this.props;
     const { getFieldProps, getFieldError } = this.props.form;
@@ -255,7 +264,7 @@ class EditProfileUI extends Component {
       avatarImage,
       uploadingImages,
       progress,
-      isPhotosChanged
+      isImagesUpdated
     } = this.state;
 
     return (
@@ -267,23 +276,28 @@ class EditProfileUI extends Component {
           onTabClick={(tab, index) => {
             this.setState({ openTab: index });
           }}
+          swipeable={false}
+          animated={false}
         >
           <div style={{ marginBottom: 80 }}>
             {uploadingImages && 'uploading images...'}
             <h3>Cover Images</h3>
-            {coverImages && (
-              <Flex justify="center" wrap="wrap">
-                {coverImages.map((image, index) => (
-                  <div key={image.url} style={thumbStyle(image.url)}>
-                    <Icon
-                      type="cross"
-                      style={thumbIconStyle}
-                      onClick={() => this.handleRemoveImage(index)}
-                    />
-                  </div>
-                ))}
-              </Flex>
-            )}
+
+            <SortableContainer
+              onSortEnd={this.onSortEnd}
+              axis="xy"
+              helperClass="sortableHelper"
+            >
+              {coverImages.map((image, index) => (
+                <SortableItem
+                  key={image.url}
+                  index={index}
+                  image={image}
+                  handleRemoveImage={this.handleRemoveImage}
+                />
+              ))}
+            </SortableContainer>
+
             <WingBlank>
               <Dropzone
                 onDrop={this.handleCoverImagePick}
@@ -320,7 +334,7 @@ class EditProfileUI extends Component {
               <Button
                 type="primary"
                 onClick={this.handleSaveImages}
-                disabled={!isPhotosChanged}
+                disabled={!isImagesUpdated}
               >
                 Save
               </Button>
@@ -410,6 +424,26 @@ class EditProfileUI extends Component {
   }
 }
 
+const SortableItem = sortableElement(({ image, index, handleRemoveImage }) => {
+  return (
+    <div key={image.url} style={thumbStyle(image.url)}>
+      <Icon
+        type="cross"
+        style={thumbIconStyle}
+        onClick={() => handleRemoveImage(index)}
+      />
+    </div>
+  );
+});
+
+const SortableContainer = sortableContainer(({ children }) => {
+  return (
+    <Flex justify="center" wrap="wrap">
+      {children}
+    </Flex>
+  );
+});
+
 const pickerStyle = {
   width: '100%',
   backgroundColor: '#108ee9',
@@ -420,7 +454,7 @@ const pickerStyle = {
 };
 
 const thumbStyle = backgroundImage => ({
-  position: 'relative',
+  // position: 'relative',
   flexBasis: 120,
   height: 80,
   margin: 8,
@@ -432,6 +466,7 @@ const thumbStyle = backgroundImage => ({
 const thumbIconStyle = {
   width: 24,
   height: 24,
+  margin: 2,
   float: 'right',
   color: '#1b1b1b',
   borderRadius: '50%',
