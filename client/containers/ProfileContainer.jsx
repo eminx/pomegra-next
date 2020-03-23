@@ -82,7 +82,9 @@ class Profile extends PureComponent {
 
     return (
       <div style={{ height: '100%', marginBottom: 80 }}>
-        <NavBar mode="light">{currentUser.username}</NavBar>
+        <NavBar mode="light">
+          <h3>{currentUser.username}</h3>
+        </NavBar>
 
         <Fragment>
           <Carousel
@@ -104,7 +106,6 @@ class Profile extends PureComponent {
                 )}
               />
               <div>
-                <h2>{currentUser.username}</h2>
                 <h4>{currentUser.firstName + ' ' + currentUser.lastName}</h4>
               </div>
             </Flex>

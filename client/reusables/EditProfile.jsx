@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import {
   List,
+  Flex,
+  Icon,
   ImagePicker,
   Button,
   InputItem,
@@ -46,7 +48,8 @@ class EditProfileUI extends Component {
     progress: 0,
     resizingAvatarImage: false,
     uploadingCoverImages: false,
-    uploadingAvatarImage: false
+    uploadingAvatarImage: false,
+    isPhotosChanged: false
   };
 
   componentDidMount() {
@@ -124,7 +127,8 @@ class EditProfileUI extends Component {
       isNewImage: true
     }));
     this.setState({
-      coverImages: [...coverImages, ...imageSet]
+      coverImages: [...coverImages, ...imageSet],
+      isPhotosChanged: true
     });
   };
 
@@ -132,25 +136,46 @@ class EditProfileUI extends Component {
     const { coverImages } = this.state;
 
     this.setState({
-      coverImages: coverImages.filter((image, index) => imageIndex !== index)
+      coverImages: coverImages.filter((image, index) => imageIndex !== index),
+      isPhotosChanged: true
     });
   };
 
   handleAvatarImagePick = (images, type, index) => {
     this.setState({
-      avatarImage: images
+      avatarImage: images,
+      isPhotosChanged: true
+    });
+  };
+
+  handleAvatarImageRemove = (images, type, index) => {
+    this.setState({
+      avatarImage: images,
+      isPhotosChanged: true
     });
   };
 
   handleSaveImages = () => {
+    const { coverImages } = this.state;
+
+    this.setState({
+      progress: 5
+    });
+
+    isThereNewImage = coverImages.some(image => image.isNewImage);
+    if (isThereNewImage) {
+      this.resizeImages();
+    } else {
+      this.setNewCoverImages();
+    }
+
     this.resizeImages();
   };
 
   resizeImages = () => {
     const { coverImages, progress } = this.state;
     this.setState({
-      uploadingImages: true,
-      progress: 5
+      uploadingImages: true
     });
 
     const uploadedImages = [];
@@ -196,9 +221,16 @@ class EditProfileUI extends Component {
 
   setNewCoverImages = () => {
     const { uploadedImages, coverImages } = this.state;
-    const newImageSet = coverImages
-      .filter(image => !image.file)
-      .concat(uploadedImages);
+
+    let newImageSet;
+
+    if (!uploadedImages) {
+      newImageSet = coverImages;
+    } else {
+      newImageSet = coverImages
+        .filter(image => !image.file)
+        .concat(uploadedImages);
+    }
 
     Meteor.call('setNewCoverImages', newImageSet, (error, respond) => {
       if (error) {
@@ -209,7 +241,7 @@ class EditProfileUI extends Component {
         progress: 100,
         uploadingImages: false
       });
-      successDialog('Your images successfully upload');
+      successDialog('Your images are successfully  saved');
     });
   };
 
@@ -222,7 +254,8 @@ class EditProfileUI extends Component {
       coverImages,
       avatarImage,
       uploadingImages,
-      progress
+      progress,
+      isPhotosChanged
     } = this.state;
 
     return (
@@ -238,11 +271,19 @@ class EditProfileUI extends Component {
           <div style={{ marginBottom: 80 }}>
             {uploadingImages && 'uploading images...'}
             <h3>Cover Images</h3>
-            {coverImages &&
-              coverImages.map(image => (
-                <img key={image.url} width={80} height={60} src={image.url} />
-              ))}
-
+            {coverImages && (
+              <Flex justify="center" wrap="wrap">
+                {coverImages.map((image, index) => (
+                  <div key={image.url} style={thumbStyle(image.url)}>
+                    <Icon
+                      type="cross"
+                      style={thumbIconStyle}
+                      onClick={() => this.handleRemoveImage(index)}
+                    />
+                  </div>
+                ))}
+              </Flex>
+            )}
             <WingBlank>
               <Dropzone
                 onDrop={this.handleCoverImagePick}
@@ -276,8 +317,12 @@ class EditProfileUI extends Component {
             <WhiteSpace size="lg" />
 
             <Item>
-              <Button type="primary" onClick={this.handleSaveImages}>
-                Upload & Save
+              <Button
+                type="primary"
+                onClick={this.handleSaveImages}
+                disabled={!isPhotosChanged}
+              >
+                Save
               </Button>
             </Item>
           </div>
@@ -371,8 +416,26 @@ const pickerStyle = {
   padding: 12,
   marginTop: 24,
   borderRadius: 5,
-  color: 'white',
-  touchAction: 'none'
+  color: 'white'
+};
+
+const thumbStyle = backgroundImage => ({
+  position: 'relative',
+  flexBasis: 120,
+  height: 80,
+  margin: 8,
+  backgroundImage: `url('${backgroundImage}')`,
+  backgroundPosition: 'center',
+  backgroundSize: 'cover'
+});
+
+const thumbIconStyle = {
+  width: 24,
+  height: 24,
+  float: 'right',
+  color: '#1b1b1b',
+  borderRadius: '50%',
+  backgroundColor: 'rgba(255, 255, 255, .3)'
 };
 
 const EditProfile = createForm()(EditProfileUI);
