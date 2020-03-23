@@ -135,6 +135,7 @@ class EditProfileUI extends Component {
   };
 
   handleRemoveImage = imageIndex => {
+    console.log(imageIndex);
     const { coverImages } = this.state;
 
     this.setState({
@@ -293,7 +294,7 @@ class EditProfileUI extends Component {
                   key={image.url}
                   index={index}
                   image={image}
-                  handleRemoveImage={this.handleRemoveImage}
+                  handleRemoveImage={() => this.handleRemoveImage(index)}
                 />
               ))}
             </SortableContainer>
@@ -427,11 +428,7 @@ class EditProfileUI extends Component {
 const SortableItem = sortableElement(({ image, index, handleRemoveImage }) => {
   return (
     <div key={image.url} style={thumbStyle(image.url)}>
-      <Icon
-        type="cross"
-        style={thumbIconStyle}
-        onClick={() => handleRemoveImage(index)}
-      />
+      <Icon type="cross" style={thumbIconStyle} onClick={handleRemoveImage} />
     </div>
   );
 });
@@ -454,13 +451,14 @@ const pickerStyle = {
 };
 
 const thumbStyle = backgroundImage => ({
-  // position: 'relative',
   flexBasis: 120,
   height: 80,
   margin: 8,
   backgroundImage: `url('${backgroundImage}')`,
   backgroundPosition: 'center',
-  backgroundSize: 'cover'
+  backgroundSize: 'cover',
+  borderRadius: 5,
+  border: '1px solid #fff'
 });
 
 const thumbIconStyle = {
