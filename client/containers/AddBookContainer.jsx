@@ -4,8 +4,6 @@ import { withTracker } from 'meteor/react-meteor-data';
 
 import {
   ActivityIndicator,
-  WingBlank,
-  WhiteSpace,
   Icon,
   NavBar,
   SearchBar,
@@ -14,8 +12,7 @@ import {
 } from 'antd-mobile';
 
 import BookDetailTobeAdded from './BookDetailTobeAdded';
-import AppTabBar from '../reusables/AppTabBar';
-import { successDialog, errorDialog } from '../functions';
+import { successDialog, errorDialog, parseUrlForSSL } from '../functions';
 import { Redirect } from 'react-router-dom';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
@@ -165,7 +162,9 @@ class AddBook extends Component {
                     style={{ width: 33, height: 44 }}
                     src={
                       result.volumeInfo.imageLinks &&
-                      result.volumeInfo.imageLinks.smallThumbnail
+                      parseUrlForSSL(
+                        result.volumeInfo.imageLinks.smallThumbnail
+                      )
                     }
                   />
                 }
@@ -179,7 +178,7 @@ class AddBook extends Component {
                 <Brief>
                   {result.volumeInfo.authors &&
                     result.volumeInfo.authors.map(author => (
-                      <span>{author}</span>
+                      <span key={author}>{author}</span>
                     ))}
                 </Brief>
               </ListItem>

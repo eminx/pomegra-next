@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 import {
+  ActivityIndicator,
   WhiteSpace,
   NavBar,
   List,
@@ -87,7 +88,17 @@ class MyBooks extends Component {
     const sortedBooks = this.sortedBooks();
 
     if (!sortedBooks) {
-      return null;
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 50
+          }}
+        >
+          <ActivityIndicator text="Loading..." />
+        </div>
+      );
     }
 
     const filteredSortedBooks = sortedBooks.filter(book => {

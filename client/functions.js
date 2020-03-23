@@ -49,10 +49,21 @@ function resizeImage(image, desiredImageWidth, callback) {
   );
 }
 
+const parseUrlForSSL = imageLink => {
+  let image_url = imageLink;
+
+  if (image_url && image_url.substring(0, 5) === 'http:') {
+    image_url = image_url.slice(0, 4) + 's' + image_url.slice(4);
+  }
+
+  return image_url;
+};
+
 export {
   errorDialog,
   successDialog,
   notificationsCounter,
   dataURLtoFile,
-  resizeImage
+  resizeImage,
+  parseUrlForSSL
 };

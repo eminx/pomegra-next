@@ -1,9 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-import { NavBar, List } from 'antd-mobile';
-import AppTabBar from '../reusables/AppTabBar';
 import { Redirect } from 'react-router-dom';
+import { NavBar, List, ActivityIndicator } from 'antd-mobile';
 
 const ListItem = List.Item;
 const Brief = ListItem.Brief;
@@ -24,7 +23,17 @@ class Find extends Component {
     const { redirectToBookDetail } = this.state;
 
     if (!currentUser || !othersBooks) {
-      return null;
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 50
+          }}
+        >
+          <ActivityIndicator text="Loading..." />
+        </div>
+      );
     }
 
     if (redirectToBookDetail) {
