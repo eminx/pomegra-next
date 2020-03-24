@@ -3,10 +3,11 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 import {
+  Carousel,
   ActivityIndicator,
   List,
   Flex,
-  Button,
+  // Button,
   InputItem,
   NavBar,
   Modal,
@@ -15,11 +16,21 @@ import {
   WhiteSpace,
   Result
 } from 'antd-mobile';
+import {
+  Hero,
+  HeroBody,
+  HeroFooter,
+  Container,
+  Title,
+  Button,
+  Subtitle,
+  Heading
+} from 'bloomer';
 import { GiBookshelf } from 'react-icons/gi';
 import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
-import { GoBook } from 'react-icons/go';
 
 import CreateAccount from '../reusables/CreateAccount';
+import Splash from '../reusables/Splash';
 
 import { errorDialog } from '../functions';
 
@@ -125,12 +136,6 @@ class AccountManager extends Component {
 
     return (
       <div>
-        {currentUser ? (
-          <NavBar mode="light">Welcome to Librella</NavBar>
-        ) : (
-          <NavBar>Please Create an Account</NavBar>
-        )}
-
         {!currentUser && (
           <div>
             <CreateAccount onSubmit={this.createAccount} />
@@ -151,11 +156,11 @@ class AccountManager extends Component {
           </div>
         )}
 
-        <WhiteSpace />
-
         {currentUser && (
           <div>
-            <Result
+            <Splash />
+
+            {/* <Result
               img={<GiBookshelf size={iconSize} color="orange" />}
               title="Discover & Borrow"
               message="Discover Books, both as an inspiration to read, and to borrow from others. You can borrow a book from your friends, neighbors and other interesting readers in your town. See what
@@ -185,11 +190,11 @@ class AccountManager extends Component {
               buttonType="primary"
               onButtonClick={() => this.redirectTo('/messages')}
             />
-            <WhiteSpace size="lg" />
+            <WhiteSpace size="lg" /> */}
           </div>
         )}
 
-        {currentUser && (
+        {/* {currentUser && (
           <WingBlank size="lg">
             <WhiteSpace size="lg" />
             <Flex justify="center">
@@ -203,7 +208,7 @@ class AccountManager extends Component {
               </Button>
             </Flex>
           </WingBlank>
-        )}
+        )} */}
 
         <Modal
           visible={!currentUser && loginScreenOpen}
@@ -251,7 +256,7 @@ class AccountManager extends Component {
           </List>
         </Modal>
 
-        <div style={{ width: '100%', height: 100 }} />
+        {/* <div style={{ width: '100%', height: 100 }} /> */}
       </div>
     );
   }

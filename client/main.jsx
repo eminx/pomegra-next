@@ -1,6 +1,7 @@
 import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { render } from 'react-dom';
+import 'bulma/css/bulma.css';
 
 import { renderRoutes } from './routes';
 
