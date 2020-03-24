@@ -291,6 +291,22 @@ class Profile extends PureComponent {
     });
   };
 
+  setGeoLocationCoords = coords => {
+    console.log(coords);
+    const theCoords = {
+      latitude: coords.latitude.toString(),
+      longitude: coords.longitude.toString(),
+      accuracy: coords.accuracy.toString()
+    };
+    Meteor.call('setGeoLocationCoords', theCoords, (error, respond) => {
+      if (error) {
+        console.log(error);
+        errorDialog(error.reason);
+        return;
+      }
+    });
+  };
+
   render() {
     const { currentUser } = this.props;
     const {
@@ -376,6 +392,7 @@ class Profile extends PureComponent {
             handleAvatarImagePick={this.handleAvatarImagePick}
             handleSaveImages={this.handleSaveImages}
             handleTabClick={(tab, index) => this.setState({ openTab: index })}
+            setGeoLocationCoords={this.setGeoLocationCoords}
           />
         </Modal>
       </div>

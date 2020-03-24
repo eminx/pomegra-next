@@ -18,6 +18,7 @@ import Dropzone from 'react-dropzone';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 
 import allLanguages from '../allLanguages';
+import GeoLocationTracker from './GeoLocationTracker';
 
 const Item = List.Item;
 
@@ -107,7 +108,8 @@ class EditProfileUI extends Component {
       handleAvatarImagePick,
       handleSaveImages,
       handleTabClick,
-      openTab
+      openTab,
+      setGeoLocationCoords
     } = this.props;
     const { getFieldProps, getFieldError } = this.props.form;
     const { languages } = this.state;
@@ -115,13 +117,13 @@ class EditProfileUI extends Component {
     return (
       <div>
         <Tabs
-          tabs={[{ title: 'Images' }, { title: 'Info' }]}
+          tabs={[{ title: 'Images' }, { title: 'Info' }, { title: 'Location' }]}
           page={openTab}
           onTabClick={handleTabClick}
           swipeable={false}
           animated={false}
         >
-          <div style={{ marginBottom: 80 }}>
+          <div>
             <h3>Avatar</h3>
             <WingBlank>
               <ImagePicker
@@ -188,7 +190,7 @@ class EditProfileUI extends Component {
               </Button>
             </Item>
           </div>
-          <div style={{ marginBottom: 80 }}>
+          <div>
             <List renderHeader={() => 'Edit your details'}>
               <InputItem value={currentUser.username} editable={false}>
                 username
@@ -268,6 +270,22 @@ class EditProfileUI extends Component {
                 </Button>
               </Item>
             </List>
+          </div>
+          <div>
+            <p>
+              We will use your location in order to find books that are located
+              close to you so you can go pick up.
+            </p>
+            <p>And also same for your other users to access you easier.</p>
+            {currentUser.geoLocationCoords ? (
+              <div>
+                <b>{currentUser.geoLocationCoords.latitude}</b>
+                <span> , </span>
+                <b>{currentUser.geoLocationCoords.longitude}</b>
+              </div>
+            ) : (
+              <GeoLocationTracker setGeoLocationCoords={setGeoLocationCoords} />
+            )}
           </div>
         </Tabs>
         <WhiteSpace size={100} />

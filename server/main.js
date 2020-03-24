@@ -597,6 +597,24 @@ Meteor.methods({
       console.log('error', error);
       throw new Meteor.Error(error);
     }
+  },
+
+  setGeoLocationCoords(coords) {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          geoLocationCoords: coords
+        }
+      });
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
   }
 });
 
