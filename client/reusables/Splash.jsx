@@ -5,8 +5,11 @@ import {
   HeroFooter,
   Container,
   Title,
+  Content,
   Button,
   Subtitle,
+  Media,
+  Table,
   Field,
   Control,
   Input,
@@ -17,7 +20,9 @@ import {
   Select,
   Notification,
   Tag,
-  Delete
+  Delete,
+  MediaLeft,
+  MediaContent
 } from 'bloomer';
 import { Flex, ImagePicker, ActivityIndicator } from 'antd-mobile';
 import Slider from 'react-slick';
@@ -26,6 +31,9 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import allLanguages from '../allLanguages';
 import { resizeImage, dataURLtoFile } from '../functions';
+import { HeroHeader } from 'bloomer/lib/layout/Hero/HeroHeader';
+
+const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
 function uploadProfileImage(image, callback) {
   const upload = new Slingshot.Upload('profileImageUpload');
@@ -91,7 +99,10 @@ class Splash extends PureComponent {
     avatar: null,
     cover: null,
     savingAvatar: false,
-    savingCover: false
+    savingCover: false,
+    searchValue: '',
+    searchResults: null,
+    isSearching: false
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -277,6 +288,27 @@ class Splash extends PureComponent {
     });
   };
 
+  searchBook = event => {
+    event && event.preventDefault();
+    const { searchValue } = this.state;
+    console.log(searchValue);
+
+    this.setState({
+      isSearching: true
+    });
+
+    fetch(googleApi + searchValue)
+      .then(results => {
+        return results.json();
+      })
+      .then(parsedResults => {
+        this.setState({
+          isLoading: false,
+          searchResults: parsedResults.items
+        });
+      });
+  };
+
   render() {
     const { currentUser } = this.props;
     const {
@@ -291,7 +323,10 @@ class Splash extends PureComponent {
       avatar,
       savingAvatar,
       cover,
-      savingCover
+      savingCover,
+      searchValue,
+      searchResults,
+      isSearching
     } = this.state;
 
     const isEmailInvalid = this.isEmailInvalid();
@@ -564,30 +599,28 @@ class Splash extends PureComponent {
           </Field>
         </HeroSlide>
 
-        <HeroSlide
-          subtitle="So cool!"
-          isPaddingless
-          isColor="dark"
-          hasTextColor="light"
-        >
-          <div
-            style={
-              currentUser &&
-              currentUser.coverImages &&
-              currentUser.coverImages[0] &&
-              slideStyle(currentUser.coverImages[0].url)
-            }
-          >
-            <Image
-              isSize="128x128"
-              src={currentUser && currentUser.avatar && currentUser.avatar.url}
-              className="is-rounded"
-              style={{ position: 'absolute', top: '30vh' }}
-            />
+        <HeroSlide isPaddingless isColor="dark" hasTextColor="light">
+          <div style={{ position: 'relative' }}>
+            <div
+              style={
+                currentUser &&
+                currentUser.coverImages &&
+                currentUser.coverImages[0] &&
+                slideStyle(currentUser.coverImages[0].url)
+              }
+            >
+              <Image
+                isSize="128x128"
+                src={
+                  currentUser && currentUser.avatar && currentUser.avatar.url
+                }
+                className="is-rounded"
+                style={{ position: 'absolute', top: '30vh' }}
+              />
+            </div>
           </div>
-          <Field style={{ marginTop: '40vh' }}>
+          <Field style={{ marginTop: '50vh' }}>
             <Control style={{ paddingTop: 24 }}>
-              <Title isSize={4}>Looks pretty cool!</Title>
               <Subtitle isSize={6}>
                 Now, let's add some books from your library
               </Subtitle>
@@ -603,17 +636,67 @@ class Splash extends PureComponent {
             </Control>
           </Field>
         </HeroSlide>
+
+        <HeroSlide
+          subtitle="What book are you reading now?"
+          isColor="dark"
+          hasTextColor="light"
+        >
+          <form onSubmit={this.searchBook}>
+            <Field>
+              <Control>
+                <Input
+                  type="test"
+                  placeholder="book title, author, ISBN etc"
+                  value={searchValue}
+                  onChange={event =>
+                    this.setState({ searchValue: event.target.value })
+                  }
+                  className="is-rounded"
+                  hasTextColor="dark"
+                />
+              </Control>
+            </Field>
+            {/* <Help isColor={isPasswordInvalid ? 'warning' : 'success'}>
+                  {isPasswordInvalid ? 'not strong enought' : 'looks great'}
+                </Help> */}
+            <Field>
+              <Control>
+                <Button
+                  onClick={this.searchBook}
+                  className="is-rounded"
+                  isPulled="right"
+                  isColor="dark"
+                  isOutlined
+                  hasTextColor="light"
+                  style={{ borderColor: '#f6f6f6' }}
+                >
+                  Search
+                </Button>
+              </Control>
+            </Field>
+          </form>
+          <div isClearFix>
+            {searchResults &&
+              searchResults.map(result => (
+                <BookCard
+                  key={result.volumeInfo.title}
+                  volumeInfo={result.volumeInfo}
+                />
+              ))}
+          </div>
+        </HeroSlide>
       </Slider>
     );
   }
 }
 
 const slideStyle = backgroundImage => ({
-  position: 'fixed',
+  position: 'absolute',
   width: '100vw',
   height: '40vh',
-  top: 0,
-  right: 0,
+  top: '-3rem',
+  left: '-1.5rem',
   backgroundImage: `url('${backgroundImage}')`,
   backgroundOosition: 'center',
   backgroundSize: 'cover',
@@ -642,7 +725,7 @@ const InfoForm = ({
           placeholder="first name"
           value={firstName || ''}
           onChange={onFirstNameChange}
-          className="is-rounded"
+          // className="is-rounded"
           style={{ color: '#3e3e3e' }}
         />
       </Control>
@@ -655,7 +738,7 @@ const InfoForm = ({
           placeholder="last name"
           value={lastName || ''}
           onChange={onLastNameChange}
-          className="is-rounded"
+          // className="is-rounded"
           style={{ color: '#3e3e3e' }}
         />
       </Control>
@@ -667,7 +750,7 @@ const InfoForm = ({
           type="text"
           placeholder="bio"
           onChange={onBioChange}
-          className="is-rounded"
+          // className="is-rounded"
           style={{ color: '#3e3e3e', borderRadius: 20 }}
           value={bio || ''}
         />
@@ -685,5 +768,89 @@ const InfoForm = ({
     </Field>
   </Fragment>
 );
+
+const BookCard = ({ volumeInfo }) => (
+  <div
+    style={{
+      backgroundColor: '#F6F6F6',
+      padding: 24,
+      marginBottom: 24,
+      boxShadow: '0 0 5px'
+    }}
+  >
+    <Title hasTextColor="dark" isSize={5}>
+      {volumeInfo.title}
+    </Title>
+    <Subtitle hasTextColor="dark" isSize={6}>
+      {volumeInfo.authors && volumeInfo.authors[0]}
+    </Subtitle>
+    <div>
+      <div style={{ color: '#3E3E3E', marginBottom: 12, textAlign: 'right' }}>
+        <strong>
+          <small>
+            <em>
+              {volumeInfo.publisher}, {volumeInfo.printType},{' '}
+              {volumeInfo.publisher}
+            </em>
+          </small>
+        </strong>
+      </div>
+      {/* <p>{volumeInfo.description}</p> */}
+
+      <Flex wrap="wrap">
+        <img
+          src={volumeInfo.imageLinks.thumbnail}
+          width={128}
+          height={197}
+          alt={volumeInfo.title}
+          style={{ marginRight: 24 }}
+        />
+        <Table
+          isBordered={false}
+          isStriped={false}
+          isNarrow={false}
+          isPulled="right"
+          style={{ backgroundColor: '#F6F6F6' }}
+        >
+          <tbody>
+            <tr>
+              <td>Category</td>
+              <td>
+                <strong>
+                  {volumeInfo.categories && volumeInfo.categories[0]}
+                </strong>
+              </td>
+            </tr>
+            <tr>
+              <td>Language</td>
+              <td>
+                <strong>{volumeInfo.language}</strong>
+              </td>
+            </tr>
+            <tr>
+              <td>ISBN</td>
+              <td>
+                {volumeInfo.industryIdentifiers &&
+                  volumeInfo.industryIdentifiers[0].identifier}
+              </td>
+            </tr>
+          </tbody>
+        </Table>
+      </Flex>
+    </div>
+  </div>
+);
+
+const parseAuthors = ({ authors }) => {
+  authors ? (
+    authors.map((author, index) => (
+      <span key={author}>
+        {author + (authors.length !== index + 1 ? ', ' : '')}
+      </span>
+    ))
+  ) : (
+    <span>'unknown authors'</span>
+  );
+};
 
 export default Splash;
