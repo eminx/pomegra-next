@@ -10,6 +10,7 @@ import {
   Field,
   Control,
   Input,
+  Image,
   TextArea,
   Help,
   Label,
@@ -18,12 +19,25 @@ import {
   Tag,
   Delete
 } from 'bloomer';
-import { Flex } from 'antd-mobile';
+import { Flex, ImagePicker, ActivityIndicator } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
 import allLanguages from '../allLanguages';
+import { resizeImage, dataURLtoFile } from '../functions';
+
+function uploadProfileImage(image, callback) {
+  const upload = new Slingshot.Upload('profileImageUpload');
+
+  upload.send(image, (error, downloadUrl) => {
+    if (error) {
+      callback(error);
+    } else {
+      callback(error, downloadUrl);
+    }
+  });
+}
 
 const introSlides = [
   {
@@ -46,8 +60,14 @@ const introSlides = [
   }
 ];
 
-const HeroSlide = ({ title, subtitle, color, children }) => (
-  <Hero isFullHeight isBold isColor={color} isPaddingless={false}>
+const HeroSlide = ({ title, subtitle, color, children, ...otherProps }) => (
+  <Hero
+    isFullHeight
+    isBold
+    isColor={color}
+    isPaddingless={false}
+    {...otherProps}
+  >
     <HeroBody>
       <Container>
         {title && <Title isSize={2}>{title}</Title>}
@@ -67,7 +87,11 @@ class Splash extends PureComponent {
     firstName: '',
     lastName: '',
     bio: '',
-    languages: []
+    languages: [],
+    avatar: null,
+    cover: null,
+    savingAvatar: false,
+    savingCover: false
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -171,6 +195,88 @@ class Splash extends PureComponent {
     });
   };
 
+  handleAvatarPick = (images, type, index) => {
+    this.setState({
+      avatar: images[0]
+    });
+  };
+
+  handleCoverPick = (images, type, index) => {
+    this.setState({
+      cover: images[0]
+    });
+  };
+
+  saveAvatar = () => {
+    const { avatar } = this.state;
+
+    this.setState({
+      savingAvatar: true
+    });
+
+    resizeImage(avatar, 180, uri => {
+      const uploadableImage = dataURLtoFile(uri, avatar.file.name);
+      uploadProfileImage(uploadableImage, (error, respond) => {
+        if (error) {
+          console.log('error!', error);
+          errorDialog(error.reason);
+          return;
+        }
+        const avatarToSave = {
+          name: avatar.file.name,
+          url: respond,
+          uploadDate: new Date()
+        };
+        Meteor.call('setNewAvatar', avatarToSave, (error, respond) => {
+          if (error) {
+            console.log(error);
+            errorDialog(error.reason);
+            return;
+          }
+          this.setState({
+            savingAvatar: false
+          });
+          this.goNext();
+        });
+      });
+    });
+  };
+
+  saveCover = () => {
+    const { cover } = this.state;
+
+    this.setState({
+      savingCover: true
+    });
+
+    resizeImage(cover, 600, uri => {
+      const uploadableImage = dataURLtoFile(uri, cover.file.name);
+      uploadProfileImage(uploadableImage, (error, respond) => {
+        if (error) {
+          console.log('error!', error);
+          errorDialog(error.reason);
+          return;
+        }
+        const coverToSave = {
+          name: cover.file.name,
+          url: respond,
+          uploadDate: new Date()
+        };
+        Meteor.call('setNewCoverImages', [coverToSave], (error, respond) => {
+          if (error) {
+            console.log(error);
+            errorDialog(error.reason);
+            return;
+          }
+          this.setState({
+            savingCover: false
+          });
+          this.goNext();
+        });
+      });
+    });
+  };
+
   render() {
     const { currentUser } = this.props;
     const {
@@ -181,7 +287,11 @@ class Splash extends PureComponent {
       firstName,
       lastName,
       bio,
-      languages
+      languages,
+      avatar,
+      savingAvatar,
+      cover,
+      savingCover
     } = this.state;
 
     const isEmailInvalid = this.isEmailInvalid();
@@ -194,7 +304,7 @@ class Splash extends PureComponent {
         arrows={![0, 1, 2].includes(carouselIndex)}
         dots={![0, 1, 2].includes(carouselIndex)}
         afterChange={this.handleSlideChange}
-        swipe={!this.isSliderDisabled()}
+        // swipe={!this.isSliderDisabled()}
         infinite={false}
       >
         {introSlides.map(slide => (
@@ -395,16 +505,120 @@ class Splash extends PureComponent {
                   className="is-rounded"
                   isPulled="right"
                 >
-                  Save and Continue
+                  Save and Continue{' '}
                 </Button>
               </Control>
             </Field>
           )}
         </HeroSlide>
+
+        <HeroSlide subtitle="Great! Now let's get avatar for you">
+          <Field>
+            <div style={{ maxWidth: 160, margin: '0 auto' }}>
+              <ImagePicker
+                files={avatar ? [avatar] : []}
+                onChange={this.handleAvatarPick}
+                selectable={!avatar}
+                accept="image/jpeg,image/jpg,image/png"
+                multiple={false}
+                length={1}
+              />
+            </div>
+
+            <Control style={{ paddingTop: 24 }}>
+              <Button
+                disabled={!avatar || savingAvatar}
+                onClick={this.saveAvatar}
+                className="is-rounded"
+                isPulled="right"
+              >
+                {savingAvatar ? 'Saving Avatar...' : 'Save Avatar'}
+                <ActivityIndicator animating={savingAvatar} />
+              </Button>
+            </Control>
+          </Field>
+        </HeroSlide>
+
+        <HeroSlide subtitle="Awesome! Now let's get a cover image">
+          <Field>
+            <ImagePicker
+              files={cover ? [cover] : []}
+              onChange={this.handleCoverPick}
+              selectable={!cover}
+              accept="image/jpeg,image/jpg,image/png"
+              multiple={false}
+              length={1}
+            />
+
+            <Control style={{ paddingTop: 24 }}>
+              <Button
+                disabled={!cover || savingCover}
+                onClick={this.saveCover}
+                className="is-rounded"
+                isPulled="right"
+              >
+                {savingCover ? 'Saving cover image...' : 'Save Cover Image'}
+                <ActivityIndicator animating={savingCover} />
+              </Button>
+            </Control>
+          </Field>
+        </HeroSlide>
+
+        <HeroSlide
+          subtitle="So cool!"
+          isPaddingless
+          isColor="dark"
+          hasTextColor="light"
+        >
+          <div
+            style={
+              currentUser &&
+              currentUser.coverImages &&
+              currentUser.coverImages[0] &&
+              slideStyle(currentUser.coverImages[0].url)
+            }
+          >
+            <Image
+              isSize="128x128"
+              src={currentUser && currentUser.avatar && currentUser.avatar.url}
+              className="is-rounded"
+              style={{ position: 'absolute', top: '30vh' }}
+            />
+          </div>
+          <Field style={{ marginTop: '40vh' }}>
+            <Control style={{ paddingTop: 24 }}>
+              <Title isSize={4}>Looks pretty cool!</Title>
+              <Subtitle isSize={6}>
+                Now, let's add some books from your library
+              </Subtitle>
+              <Button
+                onClick={this.saveCover}
+                className="is-rounded"
+                isPulled="right"
+                isSize="large"
+                isColor="success"
+              >
+                Add Books
+              </Button>
+            </Control>
+          </Field>
+        </HeroSlide>
       </Slider>
     );
   }
 }
+
+const slideStyle = backgroundImage => ({
+  position: 'fixed',
+  width: '100vw',
+  height: '40vh',
+  top: 0,
+  right: 0,
+  backgroundImage: `url('${backgroundImage}')`,
+  backgroundOosition: 'center',
+  backgroundSize: 'cover',
+  touchAction: 'none'
+});
 
 function validateEmail(email) {
   var re = /\S+@\S+\.\S+/;
