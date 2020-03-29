@@ -148,11 +148,7 @@ class AccountManager extends Component {
                 <span>Already have an account?</span>
               </p>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Button
-                  inline
-                  size="small"
-                  onClick={() => this.openLoginScreen()}
-                >
+                <Button isSize="small" onClick={() => this.openLoginScreen()}>
                   Login
                 </Button>
               </div>
@@ -226,9 +222,8 @@ class AccountManager extends Component {
 
             <div style={{ display: 'flex', justifyContent: 'center' }}>
               <Button
-                size="small"
-                inline
-                type="ghost"
+                isSize="small"
+                isOutlined
                 onClick={() => this.forgotPassword()}
                 style={{ margin: '16px 0' }}
               >
