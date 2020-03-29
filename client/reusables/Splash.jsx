@@ -21,6 +21,10 @@ import {
   Select,
   Notification,
   Tag,
+  Modal,
+  ModalContent,
+  ModalBackground,
+  ModalClose,
   Delete,
   MediaLeft,
   MediaContent
@@ -103,7 +107,8 @@ class Splash extends PureComponent {
     savingCover: false,
     searchValue: '',
     searchResults: null,
-    isSearching: false
+    isSearching: false,
+    activeBook: null
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -327,7 +332,8 @@ class Splash extends PureComponent {
       savingCover,
       searchValue,
       searchResults,
-      isSearching
+      isSearching,
+      activeBook
     } = this.state;
 
     const isEmailInvalid = this.isEmailInvalid();
@@ -719,7 +725,11 @@ class Splash extends PureComponent {
             {searchResults &&
               searchResults.map((result, index) => (
                 <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
-                  <BookCard volumeInfo={result.volumeInfo} />
+                  <BookCard
+                    volumeInfo={result.volumeInfo}
+                    openBook={() => this.setState({ activeBook: result })}
+                    full={activeBook && result.id === activeBook.id}
+                  />
                 </FadeInUp>
               ))}
           </div>
@@ -816,7 +826,7 @@ const flexItemStyle = {
   marginTop: 16
 };
 
-const BookCard = ({ volumeInfo }) => {
+const BookCard = ({ volumeInfo, openBook, full }) => {
   const language = allLanguages.find(
     language => language && language.value === volumeInfo.language
   );
@@ -904,11 +914,32 @@ const BookCard = ({ volumeInfo }) => {
         {publishText}
       </Heading>
 
+      <Flex justify="center">
+        <span style={{ display: 'flex', alignItems: 'center' }}>
+          <span>Have a copy? </span>
+          <Button
+            onClick={openBook}
+            isColor="dark"
+            style={{ backgroundColor: 'transparent' }}
+          >
+            Add to your shelf
+          </Button>{' '}
+        </span>
+      </Flex>
+
       <Flex justify="between" align="start">
         <div style={{ paddingTop: 12 }}>
           <p>
-            {volumeInfo.description && volumeInfo.description.substring(0, 200)}
-            ...
+            {full
+              ? volumeInfo.description
+              : volumeInfo.description &&
+                volumeInfo.description.substring(0, 200)}
+            <span
+              onClick={openBook}
+              style={{ color: '#6ba4ff', cursor: 'pointer' }}
+            >
+              <b>... read more »</b>
+            </span>
           </p>
         </div>
 
