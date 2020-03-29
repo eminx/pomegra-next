@@ -108,7 +108,7 @@ class Splash extends PureComponent {
     searchValue: '',
     searchResults: null,
     isSearching: false,
-    activeBook: null
+    openBook: null
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -315,6 +315,16 @@ class Splash extends PureComponent {
       });
   };
 
+  openBook = index => {
+    this.setState(({ openBook }) => {
+      if (openBook === index) {
+        return { openBook: null };
+      } else {
+        return { openBook: index };
+      }
+    });
+  };
+
   render() {
     const { currentUser } = this.props;
     const {
@@ -333,7 +343,7 @@ class Splash extends PureComponent {
       searchValue,
       searchResults,
       isSearching,
-      activeBook
+      openBook
     } = this.state;
 
     const isEmailInvalid = this.isEmailInvalid();
@@ -727,9 +737,10 @@ class Splash extends PureComponent {
                 <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
                   <BookCard
                     volumeInfo={result.volumeInfo}
-                    openBook={() => this.setState({ activeBook: result })}
-                    full={activeBook && result.id === activeBook.id}
+                    openBook={() => this.openBook(index)}
+                    isOpen={openBook === index}
                   />
+                  >
                 </FadeInUp>
               ))}
           </div>
@@ -741,14 +752,13 @@ class Splash extends PureComponent {
 
 const slideStyle = backgroundImage => ({
   position: 'absolute',
-  width: '100vw',
+  width: 'calc(100vw - .5rem)',
   height: '40vh',
   top: '-3rem',
   left: '-1.5rem',
   backgroundImage: `url('${backgroundImage}')`,
   backgroundOosition: 'center',
-  backgroundSize: 'cover',
-  touchAction: 'none'
+  backgroundSize: 'cover'
 });
 
 function validateEmail(email) {
@@ -823,143 +833,150 @@ const flexItemStyle = {
   flexShrink: 1,
   minWidth: 80,
   marginLeft: 24,
-  marginTop: 16
+  backgroundColor: 'coral',
+  maxHeight: 120
 };
 
-const BookCard = ({ volumeInfo, openBook, full }) => {
-  const language = allLanguages.find(
-    language => language && language.value === volumeInfo.language
-  );
+class BookCard extends PureComponent {
+  state = {
+    hiddenHeight: 400,
+    visibleHeight: 155
+  };
 
-  const category = volumeInfo.categories && volumeInfo.categories[0];
-
-  const r = volumeInfo.publisher,
-    e = volumeInfo.publishedDate;
-  let publishText;
-  if (r && e) {
-    publishText = (
-      <span>
-        , published by <b>{r}</b> on <b>{e}</b>
-      </span>
-    );
-  } else if (r) {
-    publishText = (
-      <span>
-        , published by <b>{r}</b>
-      </span>
-    );
-  } else if (e) {
-    publishText = (
-      <span>
-        , published on <b>{e}</b>
-      </span>
-    );
-  } else {
-    publishText = '';
+  componentDidMount() {
+    const hiddenHeight = this.hidden && this.hidden.clientHeight;
+    const visibleHeight = this.visible && this.visible.clientHeight;
+    this.setState({ visibleHeight, hiddenHeight });
   }
 
-  return (
-    <div
-      style={{
-        backgroundColor: '#3E3E3E',
-        padding: 12,
-        marginBottom: 24,
-        boxShadow: '0 0 5px',
-        zIndex: 20,
-        width: '100vw',
-        marginLeft: -24,
-        marginRight: -24,
-        boxShadow: '0 0 12px rgba(78, 78, 78, 0.6)'
-      }}
-    >
-      <Flex justify="between" align="stretch">
-        <Flex
-          direction="column"
-          justify="between"
-          align="start"
-          style={{ flexGrow: 1 }}
-        >
-          <div style={{ flexGrow: 1 }}>
-            <Title hasTextColor="light" isSize={5}>
-              {volumeInfo.title}
-            </Title>
-            <Subtitle hasTextColor="light" isSize={6}>
-              {parseAuthors(volumeInfo.authors)}
-            </Subtitle>
-          </div>
-          <div style={{ flexGrow: 0 }}></div>
-        </Flex>
+  render() {
+    const { volumeInfo, openBook, isOpen } = this.props;
+    const { visibleHeight, hiddenHeight } = this.state;
 
-        <div style={flexItemStyle}>
-          <img
-            src={volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail}
-            width={100}
-            alt={volumeInfo.title}
-            style={{ marginRight: 12 }}
-          />
-        </div>
-      </Flex>
+    const language = allLanguages.find(
+      language => language && language.value === volumeInfo.language
+    );
 
-      <Heading
-        // isSize={5}
-        style={{ paddingTop: 12, paddingBottom: 12, color: '#ababab' }}
-      >
-        <b>{volumeInfo.printType}</b> in {} <b>{language && language.label}</b>
-        {category && (
-          <span>
-            {' '}
-            about <b>{category}</b>
-          </span>
-        )}
-        {publishText}
-      </Heading>
+    const category = volumeInfo.categories && volumeInfo.categories[0];
 
-      <Flex justify="center">
-        <span style={{ display: 'flex', alignItems: 'center' }}>
-          <span>Have a copy? </span>
-          <Button
-            onClick={openBook}
-            isColor="dark"
-            style={{ backgroundColor: 'transparent' }}
-          >
-            Add to your shelf
-          </Button>{' '}
+    const r = volumeInfo.publisher,
+      e = volumeInfo.publishedDate;
+    let publishText;
+    if (r && e) {
+      publishText = (
+        <span>
+          , published by <b>{r}</b> on <b>{e}</b>
         </span>
-      </Flex>
+      );
+    } else if (r) {
+      publishText = (
+        <span>
+          , published by <b>{r}</b>
+        </span>
+      );
+    } else if (e) {
+      publishText = (
+        <span>
+          , published on <b>{e}</b>
+        </span>
+      );
+    } else {
+      publishText = '';
+    }
 
-      <Flex justify="between" align="start">
-        <div style={{ paddingTop: 12 }}>
-          <p>
-            {full
-              ? volumeInfo.description
-              : volumeInfo.description &&
-                volumeInfo.description.substring(0, 200)}
-            <span
-              onClick={openBook}
-              style={{ color: '#6ba4ff', cursor: 'pointer' }}
+    const openedHeight = visibleHeight + hiddenHeight;
+
+    return (
+      <div
+        style={{
+          backgroundColor: '#3E3E3E',
+          padding: 12,
+          width: '100vw',
+          marginLeft: -24,
+          marginRight: -24,
+          boxShadow: '0 0 12px rgba(78, 78, 78, 0.6)',
+          maxHeight: isOpen ? openedHeight + 50 : visibleHeight + 10 || 155,
+          overflowY: 'hidden',
+          transition: 'max-height .2s ease'
+        }}
+      >
+        <div ref={element => (this.visible = element)}>
+          <Flex
+            justify="between"
+            align="stretch"
+            onClick={openBook}
+            style={{ cursor: 'pointer' }}
+          >
+            <Flex
+              direction="column"
+              justify="between"
+              align="start"
+              style={{ flexGrow: 1 }}
             >
-              <b>... read more »</b>
-            </span>
-          </p>
+              <div style={{ flexGrow: 1 }}>
+                <Title hasTextColor="light" isSize={5}>
+                  {volumeInfo.title}
+                </Title>
+                <Subtitle hasTextColor="light" isSize={6}>
+                  {parseAuthors(volumeInfo.authors)}
+                </Subtitle>
+              </div>
+              <div style={{ flexGrow: 0 }}>
+                <Heading
+                  // isSize={5}
+                  style={{
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    color: '#ababab'
+                  }}
+                >
+                  <b>{volumeInfo.printType}</b> in {}{' '}
+                  <b>{language && language.label}</b>
+                  {category && (
+                    <span>
+                      {' '}
+                      about <b>{category}</b>
+                    </span>
+                  )}
+                  {publishText}
+                </Heading>
+              </div>
+            </Flex>
+
+            <div style={flexItemStyle}>
+              <img
+                src={volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail}
+                width={100}
+                alt={volumeInfo.title}
+                style={{ marginRight: 12 }}
+              />
+            </div>
+          </Flex>
         </div>
 
-        {/* <div
-          style={{
-            ...flexItemStyle,
-            fontSize: 10,
-            textAlign: 'right',
-            paddingTop: 12
-          }}
+        <div
+          ref={element => (this.hidden = element)}
+          style={{ padding: 12, paddingTop: 24 }}
         >
-          <div>
-            published by <b>{volumeInfo.publisher}</b> <br />
-            on <b>{volumeInfo.publishedDate}</b>
-          </div>
-        </div> */}
-      </Flex>
-    </div>
-  );
-};
+          <Flex justify="center" direction="column">
+            <Subtitle
+              isSize={6}
+              hasTextColor="light"
+              style={{ marginBottom: 5 }}
+            >
+              Have this book?
+            </Subtitle>
+            <Button isColor="light" isOutlined>
+              Add to your virtual shelf
+            </Button>
+          </Flex>
+          <WhiteSpace size="lg" />
+          <p>{volumeInfo && volumeInfo.description}</p>
+        </div>
+      </div>
+    );
+  }
+}
 
 const parseAuthors = authors => {
   if (!authors) {

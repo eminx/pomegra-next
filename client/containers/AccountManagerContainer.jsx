@@ -188,7 +188,7 @@ class AccountManager extends Component {
             />
             <WhiteSpace size="lg" /> */}
 
-        <Modal
+        {/* <Modal
           visible={!currentUser && loginScreenOpen}
           // position="top"
           closable
@@ -231,7 +231,7 @@ class AccountManager extends Component {
               </Button>
             </div>
           </List>
-        </Modal>
+        </Modal> */}
 
         {/* <div style={{ width: '100%', height: 100 }} /> */}
       </div>
