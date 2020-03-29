@@ -77,6 +77,8 @@ Meteor.methods({
       image_url = image_url.slice(0, 4) + 's' + image_url.slice(4);
     }
 
+    const book = { ...theBook };
+
     const myBook = {
       date_added: new Date(),
       b_title: theBook.title,
@@ -92,7 +94,8 @@ Meteor.methods({
       owner_name: user.username,
       // owner_profile_image_url: user.profile.image_url,
       x_times: 0,
-      is_available: true
+      is_available: true,
+      ...theBook
     };
 
     const bookId = Books.insert(myBook, function(error, result) {
@@ -609,6 +612,24 @@ Meteor.methods({
       Meteor.users.update(currentUser._id, {
         $set: {
           geoLocationCoords: coords
+        }
+      });
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
+  },
+
+  setIntroDone() {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          isIntroDone: true
         }
       });
     } catch (error) {

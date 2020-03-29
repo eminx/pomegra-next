@@ -34,9 +34,16 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { FadeInUp } from 'animate-components';
+import { GoTasklist } from 'react-icons/go';
+import { FaRegKissBeam } from 'react-icons/fa';
 
 import allLanguages from '../allLanguages';
-import { resizeImage, dataURLtoFile } from '../functions';
+import {
+  resizeImage,
+  dataURLtoFile,
+  errorDialog,
+  successDialog
+} from '../functions';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
@@ -108,7 +115,8 @@ class Splash extends PureComponent {
     searchValue: '',
     searchResults: null,
     isSearching: false,
-    openBook: null
+    openBook: null,
+    insertedBooks: 0
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -325,6 +333,52 @@ class Splash extends PureComponent {
     });
   };
 
+  insertBook = book => {
+    const { insertedBooks } = this.state;
+
+    Meteor.call('insertBook', book, (error, respond) => {
+      if (error) {
+        console.log(error);
+        errorDialog(error.reason);
+        return;
+      } else if (respond && respond.error) {
+        console.log(respond.error);
+        errorDialog(respond.error);
+        return;
+      }
+
+      successDialog('Book is successfully added to your virtual shelf');
+      this.setState({
+        searchValue: '',
+        searchResults: null,
+        openBook: null,
+        insertedBooks: this.state.insertedBooks + 1
+      });
+
+      if (insertedBooks === 3) {
+        Meteor.call('setIntroDone', (error, respond) => {
+          if (error) {
+            console.log(error);
+          }
+        });
+      }
+    });
+  };
+
+  getTextForLastSlide = () => {
+    const { insertedBooks } = this.state;
+    switch (insertedBooks) {
+      case 0:
+        return 'Please search for a book to add';
+      case 1:
+        return 'Great! We need to have two more books from your shelf.';
+      case 2:
+        return 'Amazing! You are almost done! Only one left to start using...';
+      case 3:
+        return 'Well done! You may continue filling up your virtual shelf, or do it later';
+    }
+  };
+
   render() {
     const { currentUser } = this.props;
     const {
@@ -343,7 +397,8 @@ class Splash extends PureComponent {
       searchValue,
       searchResults,
       isSearching,
-      openBook
+      openBook,
+      insertedBooks
     } = this.state;
 
     const isEmailInvalid = this.isEmailInvalid();
@@ -675,7 +730,7 @@ class Splash extends PureComponent {
         </HeroSlide>
 
         <HeroSlide
-          subtitle="What book are you reading now?"
+          subtitle={this.getTextForLastSlide()}
           isColor={searchResults ? 'white' : 'dark'}
           hasTextColor="light"
         >
@@ -709,24 +764,25 @@ class Splash extends PureComponent {
                   {isPasswordInvalid ? 'not strong enought' : 'looks great'}
                 </Help> */}
 
-              {!searchResults && (
-                <Field>
-                  <Control>
-                    <Button
-                      onClick={this.searchBook}
-                      className="is-rounded"
-                      isPulled="right"
-                      isColor="white"
-                      isOutlined
-                      hasTextColor="white"
-                      // style={{ borderColor: '#f6f6f6' }}
-                      isLoading={isSearching}
-                    >
-                      Search
-                    </Button>
-                  </Control>
-                </Field>
-              )}
+              {!searchResults ||
+                (searchResults.length === 0 && (
+                  <Field>
+                    <Control>
+                      <Button
+                        onClick={this.searchBook}
+                        className="is-rounded"
+                        isPulled="right"
+                        isColor="white"
+                        isOutlined
+                        hasTextColor="white"
+                        // style={{ borderColor: '#f6f6f6' }}
+                        isLoading={isSearching}
+                      >
+                        Search
+                      </Button>
+                    </Control>
+                  </Field>
+                ))}
             </form>
           </div>
 
@@ -739,11 +795,26 @@ class Splash extends PureComponent {
                     volumeInfo={result.volumeInfo}
                     openBook={() => this.openBook(index)}
                     isOpen={openBook === index}
+                    handleButtonClick={() => this.insertBook(result.volumeInfo)}
                   />
                   >
                 </FadeInUp>
               ))}
           </div>
+
+          {insertedBooks === 3 && (
+            <Flex justify="center" direction="column">
+              <FaRegKissBeam size={48} color="bisque" />
+              <GoTasklist size={48} color="bisque" />
+              <Button
+                isColor="success"
+                isSize="large"
+                onClick={this.closeSplash}
+              >
+                Start using
+              </Button>
+            </Flex>
+          )}
         </HeroSlide>
       </Slider>
     );
@@ -828,13 +899,11 @@ const InfoForm = ({
 );
 
 const flexItemStyle = {
-  flexBasis: '15vw',
+  flexBasis: '20vw',
   flexGrow: 0,
   flexShrink: 1,
-  minWidth: 80,
-  marginLeft: 24,
-  backgroundColor: 'coral',
-  maxHeight: 120
+  minWidth: 120,
+  marginLeft: 24
 };
 
 class BookCard extends PureComponent {
@@ -850,7 +919,7 @@ class BookCard extends PureComponent {
   }
 
   render() {
-    const { volumeInfo, openBook, isOpen } = this.props;
+    const { volumeInfo, openBook, isOpen, handleButtonClick } = this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
     const language = allLanguages.find(
@@ -895,7 +964,7 @@ class BookCard extends PureComponent {
           marginLeft: -24,
           marginRight: -24,
           boxShadow: '0 0 12px rgba(78, 78, 78, 0.6)',
-          maxHeight: isOpen ? openedHeight + 50 : visibleHeight + 10 || 155,
+          maxHeight: isOpen ? openedHeight + 50 : visibleHeight + 20 || 155,
           overflowY: 'hidden',
           transition: 'max-height .2s ease'
         }}
@@ -946,9 +1015,9 @@ class BookCard extends PureComponent {
             <div style={flexItemStyle}>
               <img
                 src={volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail}
-                width={100}
+                width={120}
                 alt={volumeInfo.title}
-                style={{ marginRight: 12 }}
+                style={{ marginRight: 12, backgroundColor: 'coral' }}
               />
             </div>
           </Flex>
@@ -966,7 +1035,7 @@ class BookCard extends PureComponent {
             >
               Have this book?
             </Subtitle>
-            <Button isColor="light" isOutlined>
+            <Button isColor="light" isOutlined onClick={handleButtonClick}>
               Add to your virtual shelf
             </Button>
           </Flex>
