@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.6.0",
+    "@brainhubeu/react-carousel": "^1.13.19",
     "antd-mobile": "^2.3.1",
     "array-move": "^2.2.1",
     "bcrypt": "^3.0.7",
@@ -31,9 +32,11 @@
     "react-image-file-resizer": "^0.2.1",
     "react-meteor-data": "^0.2.11",
     "react-router-dom": "^5.1.2",
+    "react-slick": "^0.25.2",
     "react-sortable-hoc": "^1.11.0",
     "react-visibility-sensor": "^5.1.1",
-    "shallow-equal": "^1.2.1"
+    "shallow-equal": "^1.2.1",
+    "slick-carousel": "^1.8.1"
   },
   "meteor": {
     "mainModule": {

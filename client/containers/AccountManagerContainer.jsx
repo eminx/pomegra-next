@@ -3,10 +3,11 @@ import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 import {
+  Carousel,
   ActivityIndicator,
   List,
   Flex,
-  Button,
+  // Button,
   InputItem,
   NavBar,
   Modal,
@@ -15,13 +16,23 @@ import {
   WhiteSpace,
   Result
 } from 'antd-mobile';
+import {
+  Hero,
+  HeroBody,
+  HeroFooter,
+  Container,
+  Title,
+  Button,
+  Subtitle,
+  Heading
+} from 'bloomer';
 import { GiBookshelf } from 'react-icons/gi';
 import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
-import { GoBook } from 'react-icons/go';
 
 import CreateAccount from '../reusables/CreateAccount';
+import Splash from '../reusables/Splash';
 
-import { errorDialog } from '../functions';
+import { errorDialog, successDialog } from '../functions';
 
 const iconSize = 72;
 
@@ -32,10 +43,12 @@ class AccountManager extends Component {
     email: '',
     password: '',
     isLoading: false,
-    redirectTo: null
+    redirectTo: null,
+    splashOver: false
   };
 
   createAccount = values => {
+    console.log(values);
     this.setState({ isLoading: true });
 
     Meteor.call('registerUser', values, (error, respond) => {
@@ -46,6 +59,7 @@ class AccountManager extends Component {
         this.setState({ isLoading: false });
         return;
       }
+      successDialog('Your account is successfully created');
       this.signIn(values);
       this.setState({
         isLoading: false,
@@ -101,23 +115,15 @@ class AccountManager extends Component {
     });
   };
 
-  render() {
-    const { currentUser, isLoading } = this.props;
-    const { loginScreenOpen, redirectTo } = this.state;
+  handleSplashFinish = () => {
+    this.setState({
+      splashOver: true
+    });
+  };
 
-    // if (isLoading) {
-    //   return (
-    //     <div
-    //       style={{
-    //         display: 'flex',
-    //         justifyContent: 'center',
-    //         marginTop: 50
-    //       }}
-    //     >
-    //       <ActivityIndicator text="Loading..." />
-    //     </div>
-    //   );
-    // }
+  render() {
+    const { currentUser } = this.props;
+    const { loginScreenOpen, redirectTo, splashOver, isLoading } = this.state;
 
     if (redirectTo) {
       return <Redirect to={redirectTo} />;
@@ -125,15 +131,18 @@ class AccountManager extends Component {
 
     return (
       <div>
-        {currentUser ? (
-          <NavBar mode="light">Welcome to Librella</NavBar>
-        ) : (
-          <NavBar>Please Create an Account</NavBar>
+        {!splashOver && (
+          <Splash
+            onOver={this.handleSplashFinish}
+            createAccount={this.createAccount}
+            currentUser={currentUser}
+          />
         )}
+
+        <ActivityIndicator toast animating={isLoading} text="Loading..." />
 
         {!currentUser && (
           <div>
-            <CreateAccount onSubmit={this.createAccount} />
             <div>
               <p style={{ textAlign: 'center' }}>
                 <span>Already have an account?</span>
@@ -151,11 +160,7 @@ class AccountManager extends Component {
           </div>
         )}
 
-        <WhiteSpace />
-
-        {currentUser && (
-          <div>
-            <Result
+        {/* <Result
               img={<GiBookshelf size={iconSize} color="orange" />}
               title="Discover & Borrow"
               message="Discover Books, both as an inspiration to read, and to borrow from others. You can borrow a book from your friends, neighbors and other interesting readers in your town. See what
@@ -185,25 +190,7 @@ class AccountManager extends Component {
               buttonType="primary"
               onButtonClick={() => this.redirectTo('/messages')}
             />
-            <WhiteSpace size="lg" />
-          </div>
-        )}
-
-        {currentUser && (
-          <WingBlank size="lg">
-            <WhiteSpace size="lg" />
-            <Flex justify="center">
-              <Button
-                size="small"
-                type="ghost"
-                inline
-                onClick={() => this.signOut()}
-              >
-                Sign out
-              </Button>
-            </Flex>
-          </WingBlank>
-        )}
+            <WhiteSpace size="lg" /> */}
 
         <Modal
           visible={!currentUser && loginScreenOpen}
@@ -251,7 +238,7 @@ class AccountManager extends Component {
           </List>
         </Modal>
 
-        <div style={{ width: '100%', height: 100 }} />
+        {/* <div style={{ width: '100%', height: 100 }} /> */}
       </div>
     );
   }

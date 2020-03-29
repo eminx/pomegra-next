@@ -78,11 +78,6 @@ body {
     'Arial', sans;
 }
 
-/* container */
-.container {
-  padding: 5% 5%;
-}
-
 /* CSS talk bubble */
 .talk-bubble {
   margin: 6px 20px;

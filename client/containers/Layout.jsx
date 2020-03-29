@@ -6,7 +6,7 @@ import { notificationsCounter } from '../functions';
 import { WhiteSpace } from 'antd-mobile';
 
 const routesWithTabBar = [
-  '/',
+  // '/',
   '/discover',
   '/my-shelf',
   '/messages',

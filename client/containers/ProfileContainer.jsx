@@ -19,20 +19,9 @@ import {
   errorDialog,
   successDialog,
   dataURLtoFile,
+  uploadProfileImage,
   resizeImage
 } from '../functions';
-
-function uploadProfileImage(image, callback) {
-  const upload = new Slingshot.Upload('profileImageUpload');
-
-  upload.send(image, (error, downloadUrl) => {
-    if (error) {
-      callback(error);
-    } else {
-      callback(error, downloadUrl);
-    }
-  });
-}
 
 class Profile extends PureComponent {
   state = {

@@ -689,11 +689,15 @@ Meteor.startup(function() {
 // };
 
 Accounts.onCreateUser((options, user) => {
+  user.languages = [];
   user.notifications = [];
   user.following = [];
   user.followedBy = [];
   user.coverImages = [];
   user.avatar = null;
+  user.firstName = '';
+  user.lastName = '';
+  user.bio = '';
 
   // Meteor.call(
   //   'sendEmail',

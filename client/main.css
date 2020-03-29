@@ -45,3 +45,9 @@ body {
   width: auto;
   min-height: 350px;
 }
+
+.image.is-rounded img {
+  border-radius: 50%;
+  box-shadow: 0 0 5px;
+  border: 1px solid #f6f6f6;
+}
