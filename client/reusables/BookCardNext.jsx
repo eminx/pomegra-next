@@ -78,7 +78,7 @@ class BookCardNext extends PureComponent {
   };
 
   render() {
-    const { volumeInfo, openBook, isOpen, handleButtonClick } = this.props;
+    const { volumeInfo, onOpenBook, isOpen, onAddButtonClick } = this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
     const language = allLanguages.find(
@@ -107,7 +107,7 @@ class BookCardNext extends PureComponent {
           <Flex
             justify="between"
             align="stretch"
-            onClick={openBook}
+            onClick={onOpenBook}
             style={{ cursor: 'pointer' }}
           >
             <Flex
@@ -174,8 +174,8 @@ class BookCardNext extends PureComponent {
             >
               Have this book?
             </Subtitle>
-            <Button isColor="light" isOutlined onClick={handleButtonClick}>
-              Add to your virtual shelf
+            <Button isColor="light" isOutlined onClick={onAddButtonClick}>
+              Add to my virtual shelf
             </Button>
           </Flex>
           <WhiteSpace size="lg" />

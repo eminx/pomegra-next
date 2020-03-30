@@ -104,7 +104,22 @@ class Intro extends PureComponent {
       username,
       password
     };
-    this.props.createAccount(values);
+    this.setState({ isLoading: true });
+
+    Meteor.call('registerUser', values, (error, respond) => {
+      if (error) {
+        console.log('error!!');
+        console.log(error);
+        errorDialog(error.reason);
+        this.setState({ isLoading: false });
+        return;
+      }
+      successDialog('Your account is successfully created');
+      this.signIn(values);
+      this.setState({
+        isLoading: false
+      });
+    });
   };
 
   handleLanguageSelect = event => {
@@ -150,7 +165,7 @@ class Intro extends PureComponent {
         console.log(error);
         errorDialog(error.reason);
       } else {
-        // successDialog('Values are successfu');
+        successDialog('Your profile is successfully updated');
         this.goNext();
         return;
       }
@@ -331,9 +346,9 @@ class Intro extends PureComponent {
       introFinished
     } = this.state;
 
-    // if (introFinished) {
-    //   return <Redirect to="/" />;
-    // }
+    if (introFinished) {
+      return <Redirect to="/" />;
+    }
 
     const isEmailInvalid = this.isEmailInvalid();
     const isUsernameInvalid = this.isUsernameInvalid();
@@ -480,6 +495,7 @@ class Intro extends PureComponent {
           onSearch={this.searchBook}
           onClickBook={this.openBook}
           onButtonClick={() => this.finishIntro()}
+          onAddButtonClick={this.insertBook}
           onSearchValueChange={event =>
             this.setState({ searchValue: event.target.value })
           }

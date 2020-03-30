@@ -28,7 +28,8 @@ const BookInserter = ({
   onSearch,
   onSearchValueChange,
   onClickBook,
-  onButtonClick
+  onButtonClick,
+  onAddButtonClick
 }) => (
   <HeroSlide
     subtitle={getTextForLastSlide(insertedBooks)}
@@ -94,7 +95,7 @@ const BookInserter = ({
               volumeInfo={result.volumeInfo}
               openBook={() => onClickBook(index)}
               isOpen={openBook === index}
-              handleButtonClick={() => this.insertBook(result.volumeInfo)}
+              onAddButtonClick={() => onAddButtonClick(result.volumeInfo)}
             />
             >
           </FadeInUp>
