@@ -38,9 +38,13 @@ class Layout extends React.Component {
   };
 
   render() {
-    const { children, history } = this.props;
+    const { currentUser, children, history } = this.props;
     const pathname = history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
+
+    if (!currentUser || !currentUser.isIntroDone) {
+      this.changeRoute('/intro');
+    }
 
     return (
       <div>

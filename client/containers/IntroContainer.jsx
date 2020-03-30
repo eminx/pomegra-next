@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { Redirect } from 'react-router-dom';
 import { Field, Control, Button } from 'bloomer';
 import { ImagePicker, ActivityIndicator } from 'antd-mobile';
 import Slider from 'react-slick';
@@ -49,7 +50,8 @@ class Intro extends PureComponent {
     searchResults: null,
     isSearching: false,
     openBook: null,
-    insertedBooks: 0
+    insertedBooks: 0,
+    introFinished: false
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -300,6 +302,12 @@ class Intro extends PureComponent {
     });
   };
 
+  finishIntro = () => {
+    this.setState({
+      introFinished: true
+    });
+  };
+
   render() {
     const { currentUser } = this.props;
     const {
@@ -319,8 +327,13 @@ class Intro extends PureComponent {
       searchResults,
       isSearching,
       openBook,
-      insertedBooks
+      insertedBooks,
+      introFinished
     } = this.state;
+
+    if (introFinished) {
+      return <Redirect to="/" />;
+    }
 
     const isEmailInvalid = this.isEmailInvalid();
     const isUsernameInvalid = this.isUsernameInvalid();
@@ -335,7 +348,7 @@ class Intro extends PureComponent {
         // swipe={!this.isSliderDisabled()}
         infinite={false}
         adaptiveHeight
-        initialSlide={8}
+        initialSlide={0}
       >
         {introSlides.map(slide => (
           <HeroSlide

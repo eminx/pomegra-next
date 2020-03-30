@@ -135,17 +135,9 @@ class AccountManager extends Component {
 
     return (
       <div>
-        {!splashOver && (
-          <Splash
-            onOver={this.handleSplashFinish}
-            createAccount={this.createAccount}
-            currentUser={currentUser}
-          />
-        )}
-
         <ActivityIndicator toast animating={isLoading} text="Loading..." />
 
-        {!currentUser && (
+        {/* {!currentUser && (
           <div>
             <div>
               <p style={{ textAlign: 'center' }}>
@@ -158,39 +150,39 @@ class AccountManager extends Component {
               </div>
             </div>
           </div>
-        )}
+        )} */}
 
-        {/* <Result
-              img={<GiBookshelf size={iconSize} color="orange" />}
-              title="Discover & Borrow"
-              message="Discover Books, both as an inspiration to read, and to borrow from others. You can borrow a book from your friends, neighbors and other interesting readers in your town. See what
+        <Result
+          img={<GiBookshelf size={iconSize} color="orange" />}
+          title="Discover & Borrow"
+          message="Discover Books, both as an inspiration to read, and to borrow from others. You can borrow a book from your friends, neighbors and other interesting readers in your town. See what
                       books people have"
-              buttonText="Discover"
-              buttonType="primary"
-              onButtonClick={() => this.redirectTo('/discover')}
-            />
-            <WhiteSpace size="lg" />
-            <Result
-              img={<IoMdAddCircle size={iconSize} color="purple" />}
-              title="Add & Lend"
-              message="You can virtualise your book shelf. Let the others see your
+          buttonText="Discover"
+          buttonType="primary"
+          onButtonClick={() => this.redirectTo('/discover')}
+        />
+        <WhiteSpace size="lg" />
+        <Result
+          img={<IoMdAddCircle size={iconSize} color="purple" />}
+          title="Add & Lend"
+          message="You can virtualise your book shelf. Let the others see your
                       books by adding some of your books at home to your virtual shelf. So others can see it"
-              buttonText="Add a Book"
-              buttonType="primary"
-              onButtonClick={() => this.redirectTo('/add')}
-            />
-            <WhiteSpace size="lg" />
+          buttonText="Add a Book"
+          buttonType="primary"
+          onButtonClick={() => this.redirectTo('/add')}
+        />
+        <WhiteSpace size="lg" />
 
-            <Result
-              img={<IoIosChatboxes size={iconSize} color="green" />}
-              title="Chat & Inspire"
-              message="For every book lending process, you can chat with others to
+        <Result
+          img={<IoIosChatboxes size={iconSize} color="green" />}
+          title="Chat & Inspire"
+          message="For every book lending process, you can chat with others to
                       manage your book lending process. Inspire from amazing readers"
-              buttonText="Messages"
-              buttonType="primary"
-              onButtonClick={() => this.redirectTo('/messages')}
-            />
-            <WhiteSpace size="lg" /> */}
+          buttonText="Messages"
+          buttonType="primary"
+          onButtonClick={() => this.redirectTo('/messages')}
+        />
+        <WhiteSpace size="lg" />
 
         {/* <Modal
           visible={!currentUser && loginScreenOpen}
