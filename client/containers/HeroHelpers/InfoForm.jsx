@@ -1,5 +1,7 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Field, Control, Input, TextArea, Button } from 'bloomer';
+
+import HeroSlide from '../../reusables/HeroSlide';
 
 const InfoForm = ({
   firstName,
@@ -10,7 +12,10 @@ const InfoForm = ({
   onBioChange,
   onSubmitInfoForm
 }) => (
-  <Fragment>
+  <HeroSlide
+    subtitle="Let's now add up some info for your profile"
+    isColor="dark"
+  >
     <Field>
       <Control>
         <Input
@@ -59,7 +64,7 @@ const InfoForm = ({
         Next
       </Button>
     </Field>
-  </Fragment>
+  </HeroSlide>
 );
 
 export default InfoForm;

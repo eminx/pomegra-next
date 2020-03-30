@@ -1,4 +1,6 @@
+import { Meteor } from 'meteor/meteor';
 import React, { PureComponent } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
 import { Field, Control, Button } from 'bloomer';
 import { ImagePicker, ActivityIndicator } from 'antd-mobile';
 import Slider from 'react-slick';
@@ -337,7 +339,7 @@ class Intro extends PureComponent {
             isColor={slide.color}
             title={slide.title}
             subtitle={slide.subtitle}
-          ></HeroSlide>
+          />
         ))}
 
         {!currentUser && (
@@ -367,34 +369,28 @@ class Intro extends PureComponent {
           />
         )}
 
-        <HeroSlide
-          subtitle="Let's now add up some info for your profile"
-          isColor="dark"
-        >
-          {currentUser && (
-            <InfoForm
-              firstName={firstName}
-              lastName={lastName}
-              bio={bio}
-              onFirstNameChange={e =>
-                this.setState({ firstName: e.target.value })
-              }
-              onLastNameChange={e =>
-                this.setState({ lastName: e.target.value })
-              }
-              onBioChange={e => this.setState({ bio: e.target.value })}
-              onSubmitInfoForm={this.goNext}
-            />
-          )}
-        </HeroSlide>
+        {currentUser && (
+          <InfoForm
+            firstName={firstName}
+            lastName={lastName}
+            bio={bio}
+            onFirstNameChange={e =>
+              this.setState({ firstName: e.target.value })
+            }
+            onLastNameChange={e => this.setState({ lastName: e.target.value })}
+            onBioChange={e => this.setState({ bio: e.target.value })}
+            onSubmitInfoForm={this.goNext}
+          />
+        )}
 
-        <LanguageSelector
-          currentUser={currentUser}
-          languages={languages}
-          onLanguageSelect={this.handleLanguageSelect}
-          onDeleteClick={language => this.handleRemoveLanguage(language)}
-          onButtonClick={this.saveInfo}
-        />
+        {currentUser && (
+          <LanguageSelector
+            languages={languages}
+            onLanguageSelect={this.handleLanguageSelect}
+            onDeleteClick={language => this.handleRemoveLanguage(language)}
+            onButtonClick={this.saveInfo}
+          />
+        )}
 
         <HeroSlide
           subtitle="Great! Now let's get avatar for you"
@@ -476,4 +472,13 @@ class Intro extends PureComponent {
   }
 }
 
-export default Intro;
+export default IntroContainer = withTracker(props => {
+  const currentUserSub = Meteor.subscribe('me');
+  const currentUser = Meteor.user();
+  const isLoading = !currentUserSub.ready();
+
+  return {
+    currentUser,
+    isLoading
+  };
+})(Intro);

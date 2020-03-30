@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import { Field, Control, Input, Button } from 'bloomer';
+
 import HeroSlide from '../../reusables/HeroSlide';
 
 const EmailSlide = ({ email, isEmailInvalid, onChange, onButtonClick }) => (
