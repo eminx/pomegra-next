@@ -1,11 +1,13 @@
 import React, { PureComponent } from 'react';
-import { Field, Control } from 'bloomer';
+import { Field, Control, Button } from 'bloomer';
 import { ImagePicker, ActivityIndicator } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 
+import HeroSlide from '../reusables/HeroSlide';
 import allLanguages from '../allLanguages';
+
 import {
   resizeImage,
   dataURLtoFile,

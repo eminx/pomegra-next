@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { Fragment } from 'react';
+import { Field, Control, Input, TextArea, Button } from 'bloomer';
 
 const InfoForm = ({
   firstName,

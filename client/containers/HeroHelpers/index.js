@@ -1,6 +1,6 @@
 import InfoForm from './InfoForm';
 import EmailSlide from './EmailSlide';
-import UsernameSlde from './UsernameSlide';
+import UsernameSlide from './UsernameSlide';
 import PasswordSlide from './PasswordSlide';
 import ProfileView from './ProfileView';
 import LanguageSelector from './LanguageSelector';
@@ -44,7 +44,7 @@ const introSlides = [
 export {
   InfoForm,
   EmailSlide,
-  UsernameSlde,
+  UsernameSlide,
   PasswordSlide,
   ProfileView,
   LanguageSelector,

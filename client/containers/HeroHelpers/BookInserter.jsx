@@ -1,6 +1,6 @@
 import React from 'react';
 import { Field, Control, Input, Button, Flex } from 'bloomer';
-import { WhiteSpace, ActivityIndicator } from 'antd-mobile;';
+import { WhiteSpace, ActivityIndicator } from 'antd-mobile';
 import { FadeInUp } from 'animate-components';
 
 import HeroSlide from '../../reusables/HeroSlide';

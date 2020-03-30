@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Field, Control, Input, Button } from 'bloomer';
+import { Field, Control, Help, Input, Button } from 'bloomer';
 import HeroSlide from '../../reusables/HeroSlide';
 
 const UsernameSlide = ({
