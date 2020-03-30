@@ -16,21 +16,9 @@ import {
   WhiteSpace,
   Result
 } from 'antd-mobile';
-import {
-  Hero,
-  HeroBody,
-  HeroFooter,
-  Container,
-  Title,
-  Button,
-  Subtitle,
-  Heading
-} from 'bloomer';
+
 import { GiBookshelf } from 'react-icons/gi';
 import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
-
-import CreateAccount from '../reusables/CreateAccount';
-import Splash from '../reusables/Splash';
 
 import { errorDialog, successDialog } from '../functions';
 

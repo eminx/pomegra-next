@@ -331,9 +331,9 @@ class Intro extends PureComponent {
       introFinished
     } = this.state;
 
-    if (introFinished) {
-      return <Redirect to="/" />;
-    }
+    // if (introFinished) {
+    //   return <Redirect to="/" />;
+    // }
 
     const isEmailInvalid = this.isEmailInvalid();
     const isUsernameInvalid = this.isUsernameInvalid();
@@ -479,7 +479,7 @@ class Intro extends PureComponent {
           searchValue={searchValue}
           onSearch={this.searchBook}
           onClickBook={this.openBook}
-          onButtonClick={this.finishIntro}
+          onButtonClick={() => this.finishIntro()}
           onSearchValueChange={event =>
             this.setState({ searchValue: event.target.value })
           }

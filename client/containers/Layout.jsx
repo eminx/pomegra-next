@@ -42,7 +42,7 @@ class Layout extends React.Component {
     const pathname = history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
 
-    if (!currentUser || !currentUser.isIntroDone) {
+    if (pathname !== '/intro' && (!currentUser || !currentUser.isIntroDone)) {
       this.changeRoute('/intro');
     }
 
