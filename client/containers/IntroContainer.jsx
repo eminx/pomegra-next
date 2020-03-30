@@ -109,6 +109,10 @@ class Intro extends PureComponent {
     const { languages } = this.state;
     const selectedLanguageValue = event.target.value;
 
+    if (languages.some(language => language.value === selectedLanguageValue)) {
+      return;
+    }
+
     const selectedLanguage = allLanguages.find(
       language => language && language.value === selectedLanguageValue
     );

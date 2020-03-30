@@ -1,4 +1,6 @@
 import React, { PureComponent } from 'react';
+import { Title, Subtitle, Heading, Button } from 'bloomer';
+import { Flex, WhiteSpace } from 'antd-mobile';
 
 const imageContainerStyle = {
   flexBasis: '20vw',
@@ -8,7 +10,7 @@ const imageContainerStyle = {
   marginLeft: 24
 };
 
-const cardContainerStyle = {
+const containerStyle = {
   backgroundColor: '#3E3E3E',
   padding: 12,
   width: '100vw',
@@ -34,14 +36,16 @@ const parseAuthors = authors => {
 class BookCardNext extends PureComponent {
   state = {
     hiddenHeight: 400,
-    visibleHeight: 155
+    visibleHeight: 155,
+    imageLoaded: false
   };
 
-  componentDidMount() {
+  setMaxHeight = () => {
     const hiddenHeight = this.hidden && this.hidden.clientHeight;
     const visibleHeight = this.visible && this.visible.clientHeight;
+
     this.setState({ visibleHeight, hiddenHeight });
-  }
+  };
 
   getPublishText = () => {
     const { volumeInfo } = this.props;
@@ -83,14 +87,16 @@ class BookCardNext extends PureComponent {
 
     const category = volumeInfo.categories && volumeInfo.categories[0];
 
-    const openedHeight = visibleHeight + hiddenHeight;
+    const openedHeight = visibleHeight + hiddenHeight + 30;
+
+    const cardContainerStyle = { ...containerStyle };
 
     if (isOpen && openedHeight) {
-      cardContainerStyle.maxHeight = openedHeight + 50;
+      cardContainerStyle.maxHeight = openedHeight;
     } else if (visibleHeight) {
-      cardContainerStyle.maxHeight = visibleHeight + 20;
+      cardContainerStyle.maxHeight = visibleHeight + 10;
     } else {
-      cardContainerStyle.maxHeight = 160;
+      cardContainerStyle.maxHeight = 200;
     }
 
     const publishText = this.getPublishText();
@@ -145,7 +151,12 @@ class BookCardNext extends PureComponent {
                 src={volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail}
                 width={120}
                 alt={volumeInfo.title}
-                style={{ marginRight: 12, backgroundColor: 'coral' }}
+                style={{
+                  marginRight: 12,
+                  backgroundColor: 'coral',
+                  maxHeight: 180
+                }}
+                onLoad={() => this.setMaxHeight()}
               />
             </div>
           </Flex>
