@@ -59,11 +59,17 @@ const parseUrlForSSL = imageLink => {
   return image_url;
 };
 
+function validateEmail(email) {
+  var re = /\S+@\S+\.\S+/;
+  return re.test(email);
+}
+
 export {
   errorDialog,
   successDialog,
   notificationsCounter,
   dataURLtoFile,
   resizeImage,
-  parseUrlForSSL
+  parseUrlForSSL,
+  validateEmail
 };

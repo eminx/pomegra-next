@@ -12,6 +12,7 @@ import BookDetailTobeRequested from './containers/BookDetailTobeRequested';
 import RequestsList from './containers/RequestsList';
 import RequestContainer from './containers/RequestContainer';
 import ProfileContainer from './containers/ProfileContainer';
+import IntroContainer from './IntroContainer';
 
 const browserHistory = createBrowserHistory();
 
@@ -31,6 +32,7 @@ export const renderRoutes = () => (
         <Route exact path="/request/:id" component={RequestContainer} />
 
         <Route exact path="/profile" component={ProfileContainer} />
+        <Route exact path="/intro" component={IntroContainer} />
       </Layout>
     </Switch>
   </Router>

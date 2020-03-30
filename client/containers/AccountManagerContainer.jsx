@@ -125,6 +125,10 @@ class AccountManager extends Component {
     const { currentUser } = this.props;
     const { loginScreenOpen, redirectTo, splashOver, isLoading } = this.state;
 
+    if (!currentUser) {
+      return <Redirect to="/intro" />;
+    }
+
     if (redirectTo) {
       return <Redirect to={redirectTo} />;
     }
