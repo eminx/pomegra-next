@@ -6,7 +6,7 @@ import { notificationsCounter } from '../functions';
 import { WhiteSpace } from 'antd-mobile';
 
 const routesWithTabBar = [
-  // '/',
+  '/',
   '/discover',
   '/my-shelf',
   '/messages',
@@ -34,6 +34,11 @@ class Layout extends React.Component {
 
   changeRoute = route => {
     const { history } = this.props;
+    const pathname = history && history.location && history.location.pathname;
+    if (pathname === route) {
+      console.log(pathname, route);
+      return;
+    }
     history.push(route);
   };
 
@@ -42,12 +47,12 @@ class Layout extends React.Component {
     const pathname = history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
 
-    if (pathname !== '/intro' && (!currentUser || !currentUser.isIntroDone)) {
+    if (!currentUser || !currentUser.isIntroDone) {
       this.changeRoute('/intro');
     }
 
     return (
-      <div>
+      <div style={{ paddingBottom: 100 }}>
         {children}
 
         {shouldRenderTabBar && (

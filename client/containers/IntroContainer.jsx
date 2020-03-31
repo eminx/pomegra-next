@@ -7,8 +7,10 @@ import { ImagePicker, ActivityIndicator } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
+import { FadeInUp } from 'animate-components';
 
 import HeroSlide from '../reusables/HeroSlide';
+import LoginForm from '../reusables/LoginForm';
 import allLanguages from '../allLanguages';
 
 import {
@@ -51,14 +53,19 @@ class Intro extends PureComponent {
     isSearching: false,
     openBook: null,
     insertedBooks: 0,
-    introFinished: false
+    introFinished: false,
+    isLogin: false
   };
 
   componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.props;
-    if (!prevProps.currentUser && currentUser) {
-      this.goNext();
-    }
+    // if (!prevProps.currentUser && currentUser) {
+    //   this.goNext();
+    // }
+
+    // if (currentUser && currentUser.isIntroDone) {
+    //   this.setState({ introFinished: true });
+    // }
   }
 
   handleSlideChange = index => {
@@ -115,11 +122,27 @@ class Intro extends PureComponent {
         return;
       }
       successDialog('Your account is successfully created');
-      this.signIn(values);
+      this.signIn();
       this.setState({
         isLoading: false
       });
     });
+  };
+
+  signIn = () => {
+    const { username, password } = this.state;
+    Meteor.loginWithPassword(username, password, error => {
+      if (error) {
+        errorDialog(error);
+        console.log(error);
+      }
+      successDialog('You are successfully logged in');
+      this.setState({ isLogin: false });
+    });
+  };
+
+  forgotPassword = () => {
+    alert('This is not implemented yet, try again later please');
   };
 
   handleLanguageSelect = event => {
@@ -259,8 +282,7 @@ class Intro extends PureComponent {
     const { searchValue } = this.state;
 
     this.setState({
-      isSearching: true,
-      searchResults: []
+      isSearching: true
     });
 
     fetch(googleApi + searchValue)
@@ -275,7 +297,7 @@ class Intro extends PureComponent {
       });
   };
 
-  openBook = index => {
+  handleToggleBook = index => {
     this.setState(({ openBook }) => {
       if (openBook === index) {
         return { openBook: null };
@@ -286,7 +308,7 @@ class Intro extends PureComponent {
   };
 
   insertBook = book => {
-    const { insertedBooks } = this.state;
+    const { insertedBooks, searchResults } = this.state;
 
     Meteor.call('insertBook', book, (error, respond) => {
       if (error) {
@@ -299,21 +321,21 @@ class Intro extends PureComponent {
         return;
       }
 
-      successDialog('Book is successfully added to your virtual shelf');
-      this.setState({
-        searchValue: '',
-        searchResults: null,
-        openBook: null,
-        insertedBooks: this.state.insertedBooks + 1
-      });
-
-      if (insertedBooks === 3) {
+      if (insertedBooks === 2) {
         Meteor.call('setIntroDone', (error, respond) => {
           if (error) {
             console.log(error);
           }
         });
       }
+
+      successDialog('Book is successfully added to your virtual shelf');
+      this.setState({
+        searchValue: '',
+        openBook: null,
+        insertedBooks: insertedBooks + 1,
+        searchResults: insertedBooks === 2 ? [] : searchResults
+      });
     });
   };
 
@@ -343,7 +365,8 @@ class Intro extends PureComponent {
       isSearching,
       openBook,
       insertedBooks,
-      introFinished
+      introFinished,
+      isLogin
     } = this.state;
 
     if (introFinished) {
@@ -364,6 +387,10 @@ class Intro extends PureComponent {
         infinite={false}
         adaptiveHeight
         initialSlide={0}
+        className="custom-slider"
+        onTouchEnd={swipeAction}
+        onTouchMove={swipeAction}
+        onTouchStart={swipeAction}
       >
         {introSlides.map(slide => (
           <HeroSlide
@@ -380,7 +407,22 @@ class Intro extends PureComponent {
             onChange={event => this.setState({ email: event.target.value })}
             isEmailInvalid={isEmailInvalid}
             onButtonClick={this.goNext}
-          />
+            initLogin={() => this.setState({ isLogin: true })}
+          >
+            {isLogin && (
+              <FadeInUp duration=".5s" timingFunction="ease">
+                <LoginForm
+                  username={username}
+                  password={password}
+                  onUsernameChange={value => this.setState({ username: value })}
+                  onPasswordChange={value => this.setState({ password: value })}
+                  onButtonClick={() => this.signIn()}
+                  onSecondaryButtonClick={this.forgotPassword}
+                  closeLogin={() => this.setState({ isLogin: false })}
+                />
+              </FadeInUp>
+            )}
+          </EmailSlide>
         )}
 
         {!currentUser && (
@@ -488,12 +530,12 @@ class Intro extends PureComponent {
 
         <BookInserter
           isSearching={isSearching}
-          openBook={openBook}
+          onClickBook={this.handleToggleBook}
           insertedBooks={insertedBooks}
           searchResults={searchResults}
           searchValue={searchValue}
           onSearch={this.searchBook}
-          onClickBook={this.openBook}
+          openBook={openBook}
           onButtonClick={() => this.finishIntro()}
           onAddButtonClick={this.insertBook}
           onSearchValueChange={event =>
@@ -504,6 +546,26 @@ class Intro extends PureComponent {
     );
   }
 }
+
+let startX = 0;
+
+const swipeAction = event => {
+  const { type } = event;
+  const { screenX } = event.changedTouches[0];
+  const threshold = 20;
+
+  if (type === 'touchstart') {
+    startX = screenX;
+  } else if (type === 'touchmove') {
+    if (screenX > startX + threshold || screenX < startX - threshold) {
+      // moved more than 20px left or right
+      document.body.classList.add('prevent-scroll');
+    }
+  } else if (type === 'touchend') {
+    document.body.classList.remove('prevent-scroll');
+    startX = 0;
+  }
+};
 
 export default IntroContainer = withTracker(props => {
   const currentUserSub = Meteor.subscribe('me');

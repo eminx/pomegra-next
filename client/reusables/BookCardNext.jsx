@@ -78,7 +78,7 @@ class BookCardNext extends PureComponent {
   };
 
   render() {
-    const { volumeInfo, onOpenBook, isOpen, onAddButtonClick } = this.props;
+    const { volumeInfo, onClickBook, isOpen, onAddButtonClick } = this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
     const language = allLanguages.find(
@@ -107,7 +107,7 @@ class BookCardNext extends PureComponent {
           <Flex
             justify="between"
             align="stretch"
-            onClick={onOpenBook}
+            onClick={onClickBook}
             style={{ cursor: 'pointer' }}
           >
             <Flex

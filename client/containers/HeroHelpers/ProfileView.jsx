@@ -4,7 +4,7 @@ import HeroSlide from '../../reusables/HeroSlide';
 
 const slideStyle = backgroundImage => ({
   position: 'absolute',
-  width: 'calc(100vw - .5rem)',
+  width: 'calc(100vw - .5rem )',
   height: '40vh',
   top: '-3rem',
   left: '-1.5rem',

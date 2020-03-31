@@ -1,6 +1,6 @@
 import React from 'react';
-import { Field, Control, Input, Button, Flex } from 'bloomer';
-import { WhiteSpace, ActivityIndicator } from 'antd-mobile';
+import { Field, Control, Input, Button } from 'bloomer';
+import { WhiteSpace, Flex, ActivityIndicator } from 'antd-mobile';
 import { FadeInUp } from 'animate-components';
 
 import HeroSlide from '../../reusables/HeroSlide';
@@ -60,9 +60,6 @@ const BookInserter = ({
             </div>
           </Control>
         </Field>
-        {/* <Help isColor={isPasswordInvalid ? 'warning' : 'success'}>
-                  {isPasswordInvalid ? 'not strong enought' : 'looks great'}
-                </Help> */}
 
         {!searchResults ||
           (searchResults.length === 0 && (
@@ -93,7 +90,7 @@ const BookInserter = ({
           <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
             <BookCardNext
               volumeInfo={result.volumeInfo}
-              openBook={() => onClickBook(index)}
+              onClickBook={() => onClickBook(index)}
               isOpen={openBook === index}
               onAddButtonClick={() => onAddButtonClick(result.volumeInfo)}
             />
@@ -102,13 +99,17 @@ const BookInserter = ({
         ))}
     </div>
 
-    {insertedBooks === 3 && (
-      <Flex justify="center" direction="column">
-        <Button isColor="success" isSize="large" onClick={onButtonClick}>
-          Start using
-        </Button>
-      </Flex>
-    )}
+    <WhiteSpace />
+
+    <div>
+      {insertedBooks === 3 && (
+        <Flex justify="center">
+          <Button isColor="success" isSize="large" onClick={onButtonClick}>
+            Start using
+          </Button>
+        </Flex>
+      )}
+    </div>
   </HeroSlide>
 );
 
