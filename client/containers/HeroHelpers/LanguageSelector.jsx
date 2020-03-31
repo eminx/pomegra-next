@@ -9,7 +9,8 @@ const LanguageSelector = ({
   languages,
   onLanguageSelect,
   onDeleteClick,
-  onButtonClick
+  onButtonClick,
+  profileUnchanged
 }) => (
   <HeroSlide subtitle="What languages do you speak?" isColor="dark">
     <Field>
@@ -56,7 +57,7 @@ const LanguageSelector = ({
           className="is-rounded"
           isPulled="right"
         >
-          Save and Continue{' '}
+          {profileUnchanged ? 'Continue' : 'Save and Continue'}
         </Button>
       </Control>
     </Field>

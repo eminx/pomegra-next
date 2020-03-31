@@ -8,6 +8,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { FadeInUp } from 'animate-components';
+import { shallowEqualArrays } from 'shallow-equal';
 
 import HeroSlide from '../reusables/HeroSlide';
 import LoginForm from '../reusables/LoginForm';
@@ -64,9 +65,15 @@ class Intro extends PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.props;
-    // if (!prevProps.currentUser && currentUser) {
-    //   this.goNext();
-    // }
+
+    if (!prevProps.currentUser && currentUser) {
+      this.setState({
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        bio: currentUser.bio || '',
+        languages: currentUser.languages || []
+      });
+    }
 
     // if (currentUser && currentUser.isIntroDone) {
     //   this.setState({ introFinished: true });
@@ -394,6 +401,25 @@ class Intro extends PureComponent {
     const isUsernameInvalid = this.isUsernameInvalid();
     const isPasswordInvalid = this.isPasswordInvalid();
 
+    let areProfileFieldsUnChanged;
+    if (currentUser) {
+      areProfileFieldsUnChanged =
+        firstName === currentUser.firstName &&
+        lastName === currentUser.lastName &&
+        bio === currentUser.bio;
+    }
+
+    let isLanguageUnChangedForExistingUser;
+    if (currentUser && currentUser.languages) {
+      isLanguageUnChangedForExistingUser = shallowEqualArrays(
+        languages.map(lang => lang.value),
+        currentUser.languages.map(lang => lang.value)
+      );
+    }
+
+    const profileUnchanged =
+      areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
+
     return (
       <Slider
         ref={component => (this.slider = component)}
@@ -416,6 +442,7 @@ class Intro extends PureComponent {
             </Flex>
           </Flex>
         </HeroSlide>
+
         {introSlides.map(slide => (
           <HeroSlide
             key={slide.title}
@@ -481,7 +508,8 @@ class Intro extends PureComponent {
             languages={languages}
             onLanguageSelect={this.handleLanguageSelect}
             onDeleteClick={language => this.handleRemoveLanguage(language)}
-            onButtonClick={this.saveInfo}
+            onButtonClick={profileUnchanged ? this.goNext : this.saveInfo}
+            profileUnchanged={profileUnchanged}
           />
         )}
         {currentUser && (

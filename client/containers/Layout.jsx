@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 
 import AppTabBar from '../reusables/AppTabBar';
 import { notificationsCounter } from '../functions';
-import { WhiteSpace } from 'antd-mobile';
+import { WhiteSpace, ActivityIndicator } from 'antd-mobile';
 
 const routesWithTabBar = [
   '/',
@@ -14,6 +14,27 @@ const routesWithTabBar = [
 ];
 
 class Layout extends React.Component {
+  state = {
+    isLoading: true
+  };
+
+  componentDidMount() {
+    const { currentUser } = this.props;
+    setTimeout(() => {
+      this.setState({ isLoading: false });
+    }, 5000);
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { currentUser } = this.props;
+    if (!prevProps.currentUser && currentUser) {
+      this.setState({
+        isLoading: false
+      });
+      return;
+    }
+  }
+
   shouldRenderTabBar = () => {
     const { location } = this.props;
     if (!location || !location.pathname) {
@@ -43,8 +64,24 @@ class Layout extends React.Component {
 
   render() {
     const { currentUser, children, history } = this.props;
+    const { isLoading } = this.setState;
+
     const pathname = history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
+
+    if (isLoading) {
+      return (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: 50
+          }}
+        >
+          <ActivityIndicator text="Loading..." />
+        </div>
+      );
+    }
 
     if (!currentUser || !currentUser.isIntroDone) {
       this.changeRoute('/intro');
