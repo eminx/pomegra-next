@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PureComponent } from 'react';
+import React, { PureComponent, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 import { Field, Control, Image, Button } from 'bloomer';
@@ -81,7 +81,7 @@ class Intro extends PureComponent {
 
   isSliderDisabled = () => {
     const { carouselIndex } = this.state;
-    if ([6, 7, 8].includes(carouselIndex)) return true;
+    if ([7, 8, 9].includes(carouselIndex)) return true;
     if ([0, 1, 2, 3].includes(carouselIndex)) return false;
     return (
       this.isEmailInvalid() ||
@@ -484,6 +484,7 @@ class Intro extends PureComponent {
         )}
 
         {currentUser && (
+          <Fragment>
           <LanguageSelector
             languages={languages}
             onLanguageSelect={this.handleLanguageSelect}
@@ -568,6 +569,7 @@ class Intro extends PureComponent {
             this.setState({ searchValue: event.target.value })
           }
         />
+        </Fragment>
       </Slider>
     );
   }
