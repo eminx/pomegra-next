@@ -36,7 +36,6 @@ class AccountManager extends Component {
   };
 
   createAccount = values => {
-    console.log(values);
     this.setState({ isLoading: true });
 
     Meteor.call('registerUser', values, (error, respond) => {

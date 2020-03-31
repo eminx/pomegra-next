@@ -36,7 +36,6 @@ class Layout extends React.Component {
     const { history } = this.props;
     const pathname = history && history.location && history.location.pathname;
     if (pathname === route) {
-      console.log(pathname, route);
       return;
     }
     history.push(route);

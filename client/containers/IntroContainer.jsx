@@ -2,8 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
-import { Field, Control, Button } from 'bloomer';
-import { ImagePicker, ActivityIndicator } from 'antd-mobile';
+import { Field, Control, Image, Button } from 'bloomer';
+import { ImagePicker, ActivityIndicator, Flex } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -33,6 +33,7 @@ import {
   uploadProfileImage,
   googleApi
 } from './HeroHelpers/';
+import NiceShelf from '../reusables/NiceShelf';
 
 class Intro extends PureComponent {
   state = {
@@ -57,6 +58,10 @@ class Intro extends PureComponent {
     isLogin: false
   };
 
+  componentDidMount() {
+    setTimeout(() => this.goNext(), 3000);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.props;
     // if (!prevProps.currentUser && currentUser) {
@@ -77,7 +82,7 @@ class Intro extends PureComponent {
   isSliderDisabled = () => {
     const { carouselIndex } = this.state;
     if ([6, 7, 8].includes(carouselIndex)) return true;
-    if ([0, 1, 2].includes(carouselIndex)) return false;
+    if ([0, 1, 2, 3].includes(carouselIndex)) return false;
     return (
       this.isEmailInvalid() ||
       this.isUsernameInvalid() ||
@@ -196,12 +201,24 @@ class Intro extends PureComponent {
   };
 
   handleAvatarPick = (images, type, index) => {
+    if (type === 'delete') {
+      this.setState({
+        cover: null
+      });
+      return;
+    }
     this.setState({
       avatar: images[0]
     });
   };
 
   handleCoverPick = (images, type, index) => {
+    if (type === 'delete') {
+      this.setState({
+        cover: null
+      });
+      return;
+    }
     this.setState({
       cover: images[0]
     });
@@ -266,6 +283,7 @@ class Intro extends PureComponent {
           if (error) {
             console.log(error);
             errorDialog(error.reason);
+            this.setState({ savingCover: false });
             return;
           }
           this.setState({
@@ -329,7 +347,7 @@ class Intro extends PureComponent {
         });
       }
 
-      successDialog('Book is successfully added to your virtual shelf');
+      successDialog('Book is successfully added to your virtual shelf', 1);
       this.setState({
         searchValue: '',
         openBook: null,
@@ -383,7 +401,7 @@ class Intro extends PureComponent {
         arrows={![0, 1, 2].includes(carouselIndex)}
         dots={![0, 1, 2].includes(carouselIndex)}
         afterChange={this.handleSlideChange}
-        // swipe={!this.isSliderDisabled()}
+        swipe={!this.isSliderDisabled()}
         infinite={false}
         adaptiveHeight
         initialSlide={0}
@@ -392,6 +410,14 @@ class Intro extends PureComponent {
         onTouchMove={swipeAction}
         onTouchStart={swipeAction}
       >
+        <HeroSlide>
+          <Flex justify="center" style={{ height: '100vh', paddingTop: 80 }}>
+            <Flex align="center" direction="column">
+              <NiceShelf width={192} height={192} color="#3e3e3e" />
+            </Flex>
+          </Flex>
+        </HeroSlide>
+
         {introSlides.map(slide => (
           <HeroSlide
             key={slide.title}
@@ -467,7 +493,7 @@ class Intro extends PureComponent {
         )}
 
         <HeroSlide
-          subtitle="Great! Now let's get avatar for you"
+          subtitle="Great! Now let's get an avatar for you"
           isColor="dark"
         >
           <Field>
@@ -489,7 +515,7 @@ class Intro extends PureComponent {
                 className="is-rounded"
                 isPulled="right"
               >
-                {savingAvatar ? 'Saving Avatar...' : 'Save Avatar'}
+                {savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
                 <ActivityIndicator animating={savingAvatar} />
               </Button>
             </Control>
@@ -519,7 +545,7 @@ class Intro extends PureComponent {
                 className="is-rounded"
                 isPulled="right"
               >
-                {savingCover ? 'Saving cover image...' : 'Save Cover Image'}
+                {savingCover ? 'Saving cover image... ' : 'Save Cover Image'}
                 <ActivityIndicator animating={savingCover} />
               </Button>
             </Control>

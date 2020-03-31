@@ -15,7 +15,7 @@ const getTextForLastSlide = insertedBooks => {
     case 2:
       return 'Amazing! You are almost done! Only one left to start using...';
     case 3:
-      return 'Well done! You may continue filling up your virtual shelf, or do it later';
+      return 'Well done! You may continue filling up your virtual shelf, or start discovering';
   }
 };
 
@@ -105,7 +105,7 @@ const BookInserter = ({
       {insertedBooks === 3 && (
         <Flex justify="center">
           <Button isColor="success" isSize="large" onClick={onButtonClick}>
-            Start using
+            Start Discovering
           </Button>
         </Flex>
       )}

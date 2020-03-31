@@ -1,14 +1,12 @@
 import { Toast } from 'antd-mobile';
 import Resizer from 'react-image-file-resizer';
 
-const toastDuration = 2;
-
-function errorDialog(text) {
-  Toast.fail(text, toastDuration);
+function errorDialog(text, duration = 3) {
+  Toast.fail(text, duration);
 }
 
-function successDialog(text) {
-  Toast.success(text, toastDuration);
+function successDialog(text, duration = 3) {
+  Toast.success(text, duration);
 }
 
 function notificationsCounter(notifications) {

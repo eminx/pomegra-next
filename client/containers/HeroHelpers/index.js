@@ -24,7 +24,7 @@ const introSlides = [
   {
     title: 'Virtualise your library',
     subtitle:
-      'get to see the books people have in short distance to you, and borrow',
+      'put up your books to see and plan what to read. let others see what you have',
     color: 'info'
   },
   {
