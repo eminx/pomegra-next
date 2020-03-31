@@ -107,7 +107,7 @@ class AddBook extends Component {
     }
 
     if (!currentUser) {
-      <ActivityIndicator text="Loading..." />;
+      <ActivityIndicator toast text="Loading..." />;
     }
 
     const {

@@ -88,17 +88,7 @@ class MyBooks extends Component {
     const sortedBooks = this.sortedBooks();
 
     if (!sortedBooks) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: 50
-          }}
-        >
-          <ActivityIndicator text="Loading..." />
-        </div>
-      );
+      return <ActivityIndicator toast text="Loading..." />;
     }
 
     const filteredSortedBooks = sortedBooks.filter(book => {

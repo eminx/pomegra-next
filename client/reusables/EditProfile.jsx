@@ -289,6 +289,7 @@ class EditProfileUI extends Component {
           </div>
         </Tabs>
         <WhiteSpace size={100} />
+        <WhiteSpace size="lg" />
       </div>
     );
   }

@@ -23,17 +23,7 @@ class Find extends Component {
     const { redirectToBookDetail } = this.state;
 
     if (!currentUser || !othersBooks) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: 50
-          }}
-        >
-          <ActivityIndicator text="Loading..." />
-        </div>
-      );
+      return <ActivityIndicator toast text="Loading..." />;
     }
 
     if (redirectToBookDetail) {

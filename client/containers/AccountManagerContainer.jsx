@@ -112,10 +112,6 @@ class AccountManager extends Component {
     const { currentUser } = this.props;
     const { loginScreenOpen, redirectTo, splashOver, isLoading } = this.state;
 
-    if (!currentUser) {
-      return <Redirect to="/intro" />;
-    }
-
     if (redirectTo) {
       return <Redirect to={redirectTo} />;
     }
@@ -170,53 +166,6 @@ class AccountManager extends Component {
           onButtonClick={() => this.redirectTo('/messages')}
         />
         <WhiteSpace size="lg" />
-
-        {/* <Modal
-          visible={!currentUser && loginScreenOpen}
-          // position="top"
-          closable
-          onClose={() => this.closeScreen()}
-          title="Login to your account"
-        >
-          <List renderHeader={() => 'Please enter your credentials'}>
-            <InputItem
-              label="Username or email"
-              type="text"
-              placeholder="username or email"
-              value={this.state.username}
-              onInput={e => {
-                this.setState({ username: e.target.value });
-              }}
-            />
-            <InputItem
-              label="Password"
-              type="password"
-              placeholder="Your password"
-              value={this.state.password}
-              onInput={e => {
-                this.setState({ password: e.target.value });
-              }}
-            />
-            <List.Item>
-              <Button type="submit" onClick={() => this.signIn()} type="ghost">
-                Login
-              </Button>
-            </List.Item>
-
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <Button
-                isSize="small"
-                isOutlined
-                onClick={() => this.forgotPassword()}
-                style={{ margin: '16px 0' }}
-              >
-                Forgot Password
-              </Button>
-            </div>
-          </List>
-        </Modal> */}
-
-        {/* <div style={{ width: '100%', height: 100 }} /> */}
       </div>
     );
   }

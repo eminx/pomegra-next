@@ -229,17 +229,7 @@ class Request extends Component {
     const messages = this.getChatMessages();
 
     if (isLoading || !request) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: 50
-          }}
-        >
-          <ActivityIndicator text="Loading..." />
-        </div>
-      );
+      return <ActivityIndicator toast text="Loading..." />;
     }
 
     const requestedNotResponded = !request.is_confirmed && !request.is_denied;

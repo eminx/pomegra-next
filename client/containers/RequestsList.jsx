@@ -74,17 +74,7 @@ class RequestsList extends Component {
     }
 
     if (!requests || !currentUser) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: 50
-          }}
-        >
-          <ActivityIndicator text="Loading..." />
-        </div>
-      );
+      return <ActivityIndicator toast text="Loading..." />;
     }
 
     const typeOfRequests = this.getTypeOfRequests();
