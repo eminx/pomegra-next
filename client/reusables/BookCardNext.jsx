@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react';
 import { Title, Subtitle, Heading, Button } from 'bloomer';
 import { Flex, WhiteSpace } from 'antd-mobile';
 
+import { parseUrlForSSL } from '../functions';
+
 const imageContainerStyle = {
   flexBasis: '20vw',
   flexGrow: 0,
@@ -148,7 +150,10 @@ class BookCardNext extends PureComponent {
 
             <div style={imageContainerStyle}>
               <img
-                src={volumeInfo.imageLinks && volumeInfo.imageLinks.thumbnail}
+                src={
+                  volumeInfo.imageLinks &&
+                  parseUrlForSSL(volumeInfo.imageLinks.thumbnail)
+                }
                 width={120}
                 alt={volumeInfo.title}
                 style={{
