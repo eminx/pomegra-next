@@ -485,91 +485,93 @@ class Intro extends PureComponent {
 
         {currentUser && (
           <Fragment>
-          <LanguageSelector
-            languages={languages}
-            onLanguageSelect={this.handleLanguageSelect}
-            onDeleteClick={language => this.handleRemoveLanguage(language)}
-            onButtonClick={this.saveInfo}
-          />
+            <LanguageSelector
+              languages={languages}
+              onLanguageSelect={this.handleLanguageSelect}
+              onDeleteClick={language => this.handleRemoveLanguage(language)}
+              onButtonClick={this.saveInfo}
+            />
+            )}
+            <HeroSlide
+              subtitle="Great! Now let's get an avatar for you"
+              isColor="dark"
+            >
+              <Field>
+                <div style={{ maxWidth: 160, margin: '0 auto' }}>
+                  <ImagePicker
+                    files={avatar ? [avatar] : []}
+                    onChange={this.handleAvatarPick}
+                    selectable={!avatar}
+                    accept="image/jpeg,image/jpg,image/png"
+                    multiple={false}
+                    length={1}
+                  />
+                </div>
+
+                <Control style={{ paddingTop: 24 }}>
+                  <Button
+                    disabled={!avatar || savingAvatar}
+                    onClick={this.saveAvatar}
+                    className="is-rounded"
+                    isPulled="right"
+                  >
+                    {savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
+                    <ActivityIndicator animating={savingAvatar} />
+                  </Button>
+                </Control>
+              </Field>
+            </HeroSlide>
+            <HeroSlide
+              subtitle="Awesome! Now let's get a cover image"
+              isColor="dark"
+            >
+              <Field>
+                <div style={{ maxWidth: 160, margin: '0 auto' }}>
+                  <ImagePicker
+                    files={cover ? [cover] : []}
+                    onChange={this.handleCoverPick}
+                    selectable={!cover}
+                    accept="image/jpeg,image/jpg,image/png"
+                    multiple={false}
+                    length={1}
+                  />
+                </div>
+
+                <Control style={{ paddingTop: 24 }}>
+                  <Button
+                    disabled={!cover || savingCover}
+                    onClick={this.saveCover}
+                    className="is-rounded"
+                    isPulled="right"
+                  >
+                    {savingCover
+                      ? 'Saving cover image... '
+                      : 'Save Cover Image'}
+                    <ActivityIndicator animating={savingCover} />
+                  </Button>
+                </Control>
+              </Field>
+            </HeroSlide>
+            <ProfileView
+              currentUser={currentUser}
+              onButtonClick={this.goNext}
+            />
+            <BookInserter
+              isSearching={isSearching}
+              onClickBook={this.handleToggleBook}
+              insertedBooks={insertedBooks}
+              searchResults={searchResults}
+              searchValue={searchValue}
+              onSearch={this.searchBook}
+              openBook={openBook}
+              onButtonClick={() => this.finishIntro()}
+              onAddButtonClick={this.insertBook}
+              onSearchValueChange={event =>
+                this.setState({ searchValue: event.target.value })
+              }
+            />
+          </Fragment>
         )}
-
-        <HeroSlide
-          subtitle="Great! Now let's get an avatar for you"
-          isColor="dark"
-        >
-          <Field>
-            <div style={{ maxWidth: 160, margin: '0 auto' }}>
-              <ImagePicker
-                files={avatar ? [avatar] : []}
-                onChange={this.handleAvatarPick}
-                selectable={!avatar}
-                accept="image/jpeg,image/jpg,image/png"
-                multiple={false}
-                length={1}
-              />
-            </div>
-
-            <Control style={{ paddingTop: 24 }}>
-              <Button
-                disabled={!avatar || savingAvatar}
-                onClick={this.saveAvatar}
-                className="is-rounded"
-                isPulled="right"
-              >
-                {savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
-                <ActivityIndicator animating={savingAvatar} />
-              </Button>
-            </Control>
-          </Field>
-        </HeroSlide>
-
-        <HeroSlide
-          subtitle="Awesome! Now let's get a cover image"
-          isColor="dark"
-        >
-          <Field>
-            <div style={{ maxWidth: 160, margin: '0 auto' }}>
-              <ImagePicker
-                files={cover ? [cover] : []}
-                onChange={this.handleCoverPick}
-                selectable={!cover}
-                accept="image/jpeg,image/jpg,image/png"
-                multiple={false}
-                length={1}
-              />
-            </div>
-
-            <Control style={{ paddingTop: 24 }}>
-              <Button
-                disabled={!cover || savingCover}
-                onClick={this.saveCover}
-                className="is-rounded"
-                isPulled="right"
-              >
-                {savingCover ? 'Saving cover image... ' : 'Save Cover Image'}
-                <ActivityIndicator animating={savingCover} />
-              </Button>
-            </Control>
-          </Field>
-        </HeroSlide>
-
-        <ProfileView currentUser={currentUser} onButtonClick={this.goNext} />
-
-        <BookInserter
-          isSearching={isSearching}
-          onClickBook={this.handleToggleBook}
-          insertedBooks={insertedBooks}
-          searchResults={searchResults}
-          searchValue={searchValue}
-          onSearch={this.searchBook}
-          openBook={openBook}
-          onButtonClick={() => this.finishIntro()}
-          onAddButtonClick={this.insertBook}
-          onSearchValueChange={event =>
-            this.setState({ searchValue: event.target.value })
-          }
-        />
-        </Fragment>
       </Slider>
     );
   }
