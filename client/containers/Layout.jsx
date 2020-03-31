@@ -19,10 +19,13 @@ class Layout extends React.Component {
   };
 
   componentDidMount() {
-    const { currentUser } = this.props;
     setTimeout(() => {
+      const { currentUser } = this.props;
+      if (!currentUser || !currentUser.isIntroDone) {
+        this.changeRoute('/intro');
+      }
       this.setState({ isLoading: false });
-    }, 5000);
+    }, 3000);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -64,27 +67,13 @@ class Layout extends React.Component {
 
   render() {
     const { currentUser, children, history } = this.props;
-    const { isLoading } = this.setState;
+    const { isLoading } = this.state;
 
     const pathname = history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
 
     if (isLoading) {
-      return (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: 50
-          }}
-        >
-          <ActivityIndicator text="Loading..." />
-        </div>
-      );
-    }
-
-    if (!currentUser || !currentUser.isIntroDone) {
-      this.changeRoute('/intro');
+      return <ActivityIndicator toast text="Loading..." />;
     }
 
     return (

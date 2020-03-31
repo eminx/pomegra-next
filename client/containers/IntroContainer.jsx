@@ -65,6 +65,7 @@ class Intro extends PureComponent {
 
   componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.props;
+    const { carouselIndex } = this.state;
 
     if (!prevProps.currentUser && currentUser) {
       this.setState({
@@ -73,11 +74,15 @@ class Intro extends PureComponent {
         bio: currentUser.bio || '',
         languages: currentUser.languages || []
       });
-    }
 
-    // if (currentUser && currentUser.isIntroDone) {
-    //   this.setState({ introFinished: true });
-    // }
+      if (
+        currentUser &&
+        currentUser.isIntroDone &&
+        [0, 1, 2, 3, 4].includes(carouselIndex)
+      ) {
+        this.setState({ introFinished: true });
+      }
+    }
   }
 
   handleSlideChange = index => {
@@ -512,7 +517,7 @@ class Intro extends PureComponent {
             profileUnchanged={profileUnchanged}
           />
         )}
-        {currentUser && (
+        {currentUser && !currentUser.avatar && (
           <HeroSlide
             subtitle="Great! Now let's get an avatar for you"
             isColor="dark"
@@ -543,37 +548,41 @@ class Intro extends PureComponent {
             </Field>
           </HeroSlide>
         )}
-        {currentUser && (
-          <HeroSlide
-            subtitle="Awesome! Now let's get a cover image"
-            isColor="dark"
-          >
-            <Field>
-              <div style={{ maxWidth: 160, margin: '0 auto' }}>
-                <ImagePicker
-                  files={cover ? [cover] : []}
-                  onChange={this.handleCoverPick}
-                  selectable={!cover}
-                  accept="image/jpeg,image/jpg,image/png"
-                  multiple={false}
-                  length={1}
-                />
-              </div>
+        {currentUser &&
+          (!currentUser.coverImages ||
+            currentUser.coverImages.length === 0) && (
+            <HeroSlide
+              subtitle="Awesome! Now let's get a cover image"
+              isColor="dark"
+            >
+              <Field>
+                <div style={{ maxWidth: 160, margin: '0 auto' }}>
+                  <ImagePicker
+                    files={cover ? [cover] : []}
+                    onChange={this.handleCoverPick}
+                    selectable={!cover}
+                    accept="image/jpeg,image/jpg,image/png"
+                    multiple={false}
+                    length={1}
+                  />
+                </div>
 
-              <Control style={{ paddingTop: 24 }}>
-                <Button
-                  disabled={!cover || savingCover}
-                  onClick={this.saveCover}
-                  className="is-rounded"
-                  isPulled="right"
-                >
-                  {savingCover ? 'Saving cover image... ' : 'Save Cover Image'}
-                  <ActivityIndicator animating={savingCover} />
-                </Button>
-              </Control>
-            </Field>
-          </HeroSlide>
-        )}
+                <Control style={{ paddingTop: 24 }}>
+                  <Button
+                    disabled={!cover || savingCover}
+                    onClick={this.saveCover}
+                    className="is-rounded"
+                    isPulled="right"
+                  >
+                    {savingCover
+                      ? 'Saving cover image... '
+                      : 'Save Cover Image'}
+                    <ActivityIndicator animating={savingCover} />
+                  </Button>
+                </Control>
+              </Field>
+            </HeroSlide>
+          )}
         {currentUser && (
           <ProfileView currentUser={currentUser} onButtonClick={this.goNext} />
         )}
