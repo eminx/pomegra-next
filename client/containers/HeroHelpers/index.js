@@ -24,19 +24,19 @@ const introSlides = [
   {
     title: 'Virtualise your library',
     subtitle:
-      'put up your books to see and plan what to read. let others see what you have',
+      'Put up your books to see and plan what to read. let others see what you have',
     color: 'info'
   },
   {
     title: 'Inspire and Discover Books',
     subtitle:
-      'get to see the books people have in short distance to you, and borrow',
+      'Get to see the books people have in short distance to you and borrow. Discover new books',
     color: 'primary'
   },
   {
     title: 'Let People Read More',
     subtitle:
-      'get borrow requests from interesting readers in your city, become a librarian',
+      'Get borrow requests from interesting readers in your city, become a librarian',
     color: 'success'
   }
 ];

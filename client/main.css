@@ -62,3 +62,52 @@ body {
 body.prevent-scroll {
   overflow: hidden;
 }
+
+.sliderFromRight {
+  /* position: absolute; */
+  width: 100px;
+  height: 100px;
+  background: blue;
+  transform: translateX(-100%);
+  -webkit-transform: translateX(-100%);
+}
+
+.slideFromRight {
+  animation: slideFromRight 0.5s forwards;
+  -webkit-animation: slideFromRight 0.5s forwards;
+}
+
+.slide-out {
+  animation: slide-out 0.5s forwards;
+  -webkit-animation: slide-out 0.5s forwards;
+}
+
+@keyframes slideFromRight {
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@-webkit-keyframes slideFromRight {
+  100% {
+    -webkit-transform: translateX(0%);
+  }
+}
+
+@keyframes slide-out {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@-webkit-keyframes slide-out {
+  0% {
+    -webkit-transform: translateX(0%);
+  }
+  100% {
+    -webkit-transform: translateX(-100%);
+  }
+}

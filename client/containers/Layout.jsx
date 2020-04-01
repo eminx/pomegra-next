@@ -77,7 +77,7 @@ class Layout extends React.Component {
     }
 
     return (
-      <div style={{ paddingBottom: 100 }}>
+      <div>
         {children}
 
         {shouldRenderTabBar && (
@@ -87,7 +87,6 @@ class Layout extends React.Component {
               changeRoute={this.changeRoute}
               messageNotificationCount={this.getMessageNotificationCount()}
             />
-            <WhiteSpace size={80} />
           </Fragment>
         )}
       </div>

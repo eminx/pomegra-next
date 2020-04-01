@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { PureComponent, Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
-import { Field, Control, Image, Button } from 'bloomer';
+import { Field, Control, Button } from 'bloomer';
 import { ImagePicker, ActivityIndicator, Flex } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -441,9 +441,15 @@ class Intro extends PureComponent {
         onTouchStart={swipeAction}
       >
         <HeroSlide>
-          <Flex justify="center" style={{ height: '100vh', paddingTop: 80 }}>
+          <Flex justify="center" style={{ height: '100vh' }}>
             <Flex align="center" direction="column">
               <NiceShelf width={192} height={192} color="#3e3e3e" />
+              <img
+                src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
+                alt="Librella"
+                width={210}
+                height={45}
+              />
             </Flex>
           </Flex>
         </HeroSlide>
@@ -454,6 +460,7 @@ class Intro extends PureComponent {
             isColor={slide.color}
             title={slide.title}
             subtitle={slide.subtitle}
+            goNext={this.goNext}
           />
         ))}
         {!currentUser && (
