@@ -89,6 +89,7 @@ const BookInserter = ({
         searchResults.map((result, index) => (
           <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
             <BookCardNext
+              isIntro
               volumeInfo={result.volumeInfo}
               onClickBook={() => onClickBook(index)}
               isOpen={openBook === index}

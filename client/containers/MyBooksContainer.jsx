@@ -14,8 +14,12 @@ import {
 } from 'antd-mobile';
 import { IoMdAddCircle } from 'react-icons/io';
 
+import BookCardNext from '../reusables/BookCardNext';
+
 const ListItem = List.Item;
 const Brief = ListItem.Brief;
+
+
 
 const sortByMethods = [
   'last added',
@@ -160,6 +164,7 @@ class MyBooks extends Component {
                 extra={book.b_cat}
                 onClick={() => this.viewBookInDetail(book)}
               >
+
                 <b>{book.b_title}</b>
                 <Brief>{book.b_author}</Brief>
               </ListItem>

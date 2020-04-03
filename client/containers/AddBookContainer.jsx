@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
 
 import {
   ActivityIndicator,
@@ -10,15 +11,15 @@ import {
   List,
   Modal
 } from 'antd-mobile';
+import { FadeInUp } from 'animate-components';
 
 import BookDetailTobeAdded from './BookDetailTobeAdded';
 import { successDialog, errorDialog, parseUrlForSSL } from '../functions';
-import { Redirect } from 'react-router-dom';
+import BookCardNext from '../reusables/BookCardNext'
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
 const ListItem = List.Item;
-const Brief = ListItem.Brief;
 
 class AddBook extends Component {
   state = {
@@ -26,7 +27,7 @@ class AddBook extends Component {
     searchResults: [],
     searchbarInput: '',
     searchbarFocused: false,
-    bookInDetail: null,
+    openBook: null,
     backToShelf: false
   };
 
@@ -55,9 +56,13 @@ class AddBook extends Component {
       });
   };
 
-  viewBookInDetail = result => {
-    this.setState({
-      bookInDetail: result
+  handleToggleBook = index => {
+    this.setState(({ openBook }) => {
+      if (openBook === index) {
+        return { openBook: null };
+      } else {
+        return { openBook: index };
+      }
     });
   };
 
@@ -74,8 +79,11 @@ class AddBook extends Component {
       } else if (respond && respond.error) {
         errorDialog(respond.error);
       }
+      
       successDialog('Book is successfully added to your virtual shelf');
-      this.closeModal();
+      this.setState({
+        openBook: null,
+      })
     });
   };
 
@@ -90,7 +98,7 @@ class AddBook extends Component {
   closeModal = () => {
     this.setState(
       {
-        bookInDetail: null
+        openBook: null
       },
       () => {
         this.autoFocusSearchBar();
@@ -114,7 +122,7 @@ class AddBook extends Component {
       searchResults,
       searchbarInput,
       isLoading,
-      bookInDetail
+      openBook
     } = this.state;
     return (
       <div>
@@ -150,52 +158,20 @@ class AddBook extends Component {
           </div>
         )}
 
-        <List>
+        <div style={{ paddingTop: 24 }}>
           {searchResults &&
-            searchResults.length > 0 &&
-            searchResults.map(result => (
-              <ListItem
-                key={result.id || result.volumeInfo.title}
-                align="top"
-                thumb={
-                  <img
-                    style={{ width: 33, height: 44 }}
-                    src={
-                      result.volumeInfo.imageLinks &&
-                      parseUrlForSSL(
-                        result.volumeInfo.imageLinks.smallThumbnail
-                      )
-                    }
-                  />
-                }
-                extra={
-                  result.volumeInfo.categories &&
-                  result.volumeInfo.categories[0]
-                }
-                onClick={() => this.viewBookInDetail(result)}
-              >
-                <b>{result.volumeInfo.title}</b>
-                <Brief>
-                  {result.volumeInfo.authors &&
-                    result.volumeInfo.authors.map(author => (
-                      <span key={author}>{author}</span>
-                    ))}
-                </Brief>
-              </ListItem>
+            searchResults.map((result, index) => (
+              <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
+                <BookCardNext
+                  volumeInfo={result.volumeInfo}
+                  onClickBook={() => this.handleToggleBook(index)}
+                  isOpen={openBook === index}
+                  onAddButtonClick={() => this.insertBook(result.volumeInfo)}
+                  // style={{marginRight: 0, marginLeft: 0}}
+                />
+            </FadeInUp>
             ))}
-        </List>
-        <Modal
-          visible={currentUser && bookInDetail}
-          // position="top"
-          closable
-          onClose={() => this.setState({ bookInDetail: null })}
-          title="Do you own a copy?"
-        >
-          <BookDetailTobeAdded
-            bookInfo={bookInDetail}
-            insertBook={this.insertBook}
-          />
-        </Modal>
+        </div>
       </div>
     );
   }

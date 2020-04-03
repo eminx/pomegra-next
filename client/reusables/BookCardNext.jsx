@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react';
-import { Title, Subtitle, Heading, Button } from 'bloomer';
+import { Title, Subtitle, Container, Heading, Button } from 'bloomer';
 import { Flex, WhiteSpace } from 'antd-mobile';
 
 import { parseUrlForSSL } from '../functions';
@@ -9,17 +9,15 @@ const imageContainerStyle = {
   flexGrow: 0,
   flexShrink: 1,
   minWidth: 120,
-  marginLeft: 24
+  marginLeft: 24,
 };
 
 const containerStyle = {
   backgroundColor: '#3E3E3E',
   padding: 12,
   width: '100vw',
-  marginLeft: -24,
-  marginRight: -24,
+  marginBottom: 24,
   boxShadow: '0 0 12px rgba(78, 78, 78, 0.6)',
-
   overflowY: 'hidden',
   transition: 'max-height .2s ease'
 };
@@ -80,7 +78,7 @@ class BookCardNext extends PureComponent {
   };
 
   render() {
-    const { volumeInfo, onClickBook, isOpen, onAddButtonClick } = this.props;
+    const { volumeInfo, onClickBook, isOpen, onAddButtonClick, isIntro } = this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
     const language = allLanguages.find(
@@ -99,6 +97,11 @@ class BookCardNext extends PureComponent {
       cardContainerStyle.maxHeight = visibleHeight + 10;
     } else {
       cardContainerStyle.maxHeight = 200;
+    }
+
+    if (isIntro) {
+      cardContainerStyle.marginLeft = -24,
+      cardContainerStyle.marginRight = -24
     }
 
     const publishText = this.getPublishText();
@@ -184,7 +187,9 @@ class BookCardNext extends PureComponent {
             </Button>
           </Flex>
           <WhiteSpace size="lg" />
-          <p>{volumeInfo && volumeInfo.description}</p>
+          <Container hasTextColor="light">
+            <p>{volumeInfo && volumeInfo.description}</p>
+          </Container>
         </div>
       </div>
     );
