@@ -19,7 +19,7 @@ import {
   dataURLtoFile,
   errorDialog,
   successDialog,
-  validateEmail
+  validateEmail,
 } from '../functions';
 
 import {
@@ -32,7 +32,7 @@ import {
   BookInserter,
   introSlides,
   uploadProfileImage,
-  googleApi
+  googleApi,
 } from './HeroHelpers/';
 import NiceShelf from '../reusables/NiceShelf';
 
@@ -56,38 +56,47 @@ class Intro extends PureComponent {
     openBook: null,
     insertedBooks: 0,
     introFinished: false,
-    isLogin: false
+    isLogin: false,
   };
 
   componentDidMount() {
     setTimeout(() => this.goNext(), 3000);
+    this.fillInfoForm();
   }
 
   componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.props;
-    const { carouselIndex } = this.state;
 
     if (!prevProps.currentUser && currentUser) {
-      this.setState({
-        firstName: currentUser.firstName || '',
-        lastName: currentUser.lastName || '',
-        bio: currentUser.bio || '',
-        languages: currentUser.languages || []
-      });
-
-      if (
-        currentUser &&
-        currentUser.isIntroDone &&
-        [0, 1, 2, 3, 4].includes(carouselIndex)
-      ) {
-        this.setState({ introFinished: true });
-      }
+      this.fillInfoForm();
     }
   }
 
-  handleSlideChange = index => {
+  fillInfoForm = () => {
+    const { currentUser } = this.props;
+    const { carouselIndex } = this.state;
+    if (!currentUser) {
+      return;
+    }
+
     this.setState({
-      carouselIndex: index
+      firstName: currentUser.firstName || '',
+      lastName: currentUser.lastName || '',
+      bio: currentUser.bio || '',
+      languages: currentUser.languages || [],
+    });
+
+    if (
+      currentUser.isIntroDone &&
+      [0, 1, 2, 3, 4].includes(carouselIndex)
+    ) {
+      this.setState({ introFinished: true });
+    }
+  };
+
+  handleSlideChange = (index) => {
+    this.setState({
+      carouselIndex: index,
     });
   };
 
@@ -126,7 +135,7 @@ class Intro extends PureComponent {
     const values = {
       email,
       username,
-      password
+      password,
     };
     this.setState({ isLoading: true });
 
@@ -141,14 +150,14 @@ class Intro extends PureComponent {
       successDialog('Your account is successfully created');
       this.signIn();
       this.setState({
-        isLoading: false
+        isLoading: false,
       });
     });
   };
 
   signIn = () => {
     const { username, password } = this.state;
-    Meteor.loginWithPassword(username, password, error => {
+    Meteor.loginWithPassword(username, password, (error) => {
       if (error) {
         errorDialog(error);
         console.log(error);
@@ -162,33 +171,38 @@ class Intro extends PureComponent {
     alert('This is not implemented yet, try again later please');
   };
 
-  handleLanguageSelect = event => {
+  handleLanguageSelect = (event) => {
     const { languages } = this.state;
     const selectedLanguageValue = event.target.value;
 
-    if (languages.some(language => language.value === selectedLanguageValue)) {
+    if (
+      languages.some(
+        (language) => language.value === selectedLanguageValue,
+      )
+    ) {
       return;
     }
 
     const selectedLanguage = allLanguages.find(
-      language => language && language.value === selectedLanguageValue
+      (language) =>
+        language && language.value === selectedLanguageValue,
     );
 
     const newLanguages = [...languages, selectedLanguage];
     this.setState({
-      languages: newLanguages
+      languages: newLanguages,
     });
   };
 
-  handleRemoveLanguage = language => {
+  handleRemoveLanguage = (language) => {
     const { languages } = this.state;
     const languageValue = language.value;
 
     const newLanguages = languages.filter(
-      language => languageValue !== language.value
+      (language) => languageValue !== language.value,
     );
     this.setState({
-      languages: newLanguages
+      languages: newLanguages,
     });
   };
 
@@ -197,41 +211,46 @@ class Intro extends PureComponent {
     const values = {
       firstName,
       lastName,
-      bio
+      bio,
     };
 
-    Meteor.call('updateProfile', values, languages, (error, respond) => {
-      if (error) {
-        console.log(error);
-        errorDialog(error.reason);
-      } else {
-        successDialog('Your profile is successfully updated', 1);
-        this.goNext();
-      }
-    });
+    Meteor.call(
+      'updateProfile',
+      values,
+      languages,
+      (error, respond) => {
+        if (error) {
+          console.log(error);
+          errorDialog(error.reason);
+        } else {
+          successDialog('Your profile is successfully updated', 1);
+          this.goNext();
+        }
+      },
+    );
   };
 
   handleAvatarPick = (images, type, index) => {
     if (type === 'delete') {
       this.setState({
-        cover: null
+        cover: null,
       });
       return;
     }
     this.setState({
-      avatar: images[0]
+      avatar: images[0],
     });
   };
 
   handleCoverPick = (images, type, index) => {
     if (type === 'delete') {
       this.setState({
-        cover: null
+        cover: null,
       });
       return;
     }
     this.setState({
-      cover: images[0]
+      cover: images[0],
     });
   };
 
@@ -239,10 +258,10 @@ class Intro extends PureComponent {
     const { avatar } = this.state;
 
     this.setState({
-      savingAvatar: true
+      savingAvatar: true,
     });
 
-    resizeImage(avatar, 180, uri => {
+    resizeImage(avatar, 180, (uri) => {
       const uploadableImage = dataURLtoFile(uri, avatar.file.name);
       uploadProfileImage(uploadableImage, (error, respond) => {
         if (error) {
@@ -253,19 +272,23 @@ class Intro extends PureComponent {
         const avatarToSave = {
           name: avatar.file.name,
           url: respond,
-          uploadDate: new Date()
+          uploadDate: new Date(),
         };
-        Meteor.call('setNewAvatar', avatarToSave, (error, respond) => {
-          if (error) {
-            console.log(error);
-            errorDialog(error.reason);
-            return;
-          }
-          this.setState({
-            savingAvatar: false
-          });
-          this.goNext();
-        });
+        Meteor.call(
+          'setNewAvatar',
+          avatarToSave,
+          (error, respond) => {
+            if (error) {
+              console.log(error);
+              errorDialog(error.reason);
+              return;
+            }
+            this.setState({
+              savingAvatar: false,
+            });
+            this.goNext();
+          },
+        );
       });
     });
   };
@@ -274,10 +297,10 @@ class Intro extends PureComponent {
     const { cover } = this.state;
 
     this.setState({
-      savingCover: true
+      savingCover: true,
     });
 
-    resizeImage(cover, 600, uri => {
+    resizeImage(cover, 600, (uri) => {
       const uploadableImage = dataURLtoFile(uri, cover.file.name);
       uploadProfileImage(uploadableImage, (error, respond) => {
         if (error) {
@@ -288,45 +311,49 @@ class Intro extends PureComponent {
         const coverToSave = {
           name: cover.file.name,
           url: respond,
-          uploadDate: new Date()
+          uploadDate: new Date(),
         };
-        Meteor.call('setNewCoverImages', [coverToSave], (error, respond) => {
-          if (error) {
-            console.log(error);
-            errorDialog(error.reason);
-            this.setState({ savingCover: false });
-            return;
-          }
-          this.setState({
-            savingCover: false
-          });
-          this.goNext();
-        });
+        Meteor.call(
+          'setNewCoverImages',
+          [coverToSave],
+          (error, respond) => {
+            if (error) {
+              console.log(error);
+              errorDialog(error.reason);
+              this.setState({ savingCover: false });
+              return;
+            }
+            this.setState({
+              savingCover: false,
+            });
+            this.goNext();
+          },
+        );
       });
     });
   };
 
-  searchBook = event => {
+  searchBook = (event) => {
     event && event.preventDefault();
     const { searchValue } = this.state;
 
     this.setState({
-      isSearching: true
+      isSearching: true,
     });
 
     fetch(googleApi + searchValue)
-      .then(results => {
+      .then((results) => {
         return results.json();
       })
-      .then(parsedResults => {
+      .then((parsedResults) => {
         this.setState({
           isSearching: false,
-          searchResults: parsedResults.items
+          searchResults: parsedResults.items,
         });
       });
   };
 
-  handleToggleBook = index => {
+  handleToggleBook = (index) => {
     this.setState(({ openBook }) => {
       if (openBook === index) {
         return { openBook: null };
@@ -336,7 +363,7 @@ class Intro extends PureComponent {
     });
   };
 
-  insertBook = book => {
+  insertBook = (book) => {
     const { insertedBooks, searchResults } = this.state;
 
     Meteor.call('insertBook', book, (error, respond) => {
@@ -358,19 +385,22 @@ class Intro extends PureComponent {
         });
       }
 
-      successDialog('Book is successfully added to your virtual shelf', 1);
+      successDialog(
+        'Book is successfully added to your virtual shelf',
+        1,
+      );
       this.setState({
         searchValue: '',
         openBook: null,
         insertedBooks: insertedBooks + 1,
-        searchResults: insertedBooks === 2 ? [] : searchResults
+        searchResults: insertedBooks === 2 ? [] : searchResults,
       });
     });
   };
 
   finishIntro = () => {
     this.setState({
-      introFinished: true
+      introFinished: true,
     });
   };
 
@@ -395,7 +425,7 @@ class Intro extends PureComponent {
       openBook,
       insertedBooks,
       introFinished,
-      isLogin
+      isLogin,
     } = this.state;
 
     if (introFinished) {
@@ -417,8 +447,8 @@ class Intro extends PureComponent {
     let isLanguageUnChangedForExistingUser;
     if (currentUser && currentUser.languages) {
       isLanguageUnChangedForExistingUser = shallowEqualArrays(
-        languages.map(lang => lang.value),
-        currentUser.languages.map(lang => lang.value)
+        languages.map((lang) => lang.value),
+        currentUser.languages.map((lang) => lang.value),
       );
     }
 
@@ -427,7 +457,7 @@ class Intro extends PureComponent {
 
     return (
       <Slider
-        ref={component => (this.slider = component)}
+        ref={(component) => (this.slider = component)}
         arrows={![0, 1, 2].includes(carouselIndex)}
         dots={![0, 1, 2].includes(carouselIndex)}
         afterChange={this.handleSlideChange}
@@ -454,7 +484,7 @@ class Intro extends PureComponent {
           </Flex>
         </HeroSlide>
 
-        {introSlides.map(slide => (
+        {introSlides.map((slide) => (
           <HeroSlide
             key={slide.title}
             isColor={slide.color}
@@ -466,7 +496,9 @@ class Intro extends PureComponent {
         {!currentUser && (
           <EmailSlide
             email={email}
-            onChange={event => this.setState({ email: event.target.value })}
+            onChange={(event) =>
+              this.setState({ email: event.target.value })
+            }
             isEmailInvalid={isEmailInvalid}
             onButtonClick={this.goNext}
             initLogin={() => this.setState({ isLogin: true })}
@@ -476,8 +508,12 @@ class Intro extends PureComponent {
                 <LoginForm
                   username={username}
                   password={password}
-                  onUsernameChange={value => this.setState({ username: value })}
-                  onPasswordChange={value => this.setState({ password: value })}
+                  onUsernameChange={(value) =>
+                    this.setState({ username: value })
+                  }
+                  onPasswordChange={(value) =>
+                    this.setState({ password: value })
+                  }
                   onButtonClick={() => this.signIn()}
                   onSecondaryButtonClick={this.forgotPassword}
                   closeLogin={() => this.setState({ isLogin: false })}
@@ -489,7 +525,9 @@ class Intro extends PureComponent {
         {!currentUser && (
           <UsernameSlide
             username={username}
-            onChange={event => this.setState({ username: event.target.value })}
+            onChange={(event) =>
+              this.setState({ username: event.target.value })
+            }
             isUsernameInvalid={isUsernameInvalid}
             onButtonClick={this.goNext}
           />
@@ -497,7 +535,9 @@ class Intro extends PureComponent {
         {!currentUser && (
           <PasswordSlide
             password={password}
-            onChange={event => this.setState({ password: event.target.value })}
+            onChange={(event) =>
+              this.setState({ password: event.target.value })
+            }
             isPasswordInvalid={isPasswordInvalid}
             onButtonClick={this.handleCreateAccount}
           />
@@ -507,20 +547,28 @@ class Intro extends PureComponent {
             firstName={firstName}
             lastName={lastName}
             bio={bio}
-            onFirstNameChange={e =>
+            onFirstNameChange={(e) =>
               this.setState({ firstName: e.target.value })
             }
-            onLastNameChange={e => this.setState({ lastName: e.target.value })}
-            onBioChange={e => this.setState({ bio: e.target.value })}
-            onSubmitInfoForm={this.goNext}
+            onLastNameChange={(e) =>
+              this.setState({ lastName: e.target.value })
+            }
+            onBioChange={(e) =>
+              this.setState({ bio: e.target.value })
+            }
+            onSubmitInfoForm={this.saveInfo}
           />
         )}
         {currentUser && (
           <LanguageSelector
             languages={languages}
             onLanguageSelect={this.handleLanguageSelect}
-            onDeleteClick={language => this.handleRemoveLanguage(language)}
-            onButtonClick={profileUnchanged ? this.goNext : this.saveInfo}
+            onDeleteClick={(language) =>
+              this.handleRemoveLanguage(language)
+            }
+            onButtonClick={
+              profileUnchanged ? this.goNext : this.saveInfo
+            }
             profileUnchanged={profileUnchanged}
           />
         )}
@@ -591,7 +639,10 @@ class Intro extends PureComponent {
             </HeroSlide>
           )}
         {currentUser && (
-          <ProfileView currentUser={currentUser} onButtonClick={this.goNext} />
+          <ProfileView
+            currentUser={currentUser}
+            onButtonClick={this.goNext}
+          />
         )}
         {currentUser && (
           <BookInserter
@@ -604,7 +655,7 @@ class Intro extends PureComponent {
             openBook={openBook}
             onButtonClick={() => this.finishIntro()}
             onAddButtonClick={this.insertBook}
-            onSearchValueChange={event =>
+            onSearchValueChange={(event) =>
               this.setState({ searchValue: event.target.value })
             }
           />
@@ -616,7 +667,7 @@ class Intro extends PureComponent {
 
 let startX = 0;
 
-const swipeAction = event => {
+const swipeAction = (event) => {
   const { type } = event;
   const { screenX } = event.changedTouches[0];
   const threshold = 20;
@@ -624,7 +675,10 @@ const swipeAction = event => {
   if (type === 'touchstart') {
     startX = screenX;
   } else if (type === 'touchmove') {
-    if (screenX > startX + threshold || screenX < startX - threshold) {
+    if (
+      screenX > startX + threshold ||
+      screenX < startX - threshold
+    ) {
       // moved more than 20px left or right
       document.body.classList.add('prevent-scroll');
     }
@@ -634,13 +688,13 @@ const swipeAction = event => {
   }
 };
 
-export default IntroContainer = withTracker(props => {
+export default IntroContainer = withTracker((props) => {
   const currentUserSub = Meteor.subscribe('me');
   const currentUser = Meteor.user();
   const isLoading = !currentUserSub.ready();
 
   return {
     currentUser,
-    isLoading
+    isLoading,
   };
 })(Intro);

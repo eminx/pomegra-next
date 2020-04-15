@@ -10,7 +10,7 @@ import {
   WingBlank,
   Modal,
   NavBar,
-  Progress
+  Progress,
 } from 'antd-mobile';
 import arrayMove from 'array-move';
 
@@ -19,9 +19,10 @@ import {
   errorDialog,
   successDialog,
   dataURLtoFile,
-  uploadProfileImage,
-  resizeImage
+  resizeImage,
 } from '../functions';
+
+import { uploadProfileImage } from './HeroHelpers/';
 
 class Profile extends PureComponent {
   state = {
@@ -34,7 +35,7 @@ class Profile extends PureComponent {
     uploadingCoverImages: false,
     uploadingAvatarImage: false,
     unSavedImageChange: false,
-    unSavedInfoChange: false
+    unSavedInfoChange: false,
   };
 
   openEditDialog = () => {
@@ -43,7 +44,7 @@ class Profile extends PureComponent {
     this.setState({
       isEditDialogOpen: true,
       coverImages: (currentUser && currentUser.coverImages) || [],
-      avatarImage: currentUser && currentUser.avatar
+      avatarImage: currentUser && currentUser.avatar,
     });
   };
 
@@ -56,7 +57,7 @@ class Profile extends PureComponent {
         avatarImage: null,
         unSavedImageChange: false,
         uploadingImages: false,
-        unSavedInfoChange: false
+        unSavedInfoChange: false,
       });
     };
 
@@ -77,9 +78,9 @@ class Profile extends PureComponent {
           { text: 'Cancel', onPress: () => null },
           {
             text: 'Yes',
-            onPress: () => closeEditDialog()
-          }
-        ]
+            onPress: () => closeEditDialog(),
+          },
+        ],
       );
     } else {
       closeEditDialog();
@@ -88,44 +89,51 @@ class Profile extends PureComponent {
 
   setUnSavedInfoChange = () => {
     this.setState({
-      unSavedInfoChange: true
+      unSavedInfoChange: true,
     });
   };
 
   updateProfile = (values, languages) => {
-    Meteor.call('updateProfile', values, languages, (error, respond) => {
-      if (error) {
-        console.log(error);
-        errorDialog(error.reason);
-      } else {
-        this.setState({
-          isEditDialogOpen: false
-        });
-        successDialog('Your profile is successfully updated');
-      }
-    });
+    Meteor.call(
+      'updateProfile',
+      values,
+      languages,
+      (error, respond) => {
+        if (error) {
+          console.log(error);
+          errorDialog(error.reason);
+        } else {
+          this.setState({
+            isEditDialogOpen: false,
+          });
+          successDialog('Your profile is successfully updated');
+        }
+      },
+    );
   };
 
-  handleCoverImagePick = pickedImages => {
+  handleCoverImagePick = (pickedImages) => {
     const { coverImages } = this.state;
-    const imageSet = pickedImages.map(image => ({
+    const imageSet = pickedImages.map((image) => ({
       file: image,
       url: URL.createObjectURL(image),
-      isNewImage: true
+      isNewImage: true,
     }));
     this.setState({
       coverImages: [...coverImages, ...imageSet],
       unSavedImageChange: true,
-      coverChange: true
+      coverChange: true,
     });
   };
 
-  handleRemoveImage = imageIndex => {
+  handleRemoveImage = (imageIndex) => {
     const { coverImages } = this.state;
     this.setState({
-      coverImages: coverImages.filter((image, index) => imageIndex !== index),
+      coverImages: coverImages.filter(
+        (image, index) => imageIndex !== index,
+      ),
       unSavedImageChange: true,
-      coverChange: true
+      coverChange: true,
     });
   };
 
@@ -133,7 +141,7 @@ class Profile extends PureComponent {
     this.setState({
       avatarImage: images[0],
       unSavedImageChange: true,
-      avatarChange: true
+      avatarChange: true,
     });
   };
 
@@ -141,25 +149,25 @@ class Profile extends PureComponent {
     this.setState({
       avatarImage: null,
       unSavedImageChange: true,
-      avatarChange: true
+      avatarChange: true,
     });
   };
 
   resizeImages = () => {
     const { coverImages, progress } = this.state;
     this.setState({
-      uploadingImages: true
+      uploadingImages: true,
     });
 
     const uploadedImages = [];
 
     const uploadableCoverImages = coverImages.filter(
-      image => image.isNewImage && image.file
+      (image) => image.isNewImage && image.file,
     );
 
     let progressCounter = progress;
     uploadableCoverImages.forEach((image, index) => {
-      resizeImage(image, 500, uri => {
+      resizeImage(image, 500, (uri) => {
         const uploadableImage = dataURLtoFile(uri, image.file.name);
         uploadProfileImage(uploadableImage, (error, respond) => {
           if (error) {
@@ -169,21 +177,22 @@ class Profile extends PureComponent {
           uploadedImages.push({
             url: respond,
             name: image.file.name,
-            uploadDate: new Date()
+            uploadDate: new Date(),
           });
           progressCounter =
-            (80 * uploadedImages.length) / uploadableCoverImages.length;
+            (80 * uploadedImages.length) /
+            uploadableCoverImages.length;
           this.setState({
-            progress: progressCounter
+            progress: progressCounter,
           });
           uploadedImages.length === uploadableCoverImages.length &&
-            this.setState({ uploadedImages }, () => this.setNewImages());
+            this.setState({ uploadedImages }, () =>
+              this.setNewImages(),
+            );
         });
       });
     });
   };
-
-  resizeAvatar = () => {};
 
   onSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex === newIndex) {
@@ -193,7 +202,7 @@ class Profile extends PureComponent {
     this.setState(({ coverImages }) => ({
       coverImages: arrayMove(coverImages, oldIndex, newIndex),
       unSavedImageChange: true,
-      coverChange: true
+      coverChange: true,
     }));
   };
 
@@ -201,10 +210,12 @@ class Profile extends PureComponent {
     const { coverImages } = this.state;
 
     this.setState({
-      progress: 5
+      progress: 5,
     });
 
-    const isThereNewImage = coverImages.some(image => image.isNewImage);
+    const isThereNewImage = coverImages.some(
+      (image) => image.isNewImage,
+    );
     if (isThereNewImage) {
       this.resizeImages();
     } else {
@@ -217,7 +228,7 @@ class Profile extends PureComponent {
       uploadedImages,
       coverImages,
       avatarImage,
-      avatarChange
+      avatarChange,
     } = this.state;
 
     let newImageSet;
@@ -226,74 +237,89 @@ class Profile extends PureComponent {
       newImageSet = coverImages;
     } else {
       newImageSet = coverImages
-        .filter(image => !image.file)
+        .filter((image) => !image.file)
         .concat(uploadedImages);
     }
 
-    Meteor.call('setNewCoverImages', newImageSet, (error, respond) => {
-      if (error) {
-        console.log(error);
-        errorDialog(error.reason);
-        return;
-      }
-      if (avatarChange && avatarImage) {
-        resizeImage(avatarImage, 180, uri => {
-          const uploadableImage = dataURLtoFile(uri, avatarImage.file.name);
-          uploadProfileImage(uploadableImage, (error, respond) => {
-            if (error) {
-              console.log('error!', error);
-              errorDialog(error.reason);
-              return;
-            }
-            const avatar = {
-              name: avatarImage.file.name,
-              url: respond,
-              uploadDate: new Date()
-            };
-            Meteor.call('setNewAvatar', avatar, (error, respond) => {
+    Meteor.call(
+      'setNewCoverImages',
+      newImageSet,
+      (error, respond) => {
+        if (error) {
+          console.log(error);
+          errorDialog(error.reason);
+          return;
+        }
+        if (avatarChange && avatarImage) {
+          resizeImage(avatarImage, 180, (uri) => {
+            const uploadableImage = dataURLtoFile(
+              uri,
+              avatarImage.file.name,
+            );
+            uploadProfileImage(uploadableImage, (error, respond) => {
               if (error) {
-                console.log(error);
+                console.log('error!', error);
                 errorDialog(error.reason);
                 return;
               }
+              const avatar = {
+                name: avatarImage.file.name,
+                url: respond,
+                uploadDate: new Date(),
+              };
+              Meteor.call(
+                'setNewAvatar',
+                avatar,
+                (error, respond) => {
+                  if (error) {
+                    console.log(error);
+                    errorDialog(error.reason);
+                    return;
+                  }
+                },
+              );
             });
           });
-        });
-      } else if (avatarChange && !avatarImage) {
-        Meteor.call('setAvatarEmpty', (error, respond) => {
-          if (error) {
-            console.log(error);
-            errorDialog(error.reason);
-            return;
-          }
-        });
-      }
+        } else if (avatarChange && !avatarImage) {
+          Meteor.call('setAvatarEmpty', (error, respond) => {
+            if (error) {
+              console.log(error);
+              errorDialog(error.reason);
+              return;
+            }
+          });
+        }
 
-      this.setState({
-        progress: 100,
-        uploadingImages: false,
-        unSavedImageChange: false
-      });
+        this.setState({
+          progress: 100,
+          uploadingImages: false,
+          unSavedImageChange: false,
+        });
 
-      successDialog('Your images are successfully  saved');
-      setTimeout(() => this.setState({ progress: null }), 2000);
-    });
+        successDialog('Your images are successfully  saved');
+        setTimeout(() => this.setState({ progress: null }), 2000);
+      },
+    );
   };
 
-  setGeoLocationCoords = coords => {
+  setGeoLocationCoords = (coords) => {
     console.log(coords);
     const theCoords = {
       latitude: coords.latitude.toString(),
       longitude: coords.longitude.toString(),
-      accuracy: coords.accuracy.toString()
+      accuracy: coords.accuracy.toString(),
     };
-    Meteor.call('setGeoLocationCoords', theCoords, (error, respond) => {
-      if (error) {
-        console.log(error);
-        errorDialog(error.reason);
-        return;
-      }
-    });
+    Meteor.call(
+      'setGeoLocationCoords',
+      theCoords,
+      (error, respond) => {
+        if (error) {
+          console.log(error);
+          errorDialog(error.reason);
+          return;
+        }
+      },
+    );
   };
 
   render() {
@@ -305,7 +331,7 @@ class Profile extends PureComponent {
       unSavedImageChange,
       unSavedInfoChange,
       uploadingImages,
-      progress
+      progress,
     } = this.state;
 
     if (!currentUser) {
@@ -334,7 +360,7 @@ class Profile extends PureComponent {
             style={{ minHeight: 180 }}
           >
             {currentUser.coverImages &&
-              currentUser.coverImages.map(image => (
+              currentUser.coverImages.map((image) => (
                 <div key={image.url} style={slideStyle(image.url)} />
               ))}
           </Carousel>
@@ -343,11 +369,15 @@ class Profile extends PureComponent {
             <Flex>
               <div
                 style={avatarStyle(
-                  currentUser && currentUser.avatar && currentUser.avatar.url
+                  currentUser &&
+                    currentUser.avatar &&
+                    currentUser.avatar.url,
                 )}
               />
               <div>
-                <h4>{currentUser.firstName + ' ' + currentUser.lastName}</h4>
+                <h4>
+                  {currentUser.firstName + ' ' + currentUser.lastName}
+                </h4>
               </div>
             </Flex>
             <WingBlank>
@@ -377,10 +407,14 @@ class Profile extends PureComponent {
             setUnSavedInfoChange={this.setUnSavedInfoChange}
             onSortEnd={this.onSortEnd}
             handleCoverImagePick={this.handleCoverImagePick}
-            handleRemoveImage={index => this.handleRemoveImage(index)}
+            handleRemoveImage={(index) =>
+              this.handleRemoveImage(index)
+            }
             handleAvatarImagePick={this.handleAvatarImagePick}
             handleSaveImages={this.handleSaveImages}
-            handleTabClick={(tab, index) => this.setState({ openTab: index })}
+            handleTabClick={(tab, index) =>
+              this.setState({ openTab: index })
+            }
             setGeoLocationCoords={this.setGeoLocationCoords}
           />
         </Modal>
@@ -389,17 +423,17 @@ class Profile extends PureComponent {
   }
 }
 
-const slideStyle = backgroundImage => ({
+const slideStyle = (backgroundImage) => ({
   width: '100%',
   height: '40vh',
   minHeight: 180,
   backgroundImage: `url('${backgroundImage}')`,
   backgroundPosition: 'center',
   backgroundSize: 'cover',
-  touchAction: 'none'
+  touchAction: 'none',
 });
 
-const avatarStyle = backgroundImage => ({
+const avatarStyle = (backgroundImage) => ({
   width: 80,
   height: 80,
   margin: 12,
@@ -410,13 +444,13 @@ const avatarStyle = backgroundImage => ({
   backgroundPosition: 'center',
   backgroundSize: 'cover',
   borderRadius: '50%',
-  boxShadow: '0 0 5px'
+  boxShadow: '0 0 5px',
 });
 
-export default ProfileContainer = withTracker(props => {
+export default ProfileContainer = withTracker((props) => {
   const currentUser = Meteor.user();
 
   return {
-    currentUser
+    currentUser,
   };
 })(Profile);

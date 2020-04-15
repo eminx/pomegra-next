@@ -10,7 +10,7 @@ const InfoForm = ({
   onFirstNameChange,
   onLastNameChange,
   onBioChange,
-  onSubmitInfoForm
+  onSubmitInfoForm,
 }) => (
   <HeroSlide
     subtitle="Let's now add up some info for your profile"

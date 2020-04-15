@@ -95,7 +95,6 @@ const BookInserter = ({
               isOpen={openBook === index}
               onAddButtonClick={() => onAddButtonClick(result.volumeInfo)}
             />
-            >
           </FadeInUp>
         ))}
     </div>
