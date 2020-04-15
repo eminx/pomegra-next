@@ -16,13 +16,13 @@ const containerStyle = {
   backgroundColor: '#3E3E3E',
   padding: 12,
   width: '100vw',
-  marginBottom: 24,
+  marginBottom: 12,
   boxShadow: '0 0 12px rgba(78, 78, 78, 0.6)',
   overflowY: 'hidden',
-  transition: 'max-height .2s ease'
+  transition: 'max-height .2s ease',
 };
 
-const parseAuthors = authors => {
+const parseAuthors = (authors) => {
   if (!authors) {
     return <span>unknown authors</span>;
   }
@@ -37,7 +37,7 @@ class BookCardNext extends PureComponent {
   state = {
     hiddenHeight: 400,
     visibleHeight: 155,
-    imageLoaded: false
+    imageLoaded: false,
   };
 
   setMaxHeight = () => {
@@ -78,14 +78,22 @@ class BookCardNext extends PureComponent {
   };
 
   render() {
-    const { volumeInfo, onClickBook, isOpen, onAddButtonClick, isIntro } = this.props;
+    const {
+      volumeInfo,
+      onClickBook,
+      isOpen,
+      onAddButtonClick,
+      isIntro,
+    } = this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
     const language = allLanguages.find(
-      language => language && language.value === volumeInfo.language
+      (language) =>
+        language && language.value === volumeInfo.language,
     );
 
-    const category = volumeInfo.categories && volumeInfo.categories[0];
+    const category =
+      volumeInfo.categories && volumeInfo.categories[0];
 
     const openedHeight = visibleHeight + hiddenHeight + 30;
 
@@ -100,15 +108,15 @@ class BookCardNext extends PureComponent {
     }
 
     if (isIntro) {
-      cardContainerStyle.marginLeft = -24,
-      cardContainerStyle.marginRight = -24
+      (cardContainerStyle.marginLeft = -24),
+        (cardContainerStyle.marginRight = -24);
     }
 
     const publishText = this.getPublishText();
 
     return (
       <div style={cardContainerStyle}>
-        <div ref={element => (this.visible = element)}>
+        <div ref={(element) => (this.visible = element)}>
           <Flex
             justify="between"
             align="stretch"
@@ -135,7 +143,7 @@ class BookCardNext extends PureComponent {
                   style={{
                     paddingTop: 12,
                     paddingBottom: 12,
-                    color: '#ababab'
+                    color: '#ababab',
                   }}
                 >
                   <b>{volumeInfo.printType}</b> in {}{' '}
@@ -162,7 +170,7 @@ class BookCardNext extends PureComponent {
                 style={{
                   marginRight: 12,
                   backgroundColor: 'coral',
-                  maxHeight: 180
+                  maxHeight: 180,
                 }}
                 onLoad={() => this.setMaxHeight()}
               />
@@ -171,7 +179,7 @@ class BookCardNext extends PureComponent {
         </div>
 
         <div
-          ref={element => (this.hidden = element)}
+          ref={(element) => (this.hidden = element)}
           style={{ padding: 12, paddingTop: 24 }}
         >
           <Flex justify="center" direction="column">
@@ -182,7 +190,11 @@ class BookCardNext extends PureComponent {
             >
               Have this book?
             </Subtitle>
-            <Button isColor="light" isOutlined onClick={onAddButtonClick}>
+            <Button
+              isColor="light"
+              isOutlined
+              onClick={onAddButtonClick}
+            >
               Add to my virtual shelf
             </Button>
           </Flex>

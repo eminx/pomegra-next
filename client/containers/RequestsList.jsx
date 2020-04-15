@@ -11,6 +11,7 @@ import {
   WhiteSpace,
   WingBlank,
   Badge,
+  Result,
 } from 'antd-mobile';
 
 import { UserContext } from './Layout';
@@ -26,6 +27,7 @@ class RequestsList extends Component {
     gotoRequest: null,
     requests: [],
     isLoading: true,
+    noRequest: false,
   };
 
   componentDidMount() {
@@ -44,6 +46,14 @@ class RequestsList extends Component {
         isLoading: false,
       });
     });
+
+    const noRequest = () => {
+      if (this.state.requests.length === 0) {
+        this.setState({ noRequest: true });
+      }
+    };
+
+    setTimeout(noRequest, 3000);
   };
 
   handleFilter = (value) => {
@@ -91,10 +101,25 @@ class RequestsList extends Component {
 
   render() {
     const { requests, currentUser } = this.context;
-    const { filterValue, requestType, gotoRequest } = this.state;
+    const {
+      filterValue,
+      requestType,
+      gotoRequest,
+      noRequest,
+    } = this.state;
 
     if (gotoRequest) {
       return <Redirect to={`/request/${gotoRequest}`} />;
+    }
+
+    if (noRequest) {
+      return (
+        <Result
+          // img={myImg(request.book_image_url)}
+          title="No Interactions just yet"
+          message="Please feel free to go to the discover section and request a book from someone. People are all nice here"
+        />
+      );
     }
 
     if (!requests || !currentUser) {

@@ -1,7 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component, Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
-import { NavBar, Icon, WingBlank, WhiteSpace } from 'antd-mobile';
+import {
+  ActivityIndicator,
+  NavBar,
+  Icon,
+  WingBlank,
+  WhiteSpace,
+} from 'antd-mobile';
 
 import { BookCard } from '../reusables/BookCard';
 import { errorDialog, successDialog } from '../functions';
@@ -48,7 +54,7 @@ class BookDetailTobeRequested extends Component {
   };
 
   render() {
-    const { requestSuccess, backToDiscover } = this.state;
+    const { book, requestSuccess, backToDiscover } = this.state;
 
     if (requestSuccess) {
       return <Redirect to={`/request/${requestSuccess}`} />;
@@ -58,10 +64,10 @@ class BookDetailTobeRequested extends Component {
       return <Redirect to="/discover" />;
     }
 
-    const { book } = this.props;
-
     if (!book) {
-      return null;
+      return (
+        <ActivityIndicator toast text="Loading book details..." />
+      );
     }
 
     return (

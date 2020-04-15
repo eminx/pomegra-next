@@ -69,7 +69,7 @@ Meteor.methods({
     const currentUserId = Meteor.userId();
 
     try {
-      return Books.find({
+      return Books.findOne({
         _id: bookId,
         added_by: currentUserId,
       });
@@ -80,7 +80,7 @@ Meteor.methods({
 
   getABook: (bookId) => {
     try {
-      return Books.find({
+      return Books.findOne({
         _id: bookId,
       });
     } catch (error) {

@@ -176,7 +176,6 @@ class AddBook extends Component {
                   onAddButtonClick={() =>
                     this.insertBook(result.volumeInfo)
                   }
-                  // style={{marginRight: 0, marginLeft: 0}}
                 />
               </FadeInUp>
             ))}
