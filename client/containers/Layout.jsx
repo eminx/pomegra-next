@@ -1,21 +1,23 @@
 import React, { Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 
+export const UserContext = React.createContext(null);
+
 import AppTabBar from '../reusables/AppTabBar';
 import { notificationsCounter } from '../functions';
-import { WhiteSpace, ActivityIndicator } from 'antd-mobile';
+import { ActivityIndicator } from 'antd-mobile';
 
 const routesWithTabBar = [
   '/',
   '/discover',
   '/my-shelf',
   '/messages',
-  '/profile'
+  '/profile',
 ];
 
 class Layout extends React.Component {
   state = {
-    isLoading: true
+    isLoading: true,
   };
 
   componentDidMount() {
@@ -32,7 +34,7 @@ class Layout extends React.Component {
     const { currentUser } = this.props;
     if (!prevProps.currentUser && currentUser) {
       this.setState({
-        isLoading: false
+        isLoading: false,
       });
       return;
     }
@@ -44,7 +46,7 @@ class Layout extends React.Component {
       return false;
     }
     const pathname = location.pathname;
-    return routesWithTabBar.some(route => route === pathname);
+    return routesWithTabBar.some((route) => route === pathname);
   };
 
   getMessageNotificationCount = () => {
@@ -56,9 +58,10 @@ class Layout extends React.Component {
     return notificationsCounter(currentUser.notifications).toString();
   };
 
-  changeRoute = route => {
+  changeRoute = (route) => {
     const { history } = this.props;
-    const pathname = history && history.location && history.location.pathname;
+    const pathname =
+      history && history.location && history.location.pathname;
     if (pathname === route) {
       return;
     }
@@ -66,10 +69,16 @@ class Layout extends React.Component {
   };
 
   render() {
-    const { currentUser, children, history } = this.props;
+    const {
+      currentUser,
+      userLoading,
+      history,
+      children,
+    } = this.props;
     const { isLoading } = this.state;
 
-    const pathname = history && history.location && history.location.pathname;
+    const pathname =
+      history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
 
     if (isLoading) {
@@ -77,30 +86,32 @@ class Layout extends React.Component {
     }
 
     return (
-      <div>
-        {children}
+      <UserContext.Provider value={{ currentUser, userLoading }}>
+        <div>
+          {children}
 
-        {shouldRenderTabBar && (
-          <Fragment>
-            <AppTabBar
-              pathname={pathname}
-              changeRoute={this.changeRoute}
-              messageNotificationCount={this.getMessageNotificationCount()}
-            />
-          </Fragment>
-        )}
-      </div>
+          {shouldRenderTabBar && (
+            <Fragment>
+              <AppTabBar
+                pathname={pathname}
+                changeRoute={this.changeRoute}
+                messageNotificationCount={this.getMessageNotificationCount()}
+              />
+            </Fragment>
+          )}
+        </div>
+      </UserContext.Provider>
     );
   }
 }
 
-export default LayoutContainer = withTracker(props => {
+export default LayoutContainer = withTracker((props) => {
   const currentUserSub = Meteor.subscribe('me');
   const currentUser = Meteor.user();
-  const isLoading = !currentUserSub.ready();
+  const userLoading = !currentUserSub.ready();
 
   return {
     currentUser,
-    isLoading
+    userLoading,
   };
 })(Layout);

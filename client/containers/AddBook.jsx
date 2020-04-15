@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
@@ -9,13 +8,13 @@ import {
   NavBar,
   SearchBar,
   List,
-  Modal
 } from 'antd-mobile';
 import { FadeInUp } from 'animate-components';
 
+import { UserContext } from './Layout';
 import BookDetailTobeAdded from './BookDetailTobeAdded';
-import { successDialog, errorDialog, parseUrlForSSL } from '../functions';
-import BookCardNext from '../reusables/BookCardNext'
+import { successDialog, errorDialog } from '../functions';
+import BookCardNext from '../reusables/BookCardNext';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
@@ -28,7 +27,7 @@ class AddBook extends Component {
     searchbarInput: '',
     searchbarFocused: false,
     openBook: null,
-    backToShelf: false
+    backToShelf: false,
   };
 
   componentDidMount() {
@@ -41,22 +40,22 @@ class AddBook extends Component {
 
   searchbarSearch = () => {
     this.setState({
-      isLoading: true
+      isLoading: true,
     });
     const keyword = this.state.searchbarInput;
     fetch(googleApi + keyword)
-      .then(results => {
+      .then((results) => {
         return results.json();
       })
-      .then(parsedResults => {
+      .then((parsedResults) => {
         this.setState({
           isLoading: false,
-          searchResults: parsedResults.items
+          searchResults: parsedResults.items,
         });
       });
   };
 
-  handleToggleBook = index => {
+  handleToggleBook = (index) => {
     this.setState(({ openBook }) => {
       if (openBook === index) {
         return { openBook: null };
@@ -66,7 +65,7 @@ class AddBook extends Component {
     });
   };
 
-  insertBook = book => {
+  insertBook = (book) => {
     // if (this.alreadyOwnsBook(book)) {
     //   errorDialog('You already own this book');
     //   return;
@@ -79,35 +78,37 @@ class AddBook extends Component {
       } else if (respond && respond.error) {
         errorDialog(respond.error);
       }
-      
-      successDialog('Book is successfully added to your virtual shelf');
+
+      successDialog(
+        'Book is successfully added to your virtual shelf',
+      );
       this.setState({
         openBook: null,
-      })
+      });
     });
   };
 
-  alreadyOwnsBook = book => {
+  alreadyOwnsBook = (book) => {
     const { currentUser } = this.props;
     return Books.findOne({
       b_title: book.b_title,
-      added_by: currentUser._id
+      added_by: currentUser._id,
     });
   };
 
   closeModal = () => {
     this.setState(
       {
-        openBook: null
+        openBook: null,
       },
       () => {
         this.autoFocusSearchBar();
-      }
+      },
     );
   };
 
   render() {
-    const { currentUser } = this.props;
+    const { currentUser, userLoading } = this.context;
     const { backToShelf } = this.state;
 
     if (backToShelf) {
@@ -122,7 +123,7 @@ class AddBook extends Component {
       searchResults,
       searchbarInput,
       isLoading,
-      openBook
+      openBook,
     } = this.state;
     return (
       <div>
@@ -131,7 +132,7 @@ class AddBook extends Component {
           leftContent={<Icon type="left" />}
           onLeftClick={() =>
             this.setState({
-              backToShelf: true
+              backToShelf: true,
             })
           }
         >
@@ -140,10 +141,12 @@ class AddBook extends Component {
         <SearchBar
           placeholder="title, author, ISBN etc"
           value={searchbarInput}
-          onChange={value => this.setState({ searchbarInput: value })}
+          onChange={(value) =>
+            this.setState({ searchbarInput: value })
+          }
           onSubmit={() => this.searchbarSearch()}
           cancelText="Cancel"
-          ref={ref => (this.searchBar = ref)}
+          ref={(ref) => (this.searchBar = ref)}
         />
 
         {isLoading && (
@@ -151,7 +154,7 @@ class AddBook extends Component {
             style={{
               display: 'flex',
               justifyContent: 'center',
-              marginTop: 50
+              marginTop: 50,
             }}
           >
             <ActivityIndicator text="Loading..." />
@@ -161,15 +164,21 @@ class AddBook extends Component {
         <div style={{ paddingTop: 24 }}>
           {searchResults &&
             searchResults.map((result, index) => (
-              <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
+              <FadeInUp
+                key={result.id}
+                duration=".5s"
+                timingFunction="ease"
+              >
                 <BookCardNext
                   volumeInfo={result.volumeInfo}
                   onClickBook={() => this.handleToggleBook(index)}
                   isOpen={openBook === index}
-                  onAddButtonClick={() => this.insertBook(result.volumeInfo)}
+                  onAddButtonClick={() =>
+                    this.insertBook(result.volumeInfo)
+                  }
                   // style={{marginRight: 0, marginLeft: 0}}
                 />
-            </FadeInUp>
+              </FadeInUp>
             ))}
         </div>
       </div>
@@ -177,10 +186,6 @@ class AddBook extends Component {
   }
 }
 
-export default AddBookContainer = withTracker(props => {
-  const meSub = Meteor.subscribe('me');
-  const currentUser = Meteor.user();
-  return {
-    currentUser
-  };
-})(AddBook);
+AddBook.contextType = UserContext;
+
+export default AddBook;

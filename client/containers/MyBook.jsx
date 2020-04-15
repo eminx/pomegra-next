@@ -1,32 +1,50 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { Fragment, PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
-import { WhiteSpace, WingBlank, Modal, NavBar, Icon } from 'antd-mobile';
+import {
+  WhiteSpace,
+  WingBlank,
+  Modal,
+  NavBar,
+  Icon,
+} from 'antd-mobile';
 
 import { BookCard } from '../reusables/BookCard';
 import EditBook from '../reusables/EditBook';
 import { errorDialog, successDialog } from '../functions';
+import { UserContext } from './Layout';
 
 class MyBook extends PureComponent {
   state = {
     isEditDialogOpen: false,
-    backToBooks: false
+    backToBooks: false,
+    isLoading: true,
+    book: null,
   };
+
+  componentWillMount() {
+    const bookId = this.props.match.params.id;
+    Meteor.call('getMyBook', bookId, (error, respond) => {
+      this.setState({
+        book: respond,
+        isLoading: false,
+      });
+    });
+  }
 
   openEditDialog = () => {
     this.setState({
-      isEditDialogOpen: true
+      isEditDialogOpen: true,
     });
   };
 
   closeEditDialog = () => {
     this.setState({
-      isEditDialogOpen: false
+      isEditDialogOpen: false,
     });
   };
 
-  updateBook = values => {
+  updateBook = (values) => {
     const { book } = this.props;
 
     if (values.language) {
@@ -46,8 +64,8 @@ class MyBook extends PureComponent {
   };
 
   render() {
-    const { currentUser, book } = this.props;
-    const { isEditDialogOpen, backToBooks } = this.state;
+    const { currentUser, userLoading } = this.context;
+    const { book, isEditDialogOpen, backToBooks } = this.state;
 
     if (backToBooks) {
       return <Redirect to="/my-shelf" />;
@@ -92,16 +110,6 @@ class MyBook extends PureComponent {
   }
 }
 
-export default MyBookContainer = withTracker(props => {
-  const currentUser = Meteor.user();
-  const bookId = props.match.params.id;
-  const bookSub = Meteor.subscribe('singleBook', bookId);
-  const book = currentUser && Books.findOne(bookId);
-  const isLoading = !bookSub.ready();
+MyBook.contextType = UserContext;
 
-  return {
-    currentUser,
-    book,
-    isLoading
-  };
-})(MyBook);
+export default MyBook;

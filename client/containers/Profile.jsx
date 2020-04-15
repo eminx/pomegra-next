@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { Fragment, PureComponent } from 'react';
 import {
   ActivityIndicator,
@@ -23,6 +22,7 @@ import {
 } from '../functions';
 
 import { uploadProfileImage } from './HeroHelpers/';
+import { UserContext } from './Layout';
 
 class Profile extends PureComponent {
   state = {
@@ -39,7 +39,7 @@ class Profile extends PureComponent {
   };
 
   openEditDialog = () => {
-    const { currentUser } = this.props;
+    const { currentUser } = this.context;
 
     this.setState({
       isEditDialogOpen: true,
@@ -323,7 +323,7 @@ class Profile extends PureComponent {
   };
 
   render() {
-    const { currentUser } = this.props;
+    const { currentUser } = this.context;
     const {
       isEditDialogOpen,
       coverImages,
@@ -447,10 +447,6 @@ const avatarStyle = (backgroundImage) => ({
   boxShadow: '0 0 5px',
 });
 
-export default ProfileContainer = withTracker((props) => {
-  const currentUser = Meteor.user();
+Profile.contextType = UserContext;
 
-  return {
-    currentUser,
-  };
-})(Profile);
+export default Profile;

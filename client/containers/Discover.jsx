@@ -1,28 +1,39 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
 import { NavBar, List, ActivityIndicator } from 'antd-mobile';
+import { UserContext } from './Layout';
 
 const ListItem = List.Item;
 const Brief = ListItem.Brief;
 
-class Find extends Component {
+class Discover extends Component {
   state = {
-    redirectToBookDetail: null
+    redirectToBookDetail: null,
+    books: [],
+    isLoading: true,
   };
 
-  viewBookInDetail = suggestedBookId => {
+  componentDidMount() {
+    Meteor.call('getDiscoverBooks', (error, respond) => {
+      this.setState({
+        books: respond,
+        isLoading: false,
+      });
+    });
+  }
+
+  viewBookInDetail = (suggestedBookId) => {
     this.setState({
-      redirectToBookDetail: suggestedBookId
+      redirectToBookDetail: suggestedBookId,
     });
   };
 
   render() {
-    const { currentUser, othersBooks } = this.props;
-    const { redirectToBookDetail } = this.state;
+    const { currentUser } = this.context;
+    const { books, redirectToBookDetail } = this.state;
 
-    if (!currentUser || !othersBooks) {
+    if (books.length === 0) {
       return <ActivityIndicator toast text="Loading..." />;
     }
 
@@ -34,9 +45,9 @@ class Find extends Component {
       <div name="books">
         <NavBar mode="light">Books</NavBar>
         <List renderHeader={() => 'Suggested books for you'}>
-          {othersBooks &&
-            othersBooks.length > 0 &&
-            othersBooks.map(suggestedBook => (
+          {books &&
+            books.length > 0 &&
+            books.map((suggestedBook) => (
               <ListItem
                 key={suggestedBook._id}
                 align="top"
@@ -48,7 +59,9 @@ class Find extends Component {
                 }
                 multipleLine
                 extra={suggestedBook.b_cat}
-                onClick={() => this.viewBookInDetail(suggestedBook._id)}
+                onClick={() =>
+                  this.viewBookInDetail(suggestedBook._id)
+                }
               >
                 <b>{suggestedBook.b_title}</b>
                 <Brief>{suggestedBook.b_author}</Brief>
@@ -60,13 +73,6 @@ class Find extends Component {
   }
 }
 
-export default FindContainer = withTracker(props => {
-  const currentUser = Meteor.user();
-  Meteor.subscribe('othersBooks');
-  const othersBooks = currentUser && Books.find().fetch();
+Discover.contextType = UserContext;
 
-  return {
-    currentUser,
-    othersBooks
-  };
-})(Find);
+export default Discover;

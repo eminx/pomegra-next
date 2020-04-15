@@ -1,30 +1,17 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
 import { Redirect } from 'react-router-dom';
-import {
-  Carousel,
-  ActivityIndicator,
-  List,
-  Flex,
-  // Button,
-  InputItem,
-  NavBar,
-  Modal,
-  Toast,
-  WingBlank,
-  WhiteSpace,
-  Result
-} from 'antd-mobile';
-
+import { ActivityIndicator, WhiteSpace, Result } from 'antd-mobile';
 import { GiBookshelf } from 'react-icons/gi';
 import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
+
+import { UserContext } from './Layout';
 
 import { errorDialog, successDialog } from '../functions';
 
 const iconSize = 72;
 
-class AccountManager extends Component {
+class Home extends Component {
   state = {
     loginScreenOpen: false,
     username: '',
@@ -32,10 +19,10 @@ class AccountManager extends Component {
     password: '',
     isLoading: false,
     redirectTo: null,
-    splashOver: false
+    splashOver: false,
   };
 
-  createAccount = values => {
+  createAccount = (values) => {
     this.setState({ isLoading: true });
 
     Meteor.call('registerUser', values, (error, respond) => {
@@ -50,26 +37,30 @@ class AccountManager extends Component {
       this.signIn(values);
       this.setState({
         isLoading: false,
-        loginScreenOpen: false
+        loginScreenOpen: false,
       });
     });
   };
 
-  signIn = values => {
+  signIn = (values) => {
     if (values) {
-      Meteor.loginWithPassword(values.username, values.password, error => {
-        if (error) {
-          errorDialog(error);
-          console.log(error);
-        }
-      });
+      Meteor.loginWithPassword(
+        values.username,
+        values.password,
+        (error) => {
+          if (error) {
+            errorDialog(error);
+            console.log(error);
+          }
+        },
+      );
     } else {
       const { username, password } = this.state;
       if (!username || !password) {
         return;
       }
 
-      Meteor.loginWithPassword(username, password, error => {
+      Meteor.loginWithPassword(username, password, (error) => {
         if (error) {
           errorDialog(error);
           console.log(error);
@@ -86,31 +77,31 @@ class AccountManager extends Component {
 
   openLoginScreen = () => {
     this.setState({
-      loginScreenOpen: true
+      loginScreenOpen: true,
     });
   };
 
   closeScreen = () => {
     this.setState({
-      loginScreenOpen: false
+      loginScreenOpen: false,
     });
   };
 
-  redirectTo = route => {
+  redirectTo = (route) => {
     this.setState({
-      redirectTo: route
+      redirectTo: route,
     });
   };
 
   handleSplashFinish = () => {
     this.setState({
-      splashOver: true
+      splashOver: true,
     });
   };
 
   render() {
-    const { currentUser } = this.props;
-    const { loginScreenOpen, redirectTo, splashOver, isLoading } = this.state;
+    const { currentUser, userLoading } = this.context;
+    const { redirectTo, isLoading } = this.state;
 
     if (redirectTo) {
       return <Redirect to={redirectTo} />;
@@ -118,7 +109,11 @@ class AccountManager extends Component {
 
     return (
       <div>
-        <ActivityIndicator toast animating={isLoading} text="Loading..." />
+        <ActivityIndicator
+          toast
+          animating={isLoading}
+          text="Loading..."
+        />
 
         {/* {!currentUser && (
           <div>
@@ -171,13 +166,6 @@ class AccountManager extends Component {
   }
 }
 
-export default AccountManagerContainer = withTracker(props => {
-  const currentUserSub = Meteor.subscribe('me');
-  const currentUser = Meteor.user();
-  const isLoading = !currentUserSub.ready();
+Home.contextType = UserContext;
 
-  return {
-    currentUser,
-    isLoading
-  };
-})(AccountManager);
+export default Home;

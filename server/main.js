@@ -5,7 +5,7 @@ const s3Settings = Meteor.settings.AWSs3;
 
 Slingshot.fileRestrictions('profileImageUpload', {
   allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
-  maxSize: 5 * 3024 * 3024
+  maxSize: 5 * 3024 * 3024,
 });
 
 Slingshot.createDirective('profileImageUpload', Slingshot.S3Storage, {
@@ -15,7 +15,7 @@ Slingshot.createDirective('profileImageUpload', Slingshot.S3Storage, {
   acl: 'public-read',
   region: s3Settings.AWSRegion,
 
-  authorize: function() {
+  authorize: function () {
     if (!this.userId) {
       var message = 'Please login before posting images';
       throw new Meteor.Error('Login Required', message);
@@ -23,18 +23,18 @@ Slingshot.createDirective('profileImageUpload', Slingshot.S3Storage, {
     return true;
   },
 
-  key: function(file) {
+  key: function (file) {
     var currentUser = Meteor.user();
     return currentUser.username + '/' + file.name;
-  }
+  },
 });
 
 Meteor.methods({
-  registerUser: user => {
+  registerUser: (user) => {
     Accounts.createUser({
       email: user.email,
       username: user.username,
-      password: user.password
+      password: user.password,
     });
   },
 
@@ -47,15 +47,67 @@ Meteor.methods({
           firstName: values.firstName,
           lastName: values.lastName,
           bio: values.bio,
-          languages: languages
-        }
+          languages: languages,
+        },
       });
     } catch (error) {
       return error;
     }
   },
 
-  insertBook: theBook => {
+  getMyBooks: () => {
+    const currentUserId = Meteor.userId();
+
+    try {
+      return Books.find({ added_by: currentUserId }).fetch();
+    } catch (error) {
+      return error;
+    }
+  },
+
+  getMyBook: (bookId) => {
+    const currentUserId = Meteor.userId();
+
+    try {
+      return Books.find({
+        _id: bookId,
+        added_by: currentUserId,
+      });
+    } catch (error) {
+      return error;
+    }
+  },
+
+  getABook: (bookId) => {
+    try {
+      return Books.find({
+        _id: bookId,
+      });
+    } catch (error) {
+      return error;
+    }
+  },
+
+  getDiscoverBooks: () => {
+    const currentUserId = Meteor.userId();
+
+    try {
+      if (currentUserId) {
+        return Books.find(
+          {
+            added_by: { $ne: currentUserId },
+          },
+          { limit: 50 },
+        ).fetch();
+      } else {
+        return Books.find({}, { limit: 50 }).fetch();
+      }
+    } catch (error) {
+      return error;
+    }
+  },
+
+  insertBook: (theBook) => {
     const user = Meteor.user();
     if (!user) {
       return false;
@@ -71,7 +123,8 @@ Meteor.methods({
     //   throw new Meteor.Error('You have already added a book with same title');
     // }
 
-    let image_url = theBook.imageLinks && theBook.imageLinks.thumbnail;
+    let image_url =
+      theBook.imageLinks && theBook.imageLinks.thumbnail;
 
     if (image_url && image_url.substring(0, 5) === 'http:') {
       image_url = image_url.slice(0, 4) + 's' + image_url.slice(4);
@@ -84,21 +137,23 @@ Meteor.methods({
       b_title: theBook.title,
       b_title_lowercase: theBook.title.toLowerCase(),
       b_author: theBook.authors && theBook.authors[0],
-      b_author_lowercase: theBook.authors && theBook.authors[0].toLowerCase(),
+      b_author_lowercase:
+        theBook.authors && theBook.authors[0].toLowerCase(),
       b_lang: theBook.language || '',
       image_url: image_url,
       b_cat: (theBook.categories && theBook.categories[0]) || '',
-      b_ISBN: theBook.industryIdentifiers && theBook.industryIdentifiers[0],
+      b_ISBN:
+        theBook.industryIdentifiers && theBook.industryIdentifiers[0],
       selfLinkGoogle: theBook.selfLink,
       added_by: currentUserId,
       owner_name: user.username,
       // owner_profile_image_url: user.profile.image_url,
       x_times: 0,
       is_available: true,
-      ...theBook
+      ...theBook,
     };
 
-    const bookId = Books.insert(myBook, function(error, result) {
+    const bookId = Books.insert(myBook, function (error, result) {
       if (error) {
         console.log(error, 'error!');
       } else {
@@ -124,16 +179,16 @@ Meteor.methods({
             b_author: values.author,
             b_lang: values.b_lang,
             'b_ISBN.identifier': values.isbn,
-            b_description: values.description
-          }
-        }
+            b_description: values.description,
+          },
+        },
       );
     } catch (error) {
       return error;
     }
   },
 
-  removeBook: bookId => {
+  removeBook: (bookId) => {
     if (!Meteor.userId()) {
       return;
     }
@@ -149,7 +204,38 @@ Meteor.methods({
     }
   },
 
-  makeRequest: bookId => {
+  getRequests: () => {
+    const currentUserId = Meteor.userId();
+    if (!currentUserId) {
+      return false;
+    }
+
+    try {
+      return Requests.find({
+        $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
+      }).fetch();
+    } catch (error) {
+      return error;
+    }
+  },
+
+  getSingleRequest: (requestId) => {
+    const currentUserId = Meteor.userId();
+    if (!currentUserId) {
+      return false;
+    }
+
+    try {
+      return Requests.findOne({
+        _id: reqId,
+        $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
+      });
+    } catch (error) {
+      return error;
+    }
+  },
+
+  makeRequest: (bookId) => {
     const currentUserId = Meteor.userId();
     if (!currentUserId) {
       return false;
@@ -160,8 +246,12 @@ Meteor.methods({
       const currentUser = Meteor.user();
       const owner = Meteor.users.findOne(theBook.added_by);
 
-      if (Requests.findOne({ req_b_id: bookId, req_by: currentUserId })) {
-        throw new Meteor.Error('You have already requested this item');
+      if (
+        Requests.findOne({ req_b_id: bookId, req_by: currentUserId })
+      ) {
+        throw new Meteor.Error(
+          'You have already requested this item',
+        );
       }
 
       const reqId = Requests.insert({
@@ -173,10 +263,12 @@ Meteor.methods({
         owner_name: theBook.owner_name,
         requester_name: currentUser.username,
         book_image_url: theBook.image_url || '',
-        owner_profile_image: (owner.profile && owner.profile.image_url) || '',
+        owner_profile_image:
+          (owner.profile && owner.profile.image_url) || '',
         requester_profile_image:
-          (currentUser.profile && currentUser.profile.image_url) || '',
-        date_requested: new Date()
+          (currentUser.profile && currentUser.profile.image_url) ||
+          '',
+        date_requested: new Date(),
       });
 
       Messages.insert({
@@ -184,14 +276,14 @@ Meteor.methods({
         borrower_id: currentUserId,
         lender_id: theBook.added_by,
         is_seen_by_other: false,
-        messages: new Array()
+        messages: new Array(),
       });
 
       Books.update(bookId, {
         $set: {
           on_request: true,
-          is_available: false
-        }
+          is_available: false,
+        },
       });
 
       return reqId;
@@ -209,7 +301,7 @@ Meteor.methods({
     }
   },
 
-  acceptRequest: reqId => {
+  acceptRequest: (reqId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
@@ -227,9 +319,9 @@ Meteor.methods({
         {
           $set: {
             is_confirmed: new Date(),
-            is_replied_and_not_seen: true
-          }
-        }
+            is_replied_and_not_seen: true,
+          },
+        },
       );
 
       Books.update(
@@ -237,9 +329,9 @@ Meteor.methods({
         {
           $set: {
             on_request: false,
-            on_acceptance: true
-          }
-        }
+            on_acceptance: true,
+          },
+        },
       );
       return;
     } catch (error) {
@@ -251,7 +343,7 @@ Meteor.methods({
     Meteor.call('sendEmail', borrowerId, subjectEmail, textEmail);
   },
 
-  denyRequest: reqId => {
+  denyRequest: (reqId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
@@ -267,9 +359,9 @@ Meteor.methods({
       { _id: reqId },
       {
         $set: {
-          is_denied: new Date()
-        }
-      }
+          is_denied: new Date(),
+        },
+      },
     );
 
     Books.update(
@@ -277,13 +369,13 @@ Meteor.methods({
       {
         $set: {
           on_request: false,
-          is_available: true
-        }
-      }
+          is_available: true,
+        },
+      },
     );
   },
 
-  isHanded: reqId => {
+  isHanded: (reqId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
@@ -299,9 +391,9 @@ Meteor.methods({
       { _id: reqId },
       {
         $set: {
-          is_handed: new Date()
-        }
-      }
+          is_handed: new Date(),
+        },
+      },
     );
 
     Books.update(
@@ -309,13 +401,13 @@ Meteor.methods({
       {
         $set: {
           on_acceptance: false,
-          on_lend: true
-        }
-      }
+          on_lend: true,
+        },
+      },
     );
   },
 
-  isReturned: reqId => {
+  isReturned: (reqId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
@@ -331,9 +423,9 @@ Meteor.methods({
       { _id: reqId },
       {
         $set: {
-          is_returned: new Date()
-        }
-      }
+          is_returned: new Date(),
+        },
+      },
     );
 
     Books.update(
@@ -342,16 +434,16 @@ Meteor.methods({
         $set: {
           on_lend: false,
           returned: true,
-          is_available: true
+          is_available: true,
         },
         $inc: {
-          x_times: 1
-        }
-      }
+          x_times: 1,
+        },
+      },
     );
   },
 
-  abortRequest: reqId => {
+  abortRequest: (reqId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
@@ -368,18 +460,18 @@ Meteor.methods({
       {
         $set: {
           is_archived: true,
-          is_aborted: true
-        }
-      }
+          is_aborted: true,
+        },
+      },
     );
 
     Books.update(
       { _id: request.req_b_id },
       {
         $set: {
-          is_available: true
-        }
-      }
+          is_available: true,
+        },
+      },
     );
   },
 
@@ -390,7 +482,7 @@ Meteor.methods({
       return false;
     }
     const theMessage = Messages.findOne({
-      req_id: requestId
+      req_id: requestId,
     });
     if (
       currentUserId !== theMessage.lender_id &&
@@ -408,18 +500,23 @@ Meteor.methods({
               text: message,
               from: currentUserId,
               date: new Date(),
-              senderName: currentUser.username
-            }
+              senderName: currentUser.username,
+            },
           },
           $set: {
             is_seen_by_other: false,
-            last_msg_by: currentUserId
-          }
-        }
+            last_msg_by: currentUserId,
+          },
+        },
       );
 
       const unSeenIndex = Message.messages.length;
-      Meteor.call('createNotification', 'request', requestId, unSeenIndex);
+      Meteor.call(
+        'createNotification',
+        'request',
+        requestId,
+        unSeenIndex,
+      );
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);
@@ -465,7 +562,7 @@ Meteor.methods({
       const contextIdIndex =
         theOther.notifications &&
         theOther.notifications.findIndex(
-          notification => notification.contextId === contextId
+          (notification) => notification.contextId === contextId,
         );
 
       if (contextIdIndex !== -1) {
@@ -477,8 +574,8 @@ Meteor.methods({
         notifications[contextIdIndex].unSeenIndexes.push(unSeenIndex);
         Meteor.users.update(theOther._id, {
           $set: {
-            notifications: notifications
-          }
+            notifications: notifications,
+          },
         });
       } else {
         Meteor.users.update(theOther._id, {
@@ -488,9 +585,9 @@ Meteor.methods({
               count: 1,
               context: contextName,
               contextId: contextId,
-              unSeenIndexes: [unSeenIndex]
-            }
-          }
+              unSeenIndexes: [unSeenIndex],
+            },
+          },
         });
       }
     } catch (error) {
@@ -512,7 +609,7 @@ Meteor.methods({
       }
 
       const notificationIndex = notifications.findIndex(
-        notification => notification.contextId === contextId
+        (notification) => notification.contextId === contextId,
       );
 
       if (notificationIndex < 0) {
@@ -526,19 +623,19 @@ Meteor.methods({
 
       if (onlyOneCount) {
         notifications.filter(
-          notification => notification.contextId !== contextId
+          (notification) => notification.contextId !== contextId,
         );
       } else {
         notifications[notificationIndex].count -= 1;
         notifications[notificationIndex].unSeenIndexes.filter(
-          unSeenIndex => unSeenIndex !== messageIndex
+          (unSeenIndex) => unSeenIndex !== messageIndex,
         );
       }
 
       Meteor.users.update(currentUser._id, {
         $set: {
-          notifications: notifications
-        }
+          notifications: notifications,
+        },
       });
     } catch (error) {
       console.log('error', error);
@@ -555,8 +652,8 @@ Meteor.methods({
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          coverImages: newImageSet
-        }
+          coverImages: newImageSet,
+        },
       });
     } catch (error) {
       console.log('error', error);
@@ -574,8 +671,8 @@ Meteor.methods({
       Meteor.users.update(currentUser._id, {
         $set: {
           avatar: newAvatar,
-          previousAvatar: currentUser.avatar
-        }
+          previousAvatar: currentUser.avatar,
+        },
       });
     } catch (error) {
       console.log('error', error);
@@ -593,8 +690,8 @@ Meteor.methods({
       Meteor.users.update(currentUser._id, {
         $set: {
           avatar: null,
-          previousAvatar: currentUser.avatar
-        }
+          previousAvatar: currentUser.avatar,
+        },
       });
     } catch (error) {
       console.log('error', error);
@@ -611,8 +708,8 @@ Meteor.methods({
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          geoLocationCoords: coords
-        }
+          geoLocationCoords: coords,
+        },
       });
     } catch (error) {
       console.log('error', error);
@@ -629,20 +726,20 @@ Meteor.methods({
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          isIntroDone: true
-        }
+          isIntroDone: true,
+        },
       });
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);
     }
-  }
+  },
 });
 
 // PUBLICATIONS
 
 // USER
-Meteor.publish('me', function() {
+Meteor.publish('me', function () {
   const userId = this.userId;
   if (userId) {
     return Meteor.users.find(userId);
@@ -650,58 +747,61 @@ Meteor.publish('me', function() {
 });
 
 // BOOKS
-Meteor.publish('myBooks', function() {
+Meteor.publish('myBooks', function () {
   const currentUserId = this.userId;
   return Books.find({
-    added_by: currentUserId
+    added_by: currentUserId,
   });
 });
 
-Meteor.publish('othersBooks', function() {
+Meteor.publish('othersBooks', function () {
   const currentUserId = this.userId;
   if (currentUserId) {
     return Books.find(
       {
-        added_by: { $ne: currentUserId }
+        added_by: { $ne: currentUserId },
       },
-      { limit: 20 }
+      { limit: 20 },
     );
   } else {
     return Books.find({}, { limit: 20 });
   }
 });
 
-Meteor.publish('singleBook', function(bookId) {
+Meteor.publish('singleBook', function (bookId) {
   return Books.find({
-    _id: bookId
+    _id: bookId,
   });
 });
 
 // REQUESTS
-Meteor.publish('myRequests', function() {
+Meteor.publish('myRequests', function () {
   var currentUserId = this.userId;
   return Requests.find({
-    $or: [{ req_by: currentUserId }, { req_from: currentUserId }]
+    $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
   });
 });
 
-Meteor.publish('singleRequest', function(reqId) {
+Meteor.publish('singleRequest', function (reqId) {
   var currentUserId = this.userId;
   return Requests.find({
     _id: reqId,
-    $or: [{ req_by: currentUserId }, { req_from: currentUserId }]
+    $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
   });
 });
 
-Meteor.publish('myMessages', function(reqId) {
+Meteor.publish('myMessages', function (reqId) {
   var currentUserId = this.userId;
   return Messages.find({
     req_id: reqId,
-    $or: [{ borrower_id: currentUserId }, { lender_id: currentUserId }]
+    $or: [
+      { borrower_id: currentUserId },
+      { lender_id: currentUserId },
+    ],
   });
 });
 
-Meteor.startup(function() {
+Meteor.startup(function () {
   console.log('Meteor successfully started');
 });
 

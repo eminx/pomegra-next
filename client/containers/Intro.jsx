@@ -1,6 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PureComponent, Fragment } from 'react';
-import { withTracker } from 'meteor/react-meteor-data';
+import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Field, Control, Button } from 'bloomer';
 import { ImagePicker, ActivityIndicator, Flex } from 'antd-mobile';
@@ -35,6 +34,7 @@ import {
   googleApi,
 } from './HeroHelpers/';
 import NiceShelf from '../reusables/NiceShelf';
+import { UserContext } from './Layout';
 
 class Intro extends PureComponent {
   state = {
@@ -65,7 +65,7 @@ class Intro extends PureComponent {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { currentUser } = this.props;
+    const { currentUser } = this.context;
 
     if (!prevProps.currentUser && currentUser) {
       this.fillInfoForm();
@@ -73,7 +73,7 @@ class Intro extends PureComponent {
   }
 
   fillInfoForm = () => {
-    const { currentUser } = this.props;
+    const { currentUser } = this.context;
     const { carouselIndex } = this.state;
     if (!currentUser) {
       return;
@@ -405,7 +405,7 @@ class Intro extends PureComponent {
   };
 
   render() {
-    const { currentUser } = this.props;
+    const { currentUser } = this.context;
     const {
       carouselIndex,
       email,
@@ -688,13 +688,6 @@ const swipeAction = (event) => {
   }
 };
 
-export default IntroContainer = withTracker((props) => {
-  const currentUserSub = Meteor.subscribe('me');
-  const currentUser = Meteor.user();
-  const isLoading = !currentUserSub.ready();
+Intro.contextType = UserContext;
 
-  return {
-    currentUser,
-    isLoading,
-  };
-})(Intro);
+export default Intro;

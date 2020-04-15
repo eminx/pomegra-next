@@ -1,5 +1,4 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
@@ -11,12 +10,12 @@ import {
   SegmentedControl,
   WhiteSpace,
   WingBlank,
-  Badge
+  Badge,
 } from 'antd-mobile';
 
-const ListItem = List.Item;
+import { UserContext } from './Layout';
 
-import { Requests } from '../../imports/api/collections';
+const ListItem = List.Item;
 
 const requestTypeValues = ['All', 'By Me', 'From Me'];
 
@@ -24,41 +23,66 @@ class RequestsList extends Component {
   state = {
     filterValue: '',
     requestType: 'All',
-    gotoRequest: null
+    gotoRequest: null,
+    requests: [],
+    isLoading: true,
   };
 
-  handleFilter = value => {
+  componentDidMount() {
+    this.getRequests();
+  }
+
+  getRequests = () => {
+    const { currentUser } = this.context;
+    if (!currentUser) {
+      return;
+    }
+
+    Meteor.call('getRequests', (error, respond) => {
+      this.setState({
+        requests: respond,
+        isLoading: false,
+      });
+    });
+  };
+
+  handleFilter = (value) => {
     this.setState({ filterValue: value });
   };
 
-  handleTypeChange = value => {
+  handleTypeChange = (value) => {
     this.setState({
-      requestType: value
+      requestType: value,
     });
   };
 
   getTypeOfRequests = () => {
-    const { requests, currentUser } = this.props;
+    const { currentUser } = this.context;
+    const { requests } = this.state;
     const currentUserId = currentUser._id;
     switch (this.state.requestType) {
       case 'By Me':
-        return requests.filter(request => request.req_by === currentUserId);
+        return requests.filter(
+          (request) => request.req_by === currentUserId,
+        );
       case 'From Me':
-        return requests.filter(request => request.req_from === currentUserId);
+        return requests.filter(
+          (request) => request.req_from === currentUserId,
+        );
       default:
         return requests;
     }
   };
 
-  viewRequestInDetail = request => {
+  viewRequestInDetail = (request) => {
     this.setState({ gotoRequest: request._id });
   };
 
-  getNotificationsCount = request => {
-    const { currentUser } = this.props;
+  getNotificationsCount = (request) => {
+    const { currentUser } = this.context;
     const foundContext =
       currentUser.notifications &&
-      currentUser.notifications.find(notification => {
+      currentUser.notifications.find((notification) => {
         return notification.contextId === request._id;
       });
 
@@ -66,7 +90,7 @@ class RequestsList extends Component {
   };
 
   render() {
-    const { requests, currentUser } = this.props;
+    const { requests, currentUser } = this.context;
     const { filterValue, requestType, gotoRequest } = this.state;
 
     if (gotoRequest) {
@@ -79,12 +103,14 @@ class RequestsList extends Component {
 
     const typeOfRequests = this.getTypeOfRequests();
 
-    const filteredRequests = typeOfRequests.filter(request => {
+    const filteredRequests = typeOfRequests.filter((request) => {
       return (
-        request.book_name.toLowerCase().indexOf(filterValue.toLowerCase()) !==
-          -1 ||
-        request.owner_name.toLowerCase().indexOf(filterValue.toLowerCase()) !==
-          -1 ||
+        request.book_name
+          .toLowerCase()
+          .indexOf(filterValue.toLowerCase()) !== -1 ||
+        request.owner_name
+          .toLowerCase()
+          .indexOf(filterValue.toLowerCase()) !== -1 ||
         request.requester_name
           .toLowerCase()
           .indexOf(filterValue.toLowerCase()) !== -1
@@ -97,7 +123,7 @@ class RequestsList extends Component {
         <SearchBar
           placeholder="Filter"
           cancelText="Cancel"
-          onChange={value => this.handleFilter(value)}
+          onChange={(value) => this.handleFilter(value)}
           onClear={() => this.setState({ filterValue: '' })}
           style={{ touchAction: 'none' }}
         />
@@ -105,10 +131,10 @@ class RequestsList extends Component {
         <WingBlank size="md">
           <SegmentedControl
             selectedIndex={requestTypeValues.findIndex(
-              value => value === requestType
+              (value) => value === requestType,
             )}
             values={requestTypeValues}
-            onValueChange={value => this.handleTypeChange(value)}
+            onValueChange={(value) => this.handleTypeChange(value)}
           />
         </WingBlank>
 
@@ -119,7 +145,7 @@ class RequestsList extends Component {
           style={{ marginBottom: 64 }}
         >
           {filteredRequests &&
-            filteredRequests.map(request => (
+            filteredRequests.map((request) => (
               <ListItem
                 key={request._id}
                 multipleLine
@@ -149,12 +175,6 @@ class RequestsList extends Component {
   }
 }
 
-export default RequestsListComponent = withTracker(props => {
-  const currentUser = Meteor.user();
-  Meteor.subscribe('myRequests');
-  const requests = currentUser && Requests.find().fetch();
-  return {
-    requests,
-    currentUser
-  };
-})(RequestsList);
+RequestsList.contextType = UserContext;
+
+export default RequestsList;

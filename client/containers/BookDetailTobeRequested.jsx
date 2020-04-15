@@ -1,20 +1,38 @@
 import { Meteor } from 'meteor/meteor';
-import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component, Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 import { NavBar, Icon, WingBlank, WhiteSpace } from 'antd-mobile';
 
 import { BookCard } from '../reusables/BookCard';
 import { errorDialog, successDialog } from '../functions';
+import { UserContext } from './Layout';
 
 class BookDetailTobeRequested extends Component {
   state = {
     requestSuccess: false,
-    backToDiscover: false
+    backToDiscover: false,
+    book: null,
+    isLoading: true,
   };
 
+  componentDidMount() {
+    const bookId = this.props.match.params.id;
+    Meteor.call('getABook', bookId, (error, respond) => {
+      this.setState({
+        book: respond,
+        isLoading: false,
+      });
+    });
+  }
+
   makeRequest = () => {
-    const { book } = this.props;
+    const { currentUser } = this.context;
+    const { book } = this.state;
+
+    if (!currentUser) {
+      errorDialog('Please create an account');
+    }
+
     Meteor.call('makeRequest', book._id, (error, respond) => {
       if (error) {
         errorDialog(error.reason);
@@ -23,7 +41,7 @@ class BookDetailTobeRequested extends Component {
       } else {
         successDialog('Your request is successfully sent!');
         this.setState({
-          requestSuccess: respond
+          requestSuccess: respond,
         });
       }
     });
@@ -75,18 +93,6 @@ class BookDetailTobeRequested extends Component {
   }
 }
 
-export default BookDetailTobeRequestedContainer = withTracker(props => {
-  const currentUser = Meteor.user();
-  const bookId = props.match.params.id;
+BookDetailTobeRequested.contextType = UserContext;
 
-  const bookSub = Meteor.subscribe('singleBook', bookId);
-  const book = Books.findOne(bookId);
-
-  const isLoading = !bookSub.ready();
-
-  return {
-    currentUser,
-    book,
-    isLoading
-  };
-})(BookDetailTobeRequested);
+export default BookDetailTobeRequested;

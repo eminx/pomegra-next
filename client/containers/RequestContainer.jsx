@@ -13,15 +13,13 @@ import {
   Badge,
   InputItem,
   Steps,
-  WingBlank,
   WhiteSpace,
-  Accordion
 } from 'antd-mobile';
 import { IoMdSend } from 'react-icons/io';
 
 import { Requests } from '../../imports/api/collections';
 import { ChatteryWindow } from '../reusables/chattery/ChatteryWindow';
-import { successDialog, errorDialog, notificationsCounter } from '../functions';
+import { successDialog, errorDialog } from '../functions';
 
 const Step = Steps.Step;
 const FlexItem = Flex.Item;
@@ -29,30 +27,36 @@ const FlexItem = Flex.Item;
 const steps = [
   {
     title: 'Accepted',
-    description: 'Request is accepted'
+    description: 'Request is accepted',
   },
   {
     title: 'Handed',
-    description: 'Borrower received the book to read'
+    description: 'Borrower received the book to read',
   },
   {
     title: 'Returned',
-    description: 'Borrower has returned the book to the owner'
-  }
+    description: 'Borrower has returned the book to the owner',
+  },
 ].map((step, index) => (
-  <Step key={step.title} title={step.title} description={step.description} />
+  <Step
+    key={step.title}
+    title={step.title}
+    description={step.description}
+  />
 ));
 
-const myImg = src => <img src={src} alt="" width={48} height={66} />;
+const myImg = (src) => (
+  <img src={src} alt="" width={48} height={66} />
+);
 
 class Request extends Component {
   state = {
     messageInput: '',
     typingMessage: null,
-    openTab: 0
+    openTab: 0,
   };
 
-  sendMessage = event => {
+  sendMessage = (event) => {
     event && event.preventDefault();
     const { request } = this.props;
     const messageInput = this.state.messageInput;
@@ -60,15 +64,20 @@ class Request extends Component {
       return;
     }
 
-    Meteor.call('addMessage', request._id, messageInput, (error, respond) => {
-      if (error) {
-        console.log(error);
-        return;
-      }
-    });
+    Meteor.call(
+      'addMessage',
+      request._id,
+      messageInput,
+      (error, respond) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+      },
+    );
 
     this.setState({
-      messageInput: ''
+      messageInput: '',
     });
   };
 
@@ -83,7 +92,7 @@ class Request extends Component {
       return null;
     }
 
-    return messages.messages.map(message => {
+    return messages.messages.map((message) => {
       if (message.from === currentUser._id) {
         message.isFromMe = true;
       }
@@ -92,7 +101,7 @@ class Request extends Component {
     });
   };
 
-  getMessageSender = message => {
+  getMessageSender = (message) => {
     const { currentUser, request } = this.props;
     if (currentUser._id === message.from) {
       return 'me';
@@ -132,7 +141,7 @@ class Request extends Component {
         errorDialog(error.reason);
       } else {
         successDialog(
-          'Request denied. We are sorry to have you deny this request'
+          'Request denied. We are sorry to have you deny this request',
         );
       }
     });
@@ -166,7 +175,9 @@ class Request extends Component {
       if (error) {
         errorDialog(error.reason);
       } else {
-        successDialog('Your book is back and available at your shelf <3');
+        successDialog(
+          'Your book is back and available at your shelf <3',
+        );
       }
     });
   };
@@ -192,15 +203,17 @@ class Request extends Component {
 
     return [
       { title: <Badge dot={dottedStatus}>Status</Badge> },
-      { title: <Badge text={notificationsCount}>Messages</Badge> }
+      { title: <Badge text={notificationsCount}>Messages</Badge> },
     ];
   };
 
   getNotificationsCount = () => {
     const { request, currentUser } = this.props;
-    const foundContext = currentUser.notifications.find(notification => {
-      return notification.contextId === request._id;
-    });
+    const foundContext = currentUser.notifications.find(
+      (notification) => {
+        return notification.contextId === request._id;
+      },
+    );
 
     return foundContext && foundContext.count;
   };
@@ -232,7 +245,8 @@ class Request extends Component {
       return <ActivityIndicator toast text="Loading..." />;
     }
 
-    const requestedNotResponded = !request.is_confirmed && !request.is_denied;
+    const requestedNotResponded =
+      !request.is_confirmed && !request.is_denied;
     const iAmTheOwner = currentUser._id === request.req_from;
 
     return (
@@ -349,17 +363,21 @@ class Request extends Component {
                 height: 44,
                 width: '100%',
                 bottom: 0,
-                zIndex: 9
+                zIndex: 9,
               }}
             >
               <Flex style={{ width: '100%' }} justify="center">
                 <FlexItem>
-                  <form onSubmit={event => this.sendMessage(event)}>
+                  <form onSubmit={(event) => this.sendMessage(event)}>
                     <InputItem
                       value={messageInput}
-                      onChange={value => this.setState({ messageInput: value })}
+                      onChange={(value) =>
+                        this.setState({ messageInput: value })
+                      }
                       placeholder="enter message"
-                      onFocus={() => this.setState({ isAccordionOpen: false })}
+                      onFocus={() =>
+                        this.setState({ isAccordionOpen: false })
+                      }
                       style={{ fontSize: 14 }}
                     />
                   </form>
@@ -369,10 +387,13 @@ class Request extends Component {
                     flexGrow: 0,
                     flexBasis: 48,
                     display: 'flex',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
                   }}
                 >
-                  <IoMdSend size={24} onClick={() => this.sendMessage()} />
+                  <IoMdSend
+                    size={24}
+                    onClick={() => this.sendMessage()}
+                  />
                 </FlexItem>
               </Flex>
             </div>
@@ -383,7 +404,7 @@ class Request extends Component {
   }
 }
 
-export default RequestContainer = withTracker(props => {
+export default RequestContainer = withTracker((props) => {
   const currentUser = Meteor.user();
   const requestId = props.match.params.id;
 
@@ -391,7 +412,8 @@ export default RequestContainer = withTracker(props => {
   const request = currentUser && Requests.findOne(requestId);
 
   const msgSub = Meteor.subscribe('myMessages', requestId);
-  const messages = currentUser && Messages.findOne({ req_id: requestId });
+  const messages =
+    currentUser && Messages.findOne({ req_id: requestId });
 
   const isLoading = !reqSub.ready() || !msgSub.ready();
 
@@ -399,7 +421,7 @@ export default RequestContainer = withTracker(props => {
     currentUser,
     request,
     messages,
-    isLoading
+    isLoading,
   };
 })(Request);
 
