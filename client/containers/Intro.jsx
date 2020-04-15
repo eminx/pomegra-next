@@ -32,7 +32,7 @@ import {
   introSlides,
   uploadProfileImage,
   googleApi,
-} from './HeroHelpers/';
+} from './HeroHelpers';
 import NiceShelf from '../reusables/NiceShelf';
 import { UserContext } from './Layout';
 

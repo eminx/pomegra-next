@@ -100,8 +100,9 @@ class RequestsList extends Component {
   };
 
   render() {
-    const { requests, currentUser } = this.context;
+    const { currentUser } = this.context;
     const {
+      requests,
       filterValue,
       requestType,
       gotoRequest,

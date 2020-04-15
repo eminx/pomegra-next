@@ -21,7 +21,7 @@ import {
   resizeImage,
 } from '../functions';
 
-import { uploadProfileImage } from './HeroHelpers/';
+import { uploadProfileImage } from './HeroHelpers';
 import { UserContext } from './Layout';
 
 class Profile extends PureComponent {
