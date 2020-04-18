@@ -6,7 +6,7 @@ import { FadeInUp } from 'animate-components';
 import HeroSlide from '../../reusables/HeroSlide';
 import BookCardNext from '../../reusables/BookCardNext';
 
-const getTextForLastSlide = insertedBooks => {
+const getTextForLastSlide = (insertedBooks) => {
   switch (insertedBooks) {
     case 0:
       return 'Please search for a book to add';
@@ -29,7 +29,7 @@ const BookInserter = ({
   onSearchValueChange,
   onClickBook,
   onButtonClick,
-  onAddButtonClick
+  onAddButtonClick,
 }) => (
   <HeroSlide
     subtitle={getTextForLastSlide(insertedBooks)}
@@ -53,7 +53,7 @@ const BookInserter = ({
                 position: 'absolute',
                 right: 12,
                 top: 10,
-                display: 'inline'
+                display: 'inline',
               }}
             >
               <ActivityIndicator animating={isSearching} />
@@ -87,13 +87,21 @@ const BookInserter = ({
     <div style={{ paddingTop: 24 }}>
       {searchResults &&
         searchResults.map((result, index) => (
-          <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
+          <FadeInUp
+            key={result.id}
+            duration=".5s"
+            timingFunction="ease"
+          >
             <BookCardNext
+              isDark
               isIntro
               volumeInfo={result.volumeInfo}
               onClickBook={() => onClickBook(index)}
               isOpen={openBook === index}
-              onAddButtonClick={() => onAddButtonClick(result.volumeInfo)}
+              buttonText="Add to My Shelf"
+              onAddButtonClick={() =>
+                onAddButtonClick(result.volumeInfo)
+              }
             />
           </FadeInUp>
         ))}
@@ -104,7 +112,11 @@ const BookInserter = ({
     <div>
       {insertedBooks === 3 && (
         <Flex justify="center">
-          <Button isColor="success" isSize="large" onClick={onButtonClick}>
+          <Button
+            isColor="success"
+            isSize="large"
+            onClick={onButtonClick}
+          >
             Start Discovering
           </Button>
         </Flex>

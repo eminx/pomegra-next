@@ -10,6 +10,7 @@ import {
 } from 'antd-mobile';
 
 import { BookCard } from '../reusables/BookCard';
+import BookCardNext from '../reusables/BookCardNext';
 import EditBook from '../reusables/EditBook';
 import { errorDialog, successDialog } from '../functions';
 import { UserContext } from './Layout';
@@ -22,7 +23,7 @@ class MyBook extends PureComponent {
     book: null,
   };
 
-  componentWillMount() {
+  componentDidMount() {
     const bookId = this.props.match.params.id;
     Meteor.call('getMyBook', bookId, (error, respond) => {
       this.setState({
@@ -65,7 +66,12 @@ class MyBook extends PureComponent {
 
   render() {
     const { currentUser, userLoading } = this.context;
-    const { book, isEditDialogOpen, backToBooks } = this.state;
+    const {
+      book,
+      isEditDialogOpen,
+      backToBooks,
+      openBook,
+    } = this.state;
 
     if (backToBooks) {
       return <Redirect to="/my-shelf" />;
@@ -85,14 +91,12 @@ class MyBook extends PureComponent {
         {book && (
           <Fragment>
             <WhiteSpace size="lg" />
-            <WingBlank>
-              <BookCard
-                book={book}
-                onButtonClick={this.openEditDialog}
-                buttonType="ghost"
-                buttonText="Edit"
-              />
-            </WingBlank>
+            <BookCard
+              book={book}
+              onButtonClick={this.openEditDialog}
+              buttonType="ghost"
+              buttonText="Edit"
+            />
           </Fragment>
         )}
 

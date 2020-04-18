@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import { Title, Subtitle, Container, Heading, Button } from 'bloomer';
 import { Flex, WhiteSpace } from 'antd-mobile';
 
-import { parseUrlForSSL } from '../functions';
+import { parseUrlForSSL, parseAuthors } from '../functions';
 
 const imageContainerStyle = {
   flexBasis: '20vw',
@@ -13,24 +13,12 @@ const imageContainerStyle = {
 };
 
 const containerStyle = {
-  backgroundColor: '#3E3E3E',
   padding: 12,
   width: '100vw',
-  marginBottom: 12,
-  boxShadow: '0 0 12px rgba(78, 78, 78, 0.6)',
+  marginBottom: 24,
+  boxShadow: '0 0 12px rgba(120, 120, 120, 0.6)',
   overflowY: 'hidden',
   transition: 'max-height .2s ease',
-};
-
-const parseAuthors = (authors) => {
-  if (!authors) {
-    return <span>unknown authors</span>;
-  }
-  return authors.map((author, index) => (
-    <span key={author}>
-      {author + (authors.length !== index + 1 ? ', ' : '')}
-    </span>
-  ));
 };
 
 class BookCardNext extends PureComponent {
@@ -82,8 +70,10 @@ class BookCardNext extends PureComponent {
       volumeInfo,
       onClickBook,
       isOpen,
-      onAddButtonClick,
+      onButtonClick,
+      buttonText,
       isIntro,
+      isDark,
     } = this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
@@ -105,6 +95,12 @@ class BookCardNext extends PureComponent {
       cardContainerStyle.maxHeight = visibleHeight + 10;
     } else {
       cardContainerStyle.maxHeight = 200;
+    }
+
+    if (isDark) {
+      cardContainerStyle.backgroundColor = '#3E3E3E';
+    } else {
+      cardContainerStyle.backgroundColor = 'whitesmoke';
     }
 
     if (isIntro) {
@@ -130,16 +126,22 @@ class BookCardNext extends PureComponent {
               style={{ flexGrow: 1 }}
             >
               <div style={{ flexGrow: 1 }}>
-                <Title hasTextColor="light" isSize={5}>
+                <Title
+                  hasTextColor={isDark ? 'light' : 'dark'}
+                  isSize={5}
+                  // style={{ fontFamily: "'Georgia', serif" }}
+                >
                   {volumeInfo.title}
                 </Title>
-                <Subtitle hasTextColor="light" isSize={6}>
+                <Subtitle
+                  hasTextColor={isDark ? 'light' : 'dark'}
+                  isSize={6}
+                >
                   {parseAuthors(volumeInfo.authors)}
                 </Subtitle>
               </div>
               <div style={{ flexGrow: 0 }}>
                 <Heading
-                  // isSize={5}
                   style={{
                     paddingTop: 12,
                     paddingBottom: 12,
@@ -180,27 +182,29 @@ class BookCardNext extends PureComponent {
 
         <div
           ref={(element) => (this.hidden = element)}
-          style={{ padding: 12, paddingTop: 24 }}
+          style={{ paddingTop: 12 }}
         >
           <Flex justify="center" direction="column">
             <Subtitle
               isSize={6}
-              hasTextColor="light"
+              hasTextColor={isDark ? 'light' : 'dark'}
               style={{ marginBottom: 5 }}
             >
               Have this book?
             </Subtitle>
             <Button
-              isColor="light"
+              isColor={isDark ? 'light' : 'dark'}
               isOutlined
-              onClick={onAddButtonClick}
+              onClick={onButtonClick}
             >
-              Add to my virtual shelf
+              {buttonText}
             </Button>
           </Flex>
           <WhiteSpace size="lg" />
-          <Container hasTextColor="light">
-            <p>{volumeInfo && volumeInfo.description}</p>
+          <Container hasTextColor={isDark ? 'light' : 'dark'}>
+            <p style={{ fontWeight: 500 }}>
+              {volumeInfo && volumeInfo.description}
+            </p>
           </Container>
         </div>
       </div>

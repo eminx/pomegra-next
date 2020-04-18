@@ -1,15 +1,23 @@
 import React from 'react';
 import { Card, Flex, Button } from 'antd-mobile';
+import { Title, Subtitle, Heading, Table } from 'bloomer';
 
 const CardHeader = Card.Header;
 const CardBody = Card.Body;
 const CardFooter = Card.Footer;
 
-const BookCard = ({ book, onButtonClick, buttonType, buttonText }) => (
+import { parseAuthors } from '../functions';
+
+const BookCard = ({
+  book,
+  onButtonClick,
+  buttonType,
+  buttonText,
+}) => (
   <Card>
     <CardHeader title={<BookTitle book={book} />} />
     <CardBody>
-      <p>{book.b_description}</p>
+      <p>{book.description || book.b_description}</p>
     </CardBody>
     <CardFooter
       content={
@@ -23,40 +31,44 @@ const BookCard = ({ book, onButtonClick, buttonType, buttonText }) => (
 
 const BookTitle = ({ book }) => (
   <div style={{ width: '100%' }}>
-    <h3 style={{ textAlign: 'center', marginBottom: 0 }}>{book.b_title}</h3>
-    <p style={{ textAlign: 'center', marginTop: 8 }}>
-      by <em>{book.b_author}</em>
-    </p>
-    <Flex justify="between" align="start" style={{ paddingTop: 8 }}>
+    <Title isSize={5} hasTextAlign="centered">
+      {book.title || book.b_title}
+    </Title>
+    <Subtitle isSize={5} hasTextAlign="centered">
+      {book.authors ? parseAuthors(book.authors) : book.b_author}
+    </Subtitle>
+
+    <Flex justify="start" align="start" style={{ paddingTop: 8 }}>
       <img
         src={book.image_url}
         alt={book.b_title}
-        style={{ maxHeight: 140, flexGrow: 0 }}
+        style={{ maxHeight: 140, flexGrow: 0, marginRight: 12 }}
       />
-      <div style={{ paddingLeft: 12, paddingRight: 12 }}>
-        <div style={{ textAlign: 'right' }}>
-          {/* <p style={{ marginTop: 0 }}> */}
-          {/* <LightSpan>author</LightSpan> {book.b_author} */}
-          {/* </p> */}
-          <p style={{ marginTop: 0 }}>
-            <LightSpan>category</LightSpan>
-            {book.b_cat}
-          </p>
-          <p style={{ marginTop: 0 }}>
-            <LightSpan>language</LightSpan>
-            {book.b_lang}
-          </p>
-        </div>
-      </div>
+
+      <Table isNarrow style={{ fontSize: 14 }}>
+        <tbody>
+          <tr>
+            <td>
+              <LightSpan>category</LightSpan>
+            </td>
+            <td>
+              {(book.categories && book.categories[0]) || book.b_cat}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <LightSpan>languauge</LightSpan>
+            </td>
+            <td>{book.language || book.b_lang}</td>
+          </tr>
+        </tbody>
+      </Table>
     </Flex>
   </div>
 );
 
 const LightSpan = ({ children }) => (
-  <span style={{ color: '#888', fontSize: 14 }}>
-    <b>{children}</b>
-    <br />
-  </span>
+  <span style={{ color: '#888' }}>{children}</span>
 );
 
 export { BookCard, BookTitle, LightSpan };

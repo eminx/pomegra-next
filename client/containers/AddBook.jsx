@@ -72,7 +72,6 @@ class AddBook extends Component {
     // }
 
     Meteor.call('insertBook', book, (error, respond) => {
-      console.log(respond);
       if (error) {
         errorDialog(error.reason);
       } else if (respond && respond.error) {
@@ -170,10 +169,12 @@ class AddBook extends Component {
                 timingFunction="ease"
               >
                 <BookCardNext
+                  isDark
                   volumeInfo={result.volumeInfo}
                   onClickBook={() => this.handleToggleBook(index)}
                   isOpen={openBook === index}
-                  onAddButtonClick={() =>
+                  buttonText="Add to My Shelf"
+                  onButtonClick={() =>
                     this.insertBook(result.volumeInfo)
                   }
                 />

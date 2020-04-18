@@ -1,3 +1,4 @@
+import React from 'react';
 import { Toast } from 'antd-mobile';
 import Resizer from 'react-image-file-resizer';
 
@@ -12,7 +13,7 @@ function successDialog(text, duration = 3) {
 function notificationsCounter(notifications) {
   let notificationsCount = 0;
   if (notifications && notifications.length > 0) {
-    notifications.forEach(notification => {
+    notifications.forEach((notification) => {
       notificationsCount += notification.count;
     });
   }
@@ -40,14 +41,14 @@ function resizeImage(image, desiredImageWidth, callback) {
     'JPEG',
     100,
     0,
-    uri => {
+    (uri) => {
       callback(uri);
     },
-    'base64'
+    'base64',
   );
 }
 
-const parseUrlForSSL = imageLink => {
+const parseUrlForSSL = (imageLink) => {
   let image_url = imageLink;
 
   if (image_url && image_url.substring(0, 5) === 'http:') {
@@ -62,6 +63,17 @@ function validateEmail(email) {
   return re.test(email);
 }
 
+const parseAuthors = (authors) => {
+  if (!authors) {
+    return <span>unknown authors</span>;
+  }
+  return authors.map((author, index) => (
+    <span key={author}>
+      {author + (authors.length !== index + 1 ? ', ' : '')}
+    </span>
+  ));
+};
+
 export {
   errorDialog,
   successDialog,
@@ -69,5 +81,6 @@ export {
   dataURLtoFile,
   resizeImage,
   parseUrlForSSL,
-  validateEmail
+  validateEmail,
+  parseAuthors,
 };
