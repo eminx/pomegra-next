@@ -1,11 +1,14 @@
 import React, { Fragment } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
+import { IntlProvider } from 'react-intl';
 
 export const UserContext = React.createContext(null);
 
 import AppTabBar from '../reusables/AppTabBar';
 import { notificationsCounter } from '../functions';
 import { ActivityIndicator } from 'antd-mobile';
+
+import messages from '../langs/en';
 
 const routesWithTabBar = [
   '/',
@@ -86,21 +89,23 @@ class Layout extends React.Component {
     }
 
     return (
-      <UserContext.Provider value={{ currentUser, userLoading }}>
-        <div>
-          {children}
+      <IntlProvider locale="en" messages={messages}>
+        <UserContext.Provider value={{ currentUser, userLoading }}>
+          <div>
+            {children}
 
-          {shouldRenderTabBar && (
-            <Fragment>
-              <AppTabBar
-                pathname={pathname}
-                changeRoute={this.changeRoute}
-                messageNotificationCount={this.getMessageNotificationCount()}
-              />
-            </Fragment>
-          )}
-        </div>
-      </UserContext.Provider>
+            {shouldRenderTabBar && (
+              <Fragment>
+                <AppTabBar
+                  pathname={pathname}
+                  changeRoute={this.changeRoute}
+                  messageNotificationCount={this.getMessageNotificationCount()}
+                />
+              </Fragment>
+            )}
+          </div>
+        </UserContext.Provider>
+      </IntlProvider>
     );
   }
 }

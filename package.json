@@ -31,6 +31,7 @@
     "react-geolocated": "^3.0.1",
     "react-icons": "^3.9.0",
     "react-image-file-resizer": "^0.2.1",
+    "react-intl": "^4.4.0",
     "react-meteor-data": "^0.2.11",
     "react-router-dom": "^5.1.2",
     "react-slick": "^0.25.2",
