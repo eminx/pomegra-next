@@ -11,11 +11,14 @@ import {
   TextareaItem,
   Tabs,
   WhiteSpace,
-  WingBlank
+  WingBlank,
 } from 'antd-mobile';
 import { createForm } from 'rc-form';
 import Dropzone from 'react-dropzone';
-import { sortableContainer, sortableElement } from 'react-sortable-hoc';
+import {
+  sortableContainer,
+  sortableElement,
+} from 'react-sortable-hoc';
 
 import allLanguages from '../allLanguages';
 import GeoLocationTracker from './GeoLocationTracker';
@@ -24,7 +27,7 @@ const Item = List.Item;
 
 class EditProfileUI extends Component {
   state = {
-    languages: []
+    languages: [],
   };
 
   componentDidMount() {
@@ -33,37 +36,42 @@ class EditProfileUI extends Component {
       return;
     }
     this.setState({
-      languages: currentUser.languages || []
+      languages: currentUser.languages || [],
     });
   }
 
-  handleLanguageSelect = selectedLanguages => {
+  handleLanguageSelect = (selectedLanguages) => {
     const selectedLanguageValue = selectedLanguages[0];
     const { languages } = this.state;
 
-    if (languages.some(language => language.value === selectedLanguageValue)) {
+    if (
+      languages.some(
+        (language) => language.value === selectedLanguageValue,
+      )
+    ) {
       return;
     }
 
     const selectedLanguage = allLanguages.find(
-      language => language && language.value === selectedLanguageValue
+      (language) =>
+        language && language.value === selectedLanguageValue,
     );
 
     const newLanguages = [...languages, selectedLanguage];
     this.setState({
-      languages: newLanguages
+      languages: newLanguages,
     });
 
     this.props.setUnSavedInfoChange();
   };
 
-  handleRemoveLanguage = languageValue => {
+  handleRemoveLanguage = (languageValue) => {
     const { languages } = this.state;
     const newLanguages = languages.filter(
-      language => languageValue !== language.value
+      (language) => languageValue !== language.value,
     );
     this.setState({
-      languages: newLanguages
+      languages: newLanguages,
     });
 
     this.props.setUnSavedInfoChange();
@@ -71,7 +79,7 @@ class EditProfileUI extends Component {
 
   handleDetailsFormSubmit = () => {
     const { languages } = this.state;
-    this.props.form.validateFields({ force: true }, error => {
+    this.props.form.validateFields({ force: true }, (error) => {
       if (!error) {
         const values = this.props.form.getFieldsValue();
         this.props.onSubmit(values, languages);
@@ -109,7 +117,7 @@ class EditProfileUI extends Component {
       handleSaveImages,
       handleTabClick,
       openTab,
-      setGeoLocationCoords
+      setGeoLocationCoords,
     } = this.props;
     const { getFieldProps, getFieldError } = this.props.form;
     const { languages } = this.state;
@@ -117,7 +125,11 @@ class EditProfileUI extends Component {
     return (
       <div>
         <Tabs
-          tabs={[{ title: 'Images' }, { title: 'Info' }, { title: 'Location' }]}
+          tabs={[
+            { title: 'Images' },
+            { title: 'Info' },
+            { title: 'Location' },
+          ]}
           page={openTab}
           onTabClick={handleTabClick}
           swipeable={false}
@@ -126,14 +138,17 @@ class EditProfileUI extends Component {
           <div>
             <h3>Avatar</h3>
             <WingBlank>
-              <ImagePicker
-                files={avatarImage ? [avatarImage] : []}
-                onChange={handleAvatarImagePick}
-                selectable={!avatarImage}
-                accept="image/jpeg,image/jpg,image/png"
-                multiple={false}
-                length={3}
-              />
+              <Flex justify="center">
+                <ImagePicker
+                  files={avatarImage ? [avatarImage] : []}
+                  onChange={handleAvatarImagePick}
+                  selectable={!avatarImage}
+                  accept="image/jpeg,image/jpg,image/png"
+                  multiple={false}
+                  length={1}
+                  style={{ width: 120 }}
+                />
+              </Flex>
             </WingBlank>
 
             <WhiteSpace size="lg" />
@@ -192,17 +207,23 @@ class EditProfileUI extends Component {
           </div>
           <div>
             <List renderHeader={() => 'Edit your details'}>
-              <InputItem value={currentUser.username} editable={false}>
+              <InputItem
+                value={currentUser.username}
+                editable={false}
+              >
                 username
               </InputItem>
 
               <InputItem
                 {...getFieldProps('firstName', {
                   rules: [
-                    { required: false, message: 'please enter your first name' }
+                    {
+                      required: false,
+                      message: 'please enter your first name',
+                    },
                   ],
                   initialValue: currentUser.firstName,
-                  onChange: setUnSavedInfoChange
+                  onChange: setUnSavedInfoChange,
                 })}
                 clear
                 // error={!!getFieldError('firstName')}
@@ -214,7 +235,7 @@ class EditProfileUI extends Component {
               <InputItem
                 {...getFieldProps('lastName', {
                   initialValue: currentUser.lastName,
-                  onChange: setUnSavedInfoChange
+                  onChange: setUnSavedInfoChange,
                 })}
                 clear
                 // error={!!getFieldError('lastName')}
@@ -226,7 +247,7 @@ class EditProfileUI extends Component {
               <TextareaItem
                 {...getFieldProps('bio', {
                   initialValue: currentUser.bio,
-                  onChange: setUnSavedInfoChange
+                  onChange: setUnSavedInfoChange,
                 })}
                 title="bio"
                 placeholder="bio"
@@ -248,12 +269,14 @@ class EditProfileUI extends Component {
               <WhiteSpace />
 
               <div>
-                {languages.map(language => (
+                {languages.map((language) => (
                   <Tag
                     key={language.value}
                     style={{ margin: 8 }}
                     closable
-                    onClose={() => this.handleRemoveLanguage(language.value)}
+                    onClose={() =>
+                      this.handleRemoveLanguage(language.value)
+                    }
                   >
                     {language.label}
                   </Tag>
@@ -273,10 +296,12 @@ class EditProfileUI extends Component {
           </div>
           <div>
             <p>
-              We will use your location in order to find books that are located
-              close to you so you can go pick up.
+              We will use your location in order to find books that
+              are located close to you so you can go pick up.
             </p>
-            <p>And also same for your other users to access you easier.</p>
+            <p>
+              And also same for your other users to access you easier.
+            </p>
             {currentUser.geoLocationCoords ? (
               <div>
                 <b>{currentUser.geoLocationCoords.latitude}</b>
@@ -284,7 +309,9 @@ class EditProfileUI extends Component {
                 <b>{currentUser.geoLocationCoords.longitude}</b>
               </div>
             ) : (
-              <GeoLocationTracker setGeoLocationCoords={setGeoLocationCoords} />
+              <GeoLocationTracker
+                setGeoLocationCoords={setGeoLocationCoords}
+              />
             )}
           </div>
         </Tabs>
@@ -295,20 +322,26 @@ class EditProfileUI extends Component {
   }
 }
 
-const SortableItem = sortableElement(({ image, index, handleRemoveImage }) => {
-  const handleRemoveClick = event => {
-    console.log(event);
-    event.stopPropagation();
-    event.preventDefault();
-    handleRemoveImage();
-  };
+const SortableItem = sortableElement(
+  ({ image, index, handleRemoveImage }) => {
+    const handleRemoveClick = (event) => {
+      console.log(event);
+      event.stopPropagation();
+      event.preventDefault();
+      handleRemoveImage();
+    };
 
-  return (
-    <div key={image.url} style={thumbStyle(image.url)}>
-      <Icon type="cross" style={thumbIconStyle} onClick={handleRemoveClick} />
-    </div>
-  );
-});
+    return (
+      <div key={image.url} style={thumbStyle(image.url)}>
+        <Icon
+          type="cross"
+          style={thumbIconStyle}
+          onClick={handleRemoveClick}
+        />
+      </div>
+    );
+  },
+);
 
 const SortableContainer = sortableContainer(({ children }) => {
   return (
@@ -325,10 +358,10 @@ const pickerStyle = {
   marginTop: 24,
   borderRadius: 5,
   border: '#108ee9 1px solid',
-  color: '#108ee9'
+  color: '#108ee9',
 };
 
-const thumbStyle = backgroundImage => ({
+const thumbStyle = (backgroundImage) => ({
   flexBasis: 120,
   height: 80,
   margin: 8,
@@ -336,7 +369,7 @@ const thumbStyle = backgroundImage => ({
   backgroundPosition: 'center',
   backgroundSize: 'cover',
   borderRadius: 5,
-  border: '1px solid #fff'
+  border: '1px solid #fff',
 });
 
 const thumbIconStyle = {
@@ -347,7 +380,7 @@ const thumbIconStyle = {
   color: '#1b1b1b',
   borderRadius: '50%',
   backgroundColor: 'rgba(255, 255, 255, .3)',
-  cursor: 'pointer'
+  cursor: 'pointer',
 };
 
 const EditProfile = createForm()(EditProfileUI);

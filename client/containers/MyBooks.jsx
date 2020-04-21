@@ -4,13 +4,14 @@ import { Redirect } from 'react-router-dom';
 import {
   ActivityIndicator,
   WhiteSpace,
+  WingBlank,
   NavBar,
   List,
   Flex,
   SearchBar,
-  Button,
   Picker,
 } from 'antd-mobile';
+import { Button, Title, Subtitle } from 'bloomer';
 import { IoMdAddCircle } from 'react-icons/io';
 
 import { UserContext } from './Layout';
@@ -93,27 +94,9 @@ class MyBooks extends Component {
     }
   };
 
-  render() {
-    const {
-      sortBy,
-      filterValue,
-      gotoAddBook,
-      gotoSingleBook,
-    } = this.state;
-
-    if (gotoAddBook) {
-      return <Redirect to="/add" />;
-    } else if (gotoSingleBook) {
-      return <Redirect to={`/my-book/${gotoSingleBook}`} />;
-    }
-
-    const sortedBooks = this.sortedBooks();
-
-    if (!sortedBooks) {
-      return <ActivityIndicator toast text="Loading your books..." />;
-    }
-
-    const filteredSortedBooks = sortedBooks.filter((book) => {
+  filteredSortedBooks = (sortedBooks) => {
+    const { filterValue } = this.state;
+    return sortedBooks.filter((book) => {
       return (
         (book.b_title &&
           book.b_title
@@ -130,6 +113,27 @@ class MyBooks extends Component {
             -1)
       );
     });
+  };
+
+  render() {
+    const {
+      sortBy,
+      gotoAddBook,
+      gotoSingleBook,
+      isLoading,
+      myBooks,
+    } = this.state;
+
+    if (gotoAddBook) {
+      return <Redirect to="/add" />;
+    } else if (gotoSingleBook) {
+      return <Redirect to={`/my-book/${gotoSingleBook}`} />;
+    }
+
+    const sortedBooks = this.sortedBooks();
+
+    const filteredSortedBooks =
+      sortedBooks && this.filteredSortedBooks(sortedBooks);
 
     return (
       <div>
@@ -138,10 +142,11 @@ class MyBooks extends Component {
         <Flex justify="center" direction="column">
           <WhiteSpace />
           <Button
-            inline
-            icon={<IoMdAddCircle size={24} />}
+            isColor="light"
+            isLink
+            isOutlined
+            className="is-rounded"
             onClick={() => this.setState({ gotoAddBook: true })}
-            type="primary"
           >
             Add Book
           </Button>
@@ -178,9 +183,9 @@ class MyBooks extends Component {
 
         <WhiteSpace size="md" />
 
-        <List style={{ marginBottom: 80 }}>
-          {filteredSortedBooks &&
-            filteredSortedBooks.map((book) => (
+        {filteredSortedBooks ? (
+          <List style={{ marginBottom: 80 }}>
+            {filteredSortedBooks.map((book) => (
               <ListItem
                 key={book._id}
                 align="top"
@@ -197,7 +202,24 @@ class MyBooks extends Component {
                 <Brief>{book.b_author}</Brief>
               </ListItem>
             ))}
-        </List>
+          </List>
+        ) : (
+          isLoading && (
+            <ActivityIndicator text="Loading your books..." />
+          )
+        )}
+
+        {myBooks && myBooks.length === 0 && (
+          <WingBlank>
+            <Title isSize={4} hasTextAlign="centered">
+              No books
+            </Title>
+            <Subtitle isSize={6} hasTextAlign="centered">
+              You don't have any books in your shelf yet. Please add
+              new books
+            </Subtitle>
+          </WingBlank>
+        )}
       </div>
     );
   }

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { Redirect } from 'react-router-dom';
 
 import {
@@ -44,16 +44,9 @@ class RequestsList extends Component {
       this.setState({
         requests: respond,
         isLoading: false,
+        noRequest: Boolean(respond && respond.length === 0),
       });
     });
-
-    const noRequest = () => {
-      if (this.state.requests.length === 0) {
-        this.setState({ noRequest: true });
-      }
-    };
-
-    setTimeout(noRequest, 3000);
   };
 
   handleFilter = (value) => {
@@ -115,11 +108,15 @@ class RequestsList extends Component {
 
     if (noRequest) {
       return (
-        <Result
-          // img={myImg(request.book_image_url)}
-          title="No Interactions just yet"
-          message="Please feel free to go to the discover section and request a book from someone. People are all nice here"
-        />
+        <Fragment>
+          <NavBar mode="light">Requests</NavBar>
+          <WhiteSpace size="lg" />
+          <Result
+            // img={myImg(request.book_image_url)}
+            title="No Interactions just yet"
+            message="Please feel free to go to the discover section and request a book from someone. People are all nice here"
+          />
+        </Fragment>
       );
     }
 
@@ -145,7 +142,7 @@ class RequestsList extends Component {
 
     return (
       <div name="requests">
-        <NavBar mode="light">Requests</NavBar>
+        <NavBar mode="light">Messages</NavBar>
         <SearchBar
           placeholder="Filter"
           cancelText="Cancel"

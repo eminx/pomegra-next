@@ -26,9 +26,9 @@ class Layout extends React.Component {
   componentDidMount() {
     setTimeout(() => {
       const { currentUser } = this.props;
-      if (!currentUser || !currentUser.isIntroDone) {
-        this.changeRoute('/intro');
-      }
+      // if (!currentUser || !currentUser.isIntroDone) {
+      //   this.changeRoute('/intro');
+      // }
       this.setState({ isLoading: false });
     }, 3000);
   }

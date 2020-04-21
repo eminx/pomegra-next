@@ -1,7 +1,14 @@
 import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import { ActivityIndicator, WhiteSpace, Result } from 'antd-mobile';
+import {
+  ActivityIndicator,
+  WhiteSpace,
+  NavBar,
+  WingBlank,
+  Flex,
+} from 'antd-mobile';
+import { Title, Subtitle, Button } from 'bloomer';
 import { GiBookshelf } from 'react-icons/gi';
 import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
 import { FormattedMessage } from 'react-intl';
@@ -9,8 +16,6 @@ import { FormattedMessage } from 'react-intl';
 import { UserContext } from './Layout';
 
 import { errorDialog, successDialog } from '../functions';
-
-const iconSize = 72;
 
 class Home extends Component {
   state = {
@@ -44,6 +49,7 @@ class Home extends Component {
   };
 
   signIn = (values) => {
+    console.log(values);
     if (values) {
       Meteor.loginWithPassword(
         values.username,
@@ -110,11 +116,9 @@ class Home extends Component {
 
     return (
       <div>
-        <ActivityIndicator
-          toast
-          animating={isLoading}
-          text="Loading..."
-        />
+        <NavBar mode="light">Welcome to Librella</NavBar>
+        <WhiteSpace size="lg" />
+        <ActivityIndicator animating={isLoading} text="Loading..." />
 
         {/* {!currentUser && (
           <div>
@@ -131,37 +135,79 @@ class Home extends Component {
           </div>
         )} */}
 
-        <Result
-          img={<GiBookshelf size={iconSize} color="orange" />}
-          title={<FormattedMessage id="homeWidget1Title" />}
-          message={<FormattedMessage id="homeWidget1Message" />}
-          buttonText={<FormattedMessage id="homeWidget1ButtonText" />}
-          buttonType="primary"
-          onButtonClick={() => this.redirectTo('/discover')}
+        <HomeWidget
+          title="homeWidget1Title"
+          message="homeWidget1Message"
+          buttonText="homeWidget1ButtonText"
+          redirectPath="/discover"
+          redirectTo={this.redirectTo}
         />
-        <WhiteSpace size="lg" />
-        <Result
-          img={<IoMdAddCircle size={iconSize} color="purple" />}
-          title={<FormattedMessage id="homeWidget2Title" />}
-          message={<FormattedMessage id="homeWidget2Message" />}
-          buttonText={<FormattedMessage id="homeWidget2ButtonText" />}
-          buttonType="primary"
-          onButtonClick={() => this.redirectTo('/add')}
-        />
-        <WhiteSpace size="lg" />
 
-        <Result
-          img={<IoIosChatboxes size={iconSize} color="green" />}
-          title={<FormattedMessage id="homeWidget3Title" />}
-          message={<FormattedMessage id="homeWidget1Message" />}
-          buttonText={<FormattedMessage id="homeWidget1ButtonText" />}
-          buttonType="primary"
-          onButtonClick={() => this.redirectTo('/messages')}
+        <HomeWidget
+          title="homeWidget2Title"
+          message="homeWidget2Message"
+          buttonText="homeWidget2ButtonText"
+          redirectPath="/add"
+          redirectTo={this.redirectTo}
         />
+
+        <HomeWidget
+          title="homeWidget3Title"
+          message="homeWidget3Message"
+          buttonText="homeWidget3ButtonText"
+          redirectPath="/messages"
+          redirectTo={this.redirectTo}
+        />
+
+        <WhiteSpace size="lg" />
         <WhiteSpace size="lg" />
       </div>
     );
   }
+}
+
+function HomeWidget({
+  title,
+  message,
+  redirectPath,
+  buttonText,
+  redirectTo,
+}) {
+  return (
+    <div
+      style={{
+        borderBottom: '1px solid #eee',
+        paddingBottom: 24,
+        marginBottom: 12,
+        backgroundColor: '#fff',
+      }}
+    >
+      <WingBlank>
+        <Flex
+          justify="center"
+          style={{ paddingTop: 4 }}
+          direction="column"
+        >
+          <Title isSize={4}>
+            <FormattedMessage id={title} />
+          </Title>
+          <Subtitle isSize={6} hasTextAlign="centered">
+            <FormattedMessage id={message} />
+          </Subtitle>
+          <Button
+            isColor="light"
+            isInverted
+            // isOutlined
+            isLink
+            className="is-rounded"
+            onClick={() => redirectTo(redirectPath)}
+          >
+            <FormattedMessage id={buttonText} />
+          </Button>
+        </Flex>
+      </WingBlank>
+    </div>
+  );
 }
 
 Home.contextType = UserContext;

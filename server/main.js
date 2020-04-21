@@ -57,9 +57,9 @@ Meteor.methods({
 
   getMyBooks: () => {
     const currentUserId = Meteor.userId();
-
     try {
-      return Books.find({ added_by: currentUserId }).fetch();
+      const myBooks = Books.find({ added_by: currentUserId }).fetch();
+      return myBooks;
     } catch (error) {
       return error;
     }

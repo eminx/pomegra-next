@@ -297,7 +297,14 @@ class Profile extends PureComponent {
         });
 
         successDialog('Your images are successfully  saved');
-        setTimeout(() => this.setState({ progress: null }), 2000);
+        setTimeout(
+          () =>
+            this.setState({
+              progress: null,
+              isEditDialogOpen: false,
+            }),
+          2000,
+        );
       },
     );
   };

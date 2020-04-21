@@ -10,5 +10,5 @@ export default messages = {
   homeWidget3Title: 'Chat & Inspire',
   homeWidget3Message:
     'For every book lending process, you can chat with others to manage your book lending process. Inspire from amazing readers',
-  homeWidget3ButtonText: 'Go to Messaages',
+  homeWidget3ButtonText: 'Go to Messages',
 };
