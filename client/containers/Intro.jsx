@@ -471,10 +471,6 @@ class Intro extends Component {
     const profileUnchanged =
       areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
 
-    currentUser &&
-      currentUser.coverImages &&
-      console.log(currentUser.coverImages.length);
-
     return (
       <Slider
         ref={(component) => (this.slider = component)}
@@ -563,26 +559,27 @@ class Intro extends Component {
             onButtonClick={this.handleCreateAccount}
           />
         )}
-        {currentUser && (
-          <InfoForm
-            firstName={firstName}
-            lastName={lastName}
-            bio={bio}
-            onFirstNameChange={(e) =>
-              this.setState({ firstName: e.target.value })
-            }
-            onLastNameChange={(e) =>
-              this.setState({ lastName: e.target.value })
-            }
-            onBioChange={(e) =>
-              this.setState({ bio: e.target.value })
-            }
-            onSubmitInfoForm={this.saveInfo}
-          />
-        )}
         {currentUser &&
-          currentUser.languages &&
-          currentUser.languages.length === 0 && (
+          (!currentUser.firstName || !currentUser.lastName) && (
+            <InfoForm
+              firstName={firstName}
+              lastName={lastName}
+              bio={bio}
+              onFirstNameChange={(e) =>
+                this.setState({ firstName: e.target.value })
+              }
+              onLastNameChange={(e) =>
+                this.setState({ lastName: e.target.value })
+              }
+              onBioChange={(e) =>
+                this.setState({ bio: e.target.value })
+              }
+              onSubmitInfoForm={this.saveInfo}
+            />
+          )}
+        {currentUser &&
+          (!currentUser.languages ||
+            currentUser.languages.length < 1) && (
             <LanguageSelector
               languages={languages}
               onLanguageSelect={this.handleLanguageSelect}
@@ -626,7 +623,7 @@ class Intro extends Component {
             </Field>
           </HeroSlide>
         )}
-        {currentUser && (
+        {currentUser && !currentUser.coverImages && (
           <HeroSlide
             subtitle="Awesome! Now let's set some cover images"
             isColor="dark"
