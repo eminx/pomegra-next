@@ -33,20 +33,36 @@ function dataURLtoFile(dataurl, filename) {
   return new File([u8arr], filename, { type: mime });
 }
 
-function resizeImage(image, desiredImageWidth, callback) {
-  Resizer.imageFileResizer(
-    image.file,
-    desiredImageWidth,
-    400,
-    'JPEG',
-    100,
-    0,
-    (uri) => {
-      callback(uri);
-    },
-    'base64',
-  );
-}
+const resizeImage = (image, desiredImageWidth) =>
+  new Promise((resolve, reject) => {
+    Resizer.imageFileResizer(
+      image,
+      desiredImageWidth,
+      400,
+      'JPEG',
+      95,
+      0,
+      (uri) => {
+        if (!uri) {
+          reject({ reason: 'image cannot be resized' });
+        }
+        const uploadableImage = dataURLtoFile(uri, image.name);
+        resolve(uploadableImage);
+      },
+      'base64',
+    );
+  });
+
+const uploadImage = (image, directory) =>
+  new Promise((resolve, reject) => {
+    const upload = slingshotUpload(directory);
+    upload.send(image, (error, downloadUrl) => {
+      if (error) {
+        reject(error);
+      }
+      resolve(downloadUrl);
+    });
+  });
 
 const parseUrlForSSL = (imageLink) => {
   let image_url = imageLink;
@@ -58,9 +74,26 @@ const parseUrlForSSL = (imageLink) => {
   return image_url;
 };
 
+const slingshotUpload = (directory) =>
+  new Slingshot.Upload(directory);
+
 function validateEmail(email) {
   var re = /\S+@\S+\.\S+/;
   return re.test(email);
+}
+
+function emailIsValid(email) {
+  return /\S+@\S+\.\S+/.test(email);
+}
+
+function includesSpecialCharacters(string) {
+  const format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+
+  if (format.test(string)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 const parseAuthors = (authors) => {
@@ -74,13 +107,26 @@ const parseAuthors = (authors) => {
   ));
 };
 
+const call = (method, ...parameters) =>
+  new Promise((resolve, reject) => {
+    Meteor.call(method, ...parameters, (error, respond) => {
+      if (error) reject(error);
+      resolve(respond);
+    });
+  });
+
 export {
   errorDialog,
   successDialog,
   notificationsCounter,
   dataURLtoFile,
   resizeImage,
+  uploadImage,
+  slingshotUpload,
   parseUrlForSSL,
   validateEmail,
   parseAuthors,
+  emailIsValid,
+  includesSpecialCharacters,
+  call,
 };

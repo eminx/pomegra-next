@@ -1,6 +1,12 @@
 import React from 'react';
-import { Hero, HeroBody, Container, Button, Title, Subtitle } from 'bloomer';
-import { FadeIn } from 'animate-components';
+import {
+  Hero,
+  HeroBody,
+  Container,
+  Button,
+  Title,
+  Subtitle,
+} from 'bloomer';
 
 const HeroSlide = ({
   title,

@@ -1,8 +1,13 @@
 import { Meteor } from 'meteor/meteor';
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Field, Control, Button } from 'bloomer';
-import { ImagePicker, ActivityIndicator, Flex } from 'antd-mobile';
+import {
+  ImagePicker,
+  ActivityIndicator,
+  Flex,
+  Carousel,
+} from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -15,10 +20,12 @@ import allLanguages from '../allLanguages';
 
 import {
   resizeImage,
+  uploadImage,
   dataURLtoFile,
   errorDialog,
   successDialog,
   validateEmail,
+  call,
 } from '../functions';
 
 import {
@@ -36,7 +43,17 @@ import {
 import NiceShelf from '../reusables/NiceShelf';
 import { UserContext } from './Layout';
 
-class Intro extends PureComponent {
+const slideStyle = (backgroundImage) => ({
+  width: '100%',
+  height: '40vh',
+  minHeight: 180,
+  backgroundImage: `url('${backgroundImage}')`,
+  backgroundPosition: 'center',
+  backgroundSize: 'cover',
+  touchAction: 'none',
+});
+
+class Intro extends Component {
   state = {
     carouselIndex: 0,
     email: '',
@@ -47,7 +64,7 @@ class Intro extends PureComponent {
     bio: '',
     languages: [],
     avatar: null,
-    cover: null,
+    coverImages: [],
     savingAvatar: false,
     savingCover: false,
     searchValue: '',
@@ -67,9 +84,9 @@ class Intro extends PureComponent {
   componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.context;
 
-    if (!prevProps.currentUser && currentUser) {
-      this.fillInfoForm();
-    }
+    // if (!prevProps.currentUser && currentUser) {
+    //   this.fillInfoForm();
+    // }
   }
 
   fillInfoForm = () => {
@@ -102,8 +119,8 @@ class Intro extends PureComponent {
 
   isSliderDisabled = () => {
     const { carouselIndex } = this.state;
-    if ([7, 8, 9].includes(carouselIndex)) return true;
-    if ([0, 1, 2, 3].includes(carouselIndex)) return false;
+    // if ([].includes(carouselIndex)) return true;
+    if ([0, 1, 2, 3, 7, 8, 9].includes(carouselIndex)) return false;
     return (
       this.isEmailInvalid() ||
       this.isUsernameInvalid() ||
@@ -112,7 +129,7 @@ class Intro extends PureComponent {
   };
 
   goNext = () => {
-    this.slider.slickNext();
+    this.slider && this.slider.slickNext();
   };
 
   isEmailInvalid = () => {
@@ -130,7 +147,7 @@ class Intro extends PureComponent {
     return password.length < 6;
   };
 
-  handleCreateAccount = () => {
+  handleCreateAccount = async () => {
     const { email, username, password } = this.state;
     const values = {
       email,
@@ -139,20 +156,18 @@ class Intro extends PureComponent {
     };
     this.setState({ isLoading: true });
 
-    Meteor.call('registerUser', values, (error, respond) => {
-      if (error) {
-        console.log('error!!');
-        console.log(error);
-        errorDialog(error.reason);
-        this.setState({ isLoading: false });
-        return;
-      }
+    try {
+      await call('registerUser', values);
       successDialog('Your account is successfully created');
       this.signIn();
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
       this.setState({
         isLoading: false,
       });
-    });
+    }
   };
 
   signIn = () => {
@@ -174,7 +189,6 @@ class Intro extends PureComponent {
   handleLanguageSelect = (event) => {
     const { languages } = this.state;
     const selectedLanguageValue = event.target.value;
-
     if (
       languages.some(
         (language) => language.value === selectedLanguageValue,
@@ -187,7 +201,6 @@ class Intro extends PureComponent {
       (language) =>
         language && language.value === selectedLanguageValue,
     );
-
     const newLanguages = [...languages, selectedLanguage];
     this.setState({
       languages: newLanguages,
@@ -206,7 +219,7 @@ class Intro extends PureComponent {
     });
   };
 
-  saveInfo = () => {
+  saveInfo = async () => {
     const { firstName, lastName, bio, languages } = this.state;
     const values = {
       firstName,
@@ -214,26 +227,20 @@ class Intro extends PureComponent {
       bio,
     };
 
-    Meteor.call(
-      'updateProfile',
-      values,
-      languages,
-      (error, respond) => {
-        if (error) {
-          console.log(error);
-          errorDialog(error.reason);
-        } else {
-          successDialog('Your profile is successfully updated', 1);
-          this.goNext();
-        }
-      },
-    );
+    try {
+      await call('updateProfile', values, languages);
+      successDialog('Your profile is successfully updated', 1);
+      this.goNext();
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    }
   };
 
   handleAvatarPick = (images, type, index) => {
-    if (type === 'delete') {
+    if (type === 'remove') {
       this.setState({
-        cover: null,
+        avatar: null,
       });
       return;
     }
@@ -242,95 +249,104 @@ class Intro extends PureComponent {
     });
   };
 
-  handleCoverPick = (images, type, index) => {
-    if (type === 'delete') {
-      this.setState({
-        cover: null,
-      });
-      return;
-    }
-    this.setState({
-      cover: images[0],
-    });
-  };
-
-  saveAvatar = () => {
+  saveAvatar = async () => {
     const { avatar } = this.state;
 
     this.setState({
       savingAvatar: true,
     });
 
-    resizeImage(avatar, 180, (uri) => {
-      const uploadableImage = dataURLtoFile(uri, avatar.file.name);
-      uploadProfileImage(uploadableImage, (error, respond) => {
-        if (error) {
-          console.log('error!', error);
-          errorDialog(error.reason);
-          return;
-        }
-        const avatarToSave = {
-          name: avatar.file.name,
-          url: respond,
-          uploadDate: new Date(),
-        };
-        Meteor.call(
-          'setNewAvatar',
-          avatarToSave,
-          (error, respond) => {
-            if (error) {
-              console.log(error);
-              errorDialog(error.reason);
-              return;
-            }
-            this.setState({
-              savingAvatar: false,
-            });
-            this.goNext();
-          },
-        );
+    try {
+      const resizedAvatar = await resizeImage(avatar.file, 300);
+      const uploadedAvatar = await uploadImage(
+        resizedAvatar,
+        'profileImageUpload',
+      );
+      const avatarToSave = {
+        name: avatar.file.name,
+        url: uploadedAvatar,
+        uploadDate: new Date(),
+      };
+      await call('setNewAvatar', avatarToSave);
+      this.setState({
+        isUploading: false,
       });
+      this.goNext();
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
+      this.setState({
+        savingAvatar: false,
+      });
+    }
+  };
+
+  handleCoverPick = (pickedImages, type, index) => {
+    const { coverImages } = this.state;
+    console.log(type);
+    if (type === 'remove') {
+      this.setState({
+        coverImages: coverImages.filter((cover, i) => i !== index),
+      });
+      return;
+    }
+
+    this.setState({
+      coverImages: [...coverImages, ...pickedImages],
     });
   };
 
-  saveCover = () => {
-    const { cover } = this.state;
+  handleRemoveCover = (imageIndex) => {
+    const { coverImages } = this.state;
+    this.setState({
+      coverImages: coverImages.filter(
+        (image, index) => imageIndex !== index,
+      ),
+      unSavedImageChange: true,
+      coverChange: true,
+    });
+  };
 
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    if (oldIndex === newIndex) {
+      return;
+    }
+
+    this.setState(({ coverImages }) => ({
+      coverImages: arrayMove(coverImages, oldIndex, newIndex),
+      unSavedImageChange: true,
+      coverChange: true,
+    }));
+  };
+
+  saveCoverImages = async () => {
     this.setState({
       savingCover: true,
     });
 
-    resizeImage(cover, 600, (uri) => {
-      const uploadableImage = dataURLtoFile(uri, cover.file.name);
-      uploadProfileImage(uploadableImage, (error, respond) => {
-        if (error) {
-          console.log('error!', error);
-          errorDialog(error.reason);
-          return;
-        }
-        const coverToSave = {
-          name: cover.file.name,
-          url: respond,
-          uploadDate: new Date(),
-        };
-        Meteor.call(
-          'setNewCoverImages',
-          [coverToSave],
-          (error, respond) => {
-            if (error) {
-              console.log(error);
-              errorDialog(error.reason);
-              this.setState({ savingCover: false });
-              return;
-            }
-            this.setState({
-              savingCover: false,
-            });
-            this.goNext();
-          },
-        );
+    const { coverImages } = this.state;
+
+    try {
+      const imagesReadyToSave = await Promise.all(
+        coverImages.map(async (cover, index) => {
+          const resizedImage = await resizeImage(cover.file, 1200);
+          const uploadedImage = await uploadImage(
+            resizedImage,
+            'coverUpload',
+          );
+          return uploadedImage;
+        }),
+      );
+      await call('setNewCoverImages', imagesReadyToSave);
+    } catch (error) {
+      console.error('Error uploading:', error);
+      errorDialog(error.reason);
+    } finally {
+      this.setState({
+        savingCover: false,
       });
-    });
+    }
   };
 
   searchBook = (event) => {
@@ -417,7 +433,7 @@ class Intro extends PureComponent {
       languages,
       avatar,
       savingAvatar,
-      cover,
+      coverImages,
       savingCover,
       searchValue,
       searchResults,
@@ -455,16 +471,20 @@ class Intro extends PureComponent {
     const profileUnchanged =
       areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
 
+    currentUser &&
+      currentUser.coverImages &&
+      console.log(currentUser.coverImages.length);
+
     return (
       <Slider
         ref={(component) => (this.slider = component)}
-        arrows={![0, 1, 2].includes(carouselIndex)}
-        dots={![0, 1, 2].includes(carouselIndex)}
+        // arrows={![0, 1, 2].includes(carouselIndex)}
+        // dots={![0, 1, 2].includes(carouselIndex)}
         afterChange={this.handleSlideChange}
         swipe={!this.isSliderDisabled()}
         infinite={false}
         adaptiveHeight
-        initialSlide={0}
+        initialSlide={currentUser ? 3 : 0}
         className="custom-slider"
         onTouchEnd={swipeAction}
         onTouchMove={swipeAction}
@@ -484,15 +504,16 @@ class Intro extends PureComponent {
           </Flex>
         </HeroSlide>
 
-        {introSlides.map((slide) => (
-          <HeroSlide
-            key={slide.title}
-            isColor={slide.color}
-            title={slide.title}
-            subtitle={slide.subtitle}
-            goNext={this.goNext}
-          />
-        ))}
+        {!currentUser &&
+          introSlides.map((slide) => (
+            <HeroSlide
+              key={slide.title}
+              isColor={slide.color}
+              title={slide.title}
+              subtitle={slide.subtitle}
+              goNext={this.goNext}
+            />
+          ))}
         {!currentUser && (
           <EmailSlide
             email={email}
@@ -559,19 +580,21 @@ class Intro extends PureComponent {
             onSubmitInfoForm={this.saveInfo}
           />
         )}
-        {currentUser && (
-          <LanguageSelector
-            languages={languages}
-            onLanguageSelect={this.handleLanguageSelect}
-            onDeleteClick={(language) =>
-              this.handleRemoveLanguage(language)
-            }
-            onButtonClick={
-              profileUnchanged ? this.goNext : this.saveInfo
-            }
-            profileUnchanged={profileUnchanged}
-          />
-        )}
+        {currentUser &&
+          currentUser.languages &&
+          currentUser.languages.length === 0 && (
+            <LanguageSelector
+              languages={languages}
+              onLanguageSelect={this.handleLanguageSelect}
+              onDeleteClick={(language) =>
+                this.handleRemoveLanguage(language)
+              }
+              onButtonClick={
+                profileUnchanged ? this.goNext : this.saveInfo
+              }
+              profileUnchanged={profileUnchanged}
+            />
+          )}
         {currentUser && !currentUser.avatar && (
           <HeroSlide
             subtitle="Great! Now let's get an avatar for you"
@@ -603,41 +626,40 @@ class Intro extends PureComponent {
             </Field>
           </HeroSlide>
         )}
-        {currentUser &&
-          (!currentUser.coverImages ||
-            currentUser.coverImages.length === 0) && (
-            <HeroSlide
-              subtitle="Awesome! Now let's get a cover image"
-              isColor="dark"
-            >
-              <Field>
-                <div style={{ maxWidth: 160, margin: '0 auto' }}>
-                  <ImagePicker
-                    files={cover ? [cover] : []}
-                    onChange={this.handleCoverPick}
-                    selectable={!cover}
-                    accept="image/jpeg,image/jpg,image/png"
-                    multiple={false}
-                    length={1}
-                  />
-                </div>
+        {currentUser && (
+          <HeroSlide
+            subtitle="Awesome! Now let's set some cover images"
+            isColor="dark"
+          >
+            {/* {currentUser.coverImages && (
+              <Carousel autoplay infinite style={{ minHeight: 180 }}>
+                
+              </Carousel>
+            */}
+            <Field>
+              <ImagePicker
+                files={coverImages}
+                onChange={this.handleCoverPick}
+                selectable
+                accept="image/jpeg,image/jpg,image/png"
+                multiple
+                length={3}
+              />
 
-                <Control style={{ paddingTop: 24 }}>
-                  <Button
-                    disabled={!cover || savingCover}
-                    onClick={this.saveCover}
-                    className="is-rounded"
-                    isPulled="right"
-                  >
-                    {savingCover
-                      ? 'Saving cover image... '
-                      : 'Save Cover Image'}
-                    <ActivityIndicator animating={savingCover} />
-                  </Button>
-                </Control>
-              </Field>
-            </HeroSlide>
-          )}
+              <Control style={{ paddingTop: 24 }}>
+                <Button
+                  disabled={coverImages.length === 0 || savingCover}
+                  onClick={this.saveCoverImages}
+                  className="is-rounded"
+                  isPulled="right"
+                >
+                  {savingCover ? 'Saving... ' : 'Save'}
+                  <ActivityIndicator animating={savingCover} />
+                </Button>
+              </Control>
+            </Field>
+          </HeroSlide>
+        )}
         {currentUser && (
           <ProfileView
             currentUser={currentUser}

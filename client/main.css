@@ -82,6 +82,14 @@ body.prevent-scroll {
   -webkit-animation: slide-out 0.5s forwards;
 }
 
+.no-padding-hero .hero-body {
+  padding: 0;
+}
+
+.align-start .hero-body {
+  align-items: flex-start !important;
+}
+
 @keyframes slideFromRight {
   100% {
     transform: translateX(0%);

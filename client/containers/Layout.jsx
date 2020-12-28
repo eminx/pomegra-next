@@ -1,6 +1,7 @@
-import React, { Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
 import { IntlProvider } from 'react-intl';
+import { ChakraProvider } from '@chakra-ui/react';
 
 export const UserContext = React.createContext(null);
 
@@ -18,29 +19,15 @@ const routesWithTabBar = [
   '/profile',
 ];
 
-class Layout extends React.Component {
-  state = {
-    isLoading: true,
-  };
+class Layout extends PureComponent {
+  state = {};
 
   componentDidMount() {
-    setTimeout(() => {
-      const { currentUser } = this.props;
-      // if (!currentUser || !currentUser.isIntroDone) {
-      //   this.changeRoute('/intro');
-      // }
-      this.setState({ isLoading: false });
-    }, 3000);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
     const { currentUser } = this.props;
-    if (!prevProps.currentUser && currentUser) {
-      this.setState({
-        isLoading: false,
-      });
-      return;
+    if (!currentUser || !currentUser.isIntroDone) {
+      this.changeRoute('/intro');
     }
+    this.setState({ isLoading: false });
   }
 
   shouldRenderTabBar = () => {
@@ -78,32 +65,29 @@ class Layout extends React.Component {
       history,
       children,
     } = this.props;
-    const { isLoading } = this.state;
 
     const pathname =
       history && history.location && history.location.pathname;
     const shouldRenderTabBar = this.shouldRenderTabBar();
 
-    if (isLoading) {
-      return <ActivityIndicator toast text="Loading..." />;
-    }
+    // if (userLoading) {
+    //   return <ActivityIndicator toast text="Loading..." />;
+    // }
 
     return (
       <IntlProvider locale="en" messages={messages}>
         <UserContext.Provider value={{ currentUser, userLoading }}>
-          <div>
+          <ChakraProvider>
             {children}
 
             {shouldRenderTabBar && (
-              <Fragment>
-                <AppTabBar
-                  pathname={pathname}
-                  changeRoute={this.changeRoute}
-                  messageNotificationCount={this.getMessageNotificationCount()}
-                />
-              </Fragment>
+              <AppTabBar
+                pathname={pathname}
+                changeRoute={this.changeRoute}
+                messageNotificationCount={this.getMessageNotificationCount()}
+              />
             )}
-          </div>
+          </ChakraProvider>
         </UserContext.Provider>
       </IntlProvider>
     );
