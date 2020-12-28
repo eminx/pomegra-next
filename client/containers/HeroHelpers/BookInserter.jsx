@@ -84,6 +84,7 @@ const BookInserter = ({
     </div>
 
     <WhiteSpace />
+
     <div style={{ paddingTop: 24 }}>
       {searchResults &&
         searchResults.map((result, index) => (
@@ -99,7 +100,7 @@ const BookInserter = ({
               onClickBook={() => onClickBook(index)}
               isOpen={openBook === index}
               buttonText="Add to My Shelf"
-              onAddButtonClick={() =>
+              onButtonClick={() =>
                 onAddButtonClick(result.volumeInfo)
               }
             />

@@ -139,7 +139,7 @@ Meteor.methods({
       return false;
     }
     const currentUserId = user._id;
-
+    console.log(theBook);
     // const bookExists = Books.findOne({
     //   b_title_lowercase: theBook.b_title_lowercase,
     //   added_by: currentUserId,

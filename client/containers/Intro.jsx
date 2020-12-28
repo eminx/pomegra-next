@@ -379,28 +379,13 @@ class Intro extends Component {
     });
   };
 
-  insertBook = (book) => {
+  insertBook = async (book) => {
     const { insertedBooks, searchResults } = this.state;
 
-    Meteor.call('insertBook', book, (error, respond) => {
-      if (error) {
-        console.log(error);
-        errorDialog(error.reason);
-        return;
-      } else if (respond && respond.error) {
-        console.log(respond.error);
-        errorDialog(respond.error);
-        return;
-      }
+    console.log(book);
 
-      if (insertedBooks === 2) {
-        Meteor.call('setIntroDone', (error, respond) => {
-          if (error) {
-            console.log(error);
-          }
-        });
-      }
-
+    try {
+      await ('insertBook', book);
       successDialog(
         'Book is successfully added to your virtual shelf',
         1,
@@ -411,7 +396,14 @@ class Intro extends Component {
         insertedBooks: insertedBooks + 1,
         searchResults: insertedBooks === 2 ? [] : searchResults,
       });
-    });
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    }
+
+    if (insertedBooks >= 2) {
+      await call('setIntroDone');
+    }
   };
 
   finishIntro = () => {
