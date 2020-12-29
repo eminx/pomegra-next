@@ -6,7 +6,7 @@ const UsernameSlide = ({
   username,
   isUsernameInvalid,
   onChange,
-  onButtonClick
+  onButtonClick,
 }) => (
   <HeroSlide subtitle="Create a username" isColor="dark">
     <Fragment>
@@ -41,8 +41,8 @@ const UsernameSlide = ({
           {username.length === 0
             ? null
             : isUsernameInvalid
-            ? 'username is not available'
-            : 'username is available'}
+            ? 'username is not valid'
+            : 'username is valid'}
         </Help>
       </Field>
 

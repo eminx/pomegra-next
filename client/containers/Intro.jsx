@@ -2,12 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Field, Control, Button } from 'bloomer';
-import {
-  ImagePicker,
-  ActivityIndicator,
-  Flex,
-  Carousel,
-} from 'antd-mobile';
+import { ImagePicker, ActivityIndicator, Flex } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -42,6 +37,8 @@ import {
 } from './HeroHelpers';
 import NiceShelf from '../reusables/NiceShelf';
 import { UserContext } from './Layout';
+
+const regexUsername = /[^a-z0-9]+/g;
 
 const slideStyle = (backgroundImage) => ({
   width: '100%',
@@ -118,6 +115,7 @@ class Intro extends Component {
   };
 
   isSliderDisabled = () => {
+    return false;
     const { carouselIndex } = this.state;
     // if ([].includes(carouselIndex)) return true;
     if ([0, 1, 2, 3, 7, 8, 9].includes(carouselIndex)) return false;
@@ -139,12 +137,29 @@ class Intro extends Component {
 
   isUsernameInvalid = () => {
     const { username } = this.state;
-    return username.length < 6;
+    if (username.length < 4) {
+      return true;
+    } else if (regexUsername.test(username)) {
+      return true;
+    }
+    return false;
   };
 
   isPasswordInvalid = () => {
     const { password } = this.state;
     return password.length < 6;
+  };
+
+  handleUsernameButtonClick = async () => {
+    const { username } = this.state;
+    const isUsernameTaken = await call('isUsernameTaken', username);
+    if (isUsernameTaken) {
+      errorDialog(
+        `Username ${username} is already taken. Please try another`,
+      );
+      return;
+    }
+    this.goNext();
   };
 
   handleCreateAccount = async () => {
@@ -440,6 +455,10 @@ class Intro extends Component {
       return <Redirect to="/" />;
     }
 
+    if (currentUser && currentUser.isIntroDone) {
+      return <Redirect to="/" />;
+    }
+
     const isEmailInvalid = this.isEmailInvalid();
     const isUsernameInvalid = this.isUsernameInvalid();
     const isPasswordInvalid = this.isPasswordInvalid();
@@ -463,37 +482,38 @@ class Intro extends Component {
     const profileUnchanged =
       areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
 
-    return (
-      <Slider
-        ref={(component) => (this.slider = component)}
-        // arrows={![0, 1, 2].includes(carouselIndex)}
-        // dots={![0, 1, 2].includes(carouselIndex)}
-        afterChange={this.handleSlideChange}
-        swipe={!this.isSliderDisabled()}
-        infinite={false}
-        adaptiveHeight
-        initialSlide={currentUser ? 3 : 0}
-        className="custom-slider"
-        onTouchEnd={swipeAction}
-        onTouchMove={swipeAction}
-        onTouchStart={swipeAction}
-      >
-        <HeroSlide>
-          <Flex justify="center" style={{ height: '100vh' }}>
-            <Flex align="center" direction="column">
-              <NiceShelf width={192} height={192} color="#3e3e3e" />
-              <img
-                src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
-                alt="Librella"
-                width={210}
-                height={45}
-              />
-            </Flex>
-          </Flex>
-        </HeroSlide>
+    const sliderProps = {
+      ref: (component) => (this.slider = component),
+      arrows: false,
+      dots: false,
+      afterChange: this.handleSlideChange,
+      swipe: true,
+      infinite: false,
+      adaptiveHeight: true,
+      className: 'intro-slider',
+      onTouchEnd: swipeAction,
+      onTouchMove: swipeAction,
+      onTouchStart: swipeAction,
+    };
 
-        {!currentUser &&
-          introSlides.map((slide) => (
+    if (!currentUser) {
+      return (
+        <Slider {...sliderProps}>
+          <HeroSlide>
+            <Flex justify="center" style={{ height: '100vh' }}>
+              <Flex align="center" direction="column">
+                <NiceShelf width={192} height={192} color="#3e3e3e" />
+                <img
+                  src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
+                  alt="Librella"
+                  width={210}
+                  height={45}
+                />
+              </Flex>
+            </Flex>
+          </HeroSlide>
+
+          {introSlides.map((slide) => (
             <HeroSlide
               key={slide.title}
               isColor={slide.color}
@@ -502,7 +522,6 @@ class Intro extends Component {
               goNext={this.goNext}
             />
           ))}
-        {!currentUser && (
           <EmailSlide
             email={email}
             onChange={(event) =>
@@ -530,18 +549,16 @@ class Intro extends Component {
               </FadeInUp>
             )}
           </EmailSlide>
-        )}
-        {!currentUser && (
+
           <UsernameSlide
             username={username}
             onChange={(event) =>
               this.setState({ username: event.target.value })
             }
             isUsernameInvalid={isUsernameInvalid}
-            onButtonClick={this.goNext}
+            onButtonClick={this.handleUsernameButtonClick}
           />
-        )}
-        {!currentUser && (
+
           <PasswordSlide
             password={password}
             onChange={(event) =>
@@ -550,127 +567,129 @@ class Intro extends Component {
             isPasswordInvalid={isPasswordInvalid}
             onButtonClick={this.handleCreateAccount}
           />
-        )}
-        {currentUser &&
-          (!currentUser.firstName || !currentUser.lastName) && (
-            <InfoForm
-              firstName={firstName}
-              lastName={lastName}
-              bio={bio}
-              onFirstNameChange={(e) =>
-                this.setState({ firstName: e.target.value })
-              }
-              onLastNameChange={(e) =>
-                this.setState({ lastName: e.target.value })
-              }
-              onBioChange={(e) =>
-                this.setState({ bio: e.target.value })
-              }
-              onSubmitInfoForm={this.saveInfo}
-            />
-          )}
-        {currentUser &&
-          (!currentUser.languages ||
-            currentUser.languages.length < 1) && (
-            <LanguageSelector
-              languages={languages}
-              onLanguageSelect={this.handleLanguageSelect}
-              onDeleteClick={(language) =>
-                this.handleRemoveLanguage(language)
-              }
-              onButtonClick={
-                profileUnchanged ? this.goNext : this.saveInfo
-              }
-              profileUnchanged={profileUnchanged}
-            />
-          )}
-        {currentUser && !currentUser.avatar && (
-          <HeroSlide
-            subtitle="Great! Now let's get an avatar for you"
-            isColor="dark"
-          >
-            <Field>
-              <div style={{ maxWidth: 160, margin: '0 auto' }}>
-                <ImagePicker
-                  files={avatar ? [avatar] : []}
-                  onChange={this.handleAvatarPick}
-                  selectable={!avatar}
-                  accept="image/jpeg,image/jpg,image/png"
-                  multiple={false}
-                  length={1}
-                />
-              </div>
+        </Slider>
+      );
+    }
 
-              <Control style={{ paddingTop: 24 }}>
-                <Button
-                  disabled={!avatar || savingAvatar}
-                  onClick={this.saveAvatar}
-                  className="is-rounded"
-                  isPulled="right"
-                >
-                  {savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
-                  <ActivityIndicator animating={savingAvatar} />
-                </Button>
-              </Control>
-            </Field>
-          </HeroSlide>
-        )}
-        {currentUser && !currentUser.coverImages && (
-          <HeroSlide
-            subtitle="Awesome! Now let's set some cover images"
-            isColor="dark"
-          >
-            {/* {currentUser.coverImages && (
-              <Carousel autoplay infinite style={{ minHeight: 180 }}>
-                
-              </Carousel>
-            */}
-            <Field>
-              <ImagePicker
-                files={coverImages}
-                onChange={this.handleCoverPick}
-                selectable
-                accept="image/jpeg,image/jpg,image/png"
-                multiple
-                length={3}
+    return (
+      <Slider {...sliderProps}>
+        <HeroSlide>
+          <Flex justify="center" style={{ height: '100vh' }}>
+            <Flex align="center" direction="column">
+              <NiceShelf width={192} height={192} color="#3e3e3e" />
+              <img
+                src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
+                alt="Librella"
+                width={210}
+                height={45}
               />
+            </Flex>
+          </Flex>
+        </HeroSlide>
 
-              <Control style={{ paddingTop: 24 }}>
-                <Button
-                  disabled={coverImages.length === 0 || savingCover}
-                  onClick={this.saveCoverImages}
-                  className="is-rounded"
-                  isPulled="right"
-                >
-                  {savingCover ? 'Saving... ' : 'Save'}
-                  <ActivityIndicator animating={savingCover} />
-                </Button>
-              </Control>
-            </Field>
-          </HeroSlide>
-        )}
-        {currentUser && (
-          <ProfileView
-            currentUser={currentUser}
-            onButtonClick={this.goNext}
-          />
-        )}
-        {currentUser && (
-          <BookInserter
-            isSearching={isSearching}
-            onClickBook={this.handleToggleBook}
-            insertedBooks={insertedBooks}
-            searchResults={searchResults}
-            searchValue={searchValue}
-            onSearch={this.searchBook}
-            openBook={openBook}
-            onButtonClick={() => this.finishIntro()}
-            onAddButtonClick={this.insertBook}
-            onSearchValueChange={(event) =>
-              this.setState({ searchValue: event.target.value })
-            }
-          />
-        )}
+        <InfoForm
+          firstName={firstName}
+          lastName={lastName}
+          bio={bio}
+          onFirstNameChange={(e) =>
+            this.setState({ firstName: e.target.value })
+          }
+          onLastNameChange={(e) =>
+            this.setState({ lastName: e.target.value })
+          }
+          onBioChange={(e) => this.setState({ bio: e.target.value })}
+          onSubmitInfoForm={this.saveInfo}
+        />
+
+        <LanguageSelector
+          languages={languages}
+          onLanguageSelect={this.handleLanguageSelect}
+          onDeleteClick={(language) =>
+            this.handleRemoveLanguage(language)
+          }
+          onButtonClick={
+            profileUnchanged ? this.goNext : this.saveInfo
+          }
+          profileUnchanged={profileUnchanged}
+        />
+
+        <HeroSlide
+          subtitle="Great! Now let's get an avatar for you"
+          isColor="dark"
+        >
+          <Field>
+            <div style={{ maxWidth: 160, margin: '0 auto' }}>
+              <ImagePicker
+                files={avatar ? [avatar] : []}
+                onChange={this.handleAvatarPick}
+                selectable={!avatar}
+                accept="image/jpeg,image/jpg,image/png"
+                multiple={false}
+                length={1}
+              />
+            </div>
+
+            <Control style={{ paddingTop: 24 }}>
+              <Button
+                disabled={!avatar || savingAvatar}
+                onClick={this.saveAvatar}
+                className="is-rounded"
+                isPulled="right"
+              >
+                {savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
+                <ActivityIndicator animating={savingAvatar} />
+              </Button>
+            </Control>
+          </Field>
+        </HeroSlide>
+
+        <HeroSlide
+          subtitle="Awesome! Now let's set some cover images"
+          isColor="dark"
+        >
+          <Field>
+            <ImagePicker
+              files={coverImages}
+              onChange={this.handleCoverPick}
+              selectable
+              accept="image/jpeg,image/jpg,image/png"
+              multiple
+              length={3}
+            />
+
+            <Control style={{ paddingTop: 24 }}>
+              <Button
+                disabled={coverImages.length === 0 || savingCover}
+                onClick={this.saveCoverImages}
+                className="is-rounded"
+                isPulled="right"
+              >
+                {savingCover ? 'Saving... ' : 'Save'}
+                <ActivityIndicator animating={savingCover} />
+              </Button>
+            </Control>
+          </Field>
+        </HeroSlide>
+
+        <ProfileView
+          currentUser={currentUser}
+          onButtonClick={this.goNext}
+        />
+
+        <BookInserter
+          isSearching={isSearching}
+          onClickBook={this.handleToggleBook}
+          insertedBooks={insertedBooks}
+          searchResults={searchResults}
+          searchValue={searchValue}
+          onSearch={this.searchBook}
+          openBook={openBook}
+          onButtonClick={() => this.finishIntro()}
+          onAddButtonClick={this.insertBook}
+          onSearchValueChange={(event) =>
+            this.setState({ searchValue: event.target.value })
+          }
+        />
       </Slider>
     );
   }

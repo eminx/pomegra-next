@@ -760,6 +760,11 @@ Meteor.methods({
       throw new Meteor.Error(error);
     }
   },
+
+  isUsernameTaken(username) {
+    const user = Accounts.findUserByUsername(username);
+    return Boolean(user);
+  },
 });
 
 // PUBLICATIONS
