@@ -1,4 +1,5 @@
 import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Field, Control, Button } from 'bloomer';
@@ -16,7 +17,6 @@ import allLanguages from '../allLanguages';
 import {
   resizeImage,
   uploadImage,
-  dataURLtoFile,
   errorDialog,
   successDialog,
   validateEmail,
@@ -32,23 +32,11 @@ import {
   LanguageSelector,
   BookInserter,
   introSlides,
-  uploadProfileImage,
   googleApi,
 } from './HeroHelpers';
 import NiceShelf from '../reusables/NiceShelf';
-import { UserContext } from './Layout';
 
 const regexUsername = /[^a-z0-9]+/g;
-
-const slideStyle = (backgroundImage) => ({
-  width: '100%',
-  height: '40vh',
-  minHeight: 180,
-  backgroundImage: `url('${backgroundImage}')`,
-  backgroundPosition: 'center',
-  backgroundSize: 'cover',
-  touchAction: 'none',
-});
 
 class Intro extends Component {
   state = {
@@ -79,16 +67,15 @@ class Intro extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { currentUser } = this.context;
+    const { currentUser } = this.props;
 
-    // if (!prevProps.currentUser && currentUser) {
-    //   this.fillInfoForm();
-    // }
+    if (!prevProps.currentUser && currentUser) {
+      this.fillInfoForm();
+    }
   }
 
   fillInfoForm = () => {
-    const { currentUser } = this.context;
-    const { carouselIndex } = this.state;
+    const { currentUser } = this.props;
     if (!currentUser) {
       return;
     }
@@ -98,14 +85,9 @@ class Intro extends Component {
       lastName: currentUser.lastName || '',
       bio: currentUser.bio || '',
       languages: currentUser.languages || [],
+      avatar: currentUser.avatar || null,
+      coverImages: currentUser.coverImages || [],
     });
-
-    if (
-      currentUser.isIntroDone &&
-      [0, 1, 2, 3, 4].includes(carouselIndex)
-    ) {
-      this.setState({ introFinished: true });
-    }
   };
 
   handleSlideChange = (index) => {
@@ -428,9 +410,8 @@ class Intro extends Component {
   };
 
   render() {
-    const { currentUser } = this.context;
+    const { currentUser } = this.props;
     const {
-      carouselIndex,
       email,
       username,
       password,
@@ -649,7 +630,7 @@ class Intro extends Component {
         >
           <Field>
             <ImagePicker
-              files={coverImages}
+              files={coverImages.map((cover) => ({ url: cover }))}
               onChange={this.handleCoverPick}
               selectable
               accept="image/jpeg,image/jpg,image/png"
@@ -718,6 +699,11 @@ const swipeAction = (event) => {
   }
 };
 
-Intro.contextType = UserContext;
+export default IntroContainer = withTracker((props) => {
+  const currentUserSub = Meteor.subscribe('me');
+  const currentUser = Meteor.user();
 
-export default Intro;
+  return {
+    currentUser,
+  };
+})(Intro);

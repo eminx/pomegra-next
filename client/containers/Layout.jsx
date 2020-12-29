@@ -1,5 +1,6 @@
-import React, { PureComponent } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
+import React, { PureComponent } from 'react';
 import { IntlProvider } from 'react-intl';
 import { ChakraProvider } from '@chakra-ui/react';
 
