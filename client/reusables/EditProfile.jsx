@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import {
   List,
   Flex,
@@ -13,6 +13,7 @@ import {
   WhiteSpace,
   WingBlank,
 } from 'antd-mobile';
+import { Subtitle } from 'bloomer';
 import { createForm } from 'rc-form';
 import Dropzone from 'react-dropzone';
 import {
@@ -122,6 +123,14 @@ class EditProfileUI extends Component {
     const { getFieldProps, getFieldError } = this.props.form;
     const { languages } = this.state;
 
+    const getGeoLocation = () => {
+      const geolocation = navigator.geolocation;
+      geolocation &&
+        geolocation.getCurrentPosition((position) => {
+          setGeoLocationCoords(position.coords);
+        });
+    };
+
     return (
       <div>
         <Tabs
@@ -139,15 +148,25 @@ class EditProfileUI extends Component {
             <h3>Avatar</h3>
             <WingBlank>
               <Flex justify="center">
-                <ImagePicker
-                  files={avatarImage ? [avatarImage] : []}
-                  onChange={handleAvatarImagePick}
-                  selectable={!avatarImage}
-                  accept="image/jpeg,image/jpg,image/png"
-                  multiple={false}
-                  length={1}
-                  style={{ width: 120 }}
-                />
+                <div
+                  style={{
+                    width: 120,
+                    height: 120,
+                    borderRadius: '50%',
+                  }}
+                >
+                  <ImagePicker
+                    files={avatarImage ? [avatarImage] : []}
+                    onChange={handleAvatarImagePick}
+                    selectable={!avatarImage}
+                    accept="image/jpeg,image/jpg,image/png"
+                    multiple={false}
+                    length={1}
+                    style={{
+                      width: 120,
+                    }}
+                  />
+                </div>
               </Flex>
             </WingBlank>
 
@@ -161,14 +180,16 @@ class EditProfileUI extends Component {
               helperClass="sortableHelper"
               pressDelay={250}
             >
-              {coverImages.map((image, index) => (
-                <SortableItem
-                  key={image.url}
-                  index={index}
-                  image={image}
-                  handleRemoveImage={() => handleRemoveImage(index)}
-                />
-              ))}
+              {coverImages
+                .map((cover) => ({ url: cover }))
+                .map((image, index) => (
+                  <SortableItem
+                    key={image.url}
+                    index={index}
+                    image={image}
+                    handleRemoveImage={() => handleRemoveImage(index)}
+                  />
+                ))}
             </SortableContainer>
 
             <WingBlank>
@@ -210,8 +231,9 @@ class EditProfileUI extends Component {
               <InputItem
                 value={currentUser.username}
                 editable={false}
+                disabled
               >
-                username
+                Username
               </InputItem>
 
               <InputItem
@@ -229,7 +251,7 @@ class EditProfileUI extends Component {
                 // error={!!getFieldError('firstName')}
                 placeholder="first name"
               >
-                first name
+                First name
               </InputItem>
 
               <InputItem
@@ -241,15 +263,15 @@ class EditProfileUI extends Component {
                 // error={!!getFieldError('lastName')}
                 placeholder="last name"
               >
-                last name
+                Last name
               </InputItem>
 
               <TextareaItem
-                {...getFieldProps('bio', {
+                {...getFieldProps('io', {
                   initialValue: currentUser.bio,
                   onChange: setUnSavedInfoChange,
                 })}
-                title="bio"
+                title="Bio"
                 placeholder="bio"
                 rows={5}
               />
@@ -263,7 +285,7 @@ class EditProfileUI extends Component {
                 extra="add language"
                 onOk={this.handleLanguageSelect}
               >
-                <Item arrow="horizontal">spoken languages</Item>
+                <Item arrow="horizontal">Languages</Item>
               </Picker>
 
               <WhiteSpace />
@@ -272,7 +294,7 @@ class EditProfileUI extends Component {
                 {languages.map((language) => (
                   <Tag
                     key={language.value}
-                    style={{ margin: 8 }}
+                    style={{ margin: 8, color: '#000' }}
                     closable
                     onClose={() =>
                       this.handleRemoveLanguage(language.value)
@@ -282,6 +304,8 @@ class EditProfileUI extends Component {
                   </Tag>
                 ))}
               </div>
+
+              <WhiteSpace size="lg" />
 
               <Item>
                 <Button
@@ -294,29 +318,35 @@ class EditProfileUI extends Component {
               </Item>
             </List>
           </div>
+
           <div>
-            <p>
-              We will use your location in order to find books that
-              are located close to you so you can go pick up.
-            </p>
-            <p>
-              And also same for your other users to access you easier.
-            </p>
-            {currentUser.geoLocationCoords ? (
-              <div>
-                <b>{currentUser.geoLocationCoords.latitude}</b>
-                <span> , </span>
-                <b>{currentUser.geoLocationCoords.longitude}</b>
-              </div>
-            ) : (
-              <GeoLocationTracker
-                setGeoLocationCoords={setGeoLocationCoords}
-              />
-            )}
+            <WingBlank>
+              <WhiteSpace />
+              <p>
+                We will use your location in order to find books that
+                are located close to you so you can go pick them up.
+              </p>
+              <WhiteSpace />
+              {currentUser.geoLocationCoords ? (
+                <Fragment>
+                  <Subtitle isSize={6}>Your location is set</Subtitle>
+                  <WhiteSpace size="lg" />
+                  <Button onClick={() => getGeoLocation()}>
+                    Update Your Location
+                  </Button>
+                </Fragment>
+              ) : (
+                <Button
+                  type="primary"
+                  onClick={() => getGeoLocation()}
+                >
+                  Set Your Location
+                </Button>
+              )}
+            </WingBlank>
           </div>
         </Tabs>
         <WhiteSpace size={100} />
-        <WhiteSpace size="lg" />
       </div>
     );
   }
@@ -325,7 +355,6 @@ class EditProfileUI extends Component {
 const SortableItem = sortableElement(
   ({ image, index, handleRemoveImage }) => {
     const handleRemoveClick = (event) => {
-      console.log(event);
       event.stopPropagation();
       event.preventDefault();
       handleRemoveImage();

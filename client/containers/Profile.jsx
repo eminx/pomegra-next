@@ -8,9 +8,10 @@ import {
   WhiteSpace,
   WingBlank,
   Modal,
-  NavBar,
   Progress,
 } from 'antd-mobile';
+import { Avatar, Stack, Text } from '@chakra-ui/react';
+import { Tag } from 'bloomer';
 import arrayMove from 'array-move';
 
 import EditProfile from '../reusables/EditProfile';
@@ -310,7 +311,6 @@ class Profile extends PureComponent {
   };
 
   setGeoLocationCoords = (coords) => {
-    console.log(coords);
     const theCoords = {
       latitude: coords.latitude.toString(),
       longitude: coords.longitude.toString(),
@@ -325,6 +325,7 @@ class Profile extends PureComponent {
           errorDialog(error.reason);
           return;
         }
+        successDialog('Your location is successfully set');
       },
     );
   };
@@ -348,9 +349,6 @@ class Profile extends PureComponent {
     return (
       <div style={{ height: '100%', marginBottom: 80 }}>
         {progress && <Progress percent={progress} />}
-        <NavBar mode="light">
-          <h3>{currentUser.username}</h3>
-        </NavBar>
 
         {progress && (
           <ActivityIndicator
@@ -363,42 +361,63 @@ class Profile extends PureComponent {
         <Fragment>
           <Carousel
             autoplay={false}
-            // infinite
+            infinite
             style={{ minHeight: 180 }}
           >
             {currentUser.coverImages &&
-              currentUser.coverImages.map((image) => (
-                <div key={image.url} style={slideStyle(image.url)} />
-              ))}
+              currentUser.coverImages
+                .map((cover) => ({ url: cover }))
+                .map((image) => (
+                  <div
+                    key={image.url}
+                    style={slideStyle(image.url)}
+                  />
+                ))}
           </Carousel>
 
           <WingBlank>
+            <WhiteSpace size="md" />
             <Flex>
-              <div
-                style={avatarStyle(
-                  currentUser &&
-                    currentUser.avatar &&
-                    currentUser.avatar.url,
-                )}
-              />
-              <div>
-                <h4>
+              <Flex.Item>
+                <Flex direction="column" align="center">
+                  <Avatar
+                    size="xl"
+                    name={currentUser.username}
+                    src={currentUser.avatar && currentUser.avatar.url}
+                  />
+                  <Text fontSize="xl">{currentUser.username}</Text>
+                </Flex>
+              </Flex.Item>
+              <WhiteSpace size="md" />
+              <Flex.Item>
+                <Text fontSize="lg">
                   {currentUser.firstName + ' ' + currentUser.lastName}
-                </h4>
-              </div>
+                </Text>
+                <Text fontSize="md">{currentUser.bio}</Text>
+              </Flex.Item>
             </Flex>
-            <WingBlank>
-              <p style={{ textAlign: 'center' }}>{currentUser.bio}</p>
-            </WingBlank>
+            <WhiteSpace size="md" />
 
-            <WhiteSpace />
+            <Stack direction="row" justify="center">
+              {currentUser.languages.map((language) => (
+                <Tag
+                  key={language.value}
+                  isColor="warning"
+                  isSize="small"
+                >
+                  {language.label.toUpperCase()}{' '}
+                </Tag>
+              ))}
+            </Stack>
+
+            <WhiteSpace size="lg" />
+
             <Button onClick={this.openEditDialog}>Edit</Button>
           </WingBlank>
         </Fragment>
 
         <Modal
           visible={currentUser && isEditDialogOpen}
-          // position="top"
           closable
           onClose={this.closeEditDialog}
           title="Edit Your Profile"

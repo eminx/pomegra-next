@@ -1,5 +1,13 @@
 import React from 'react';
-import { Field, Control, Button, Label, Select, Tag, Delete } from 'bloomer';
+import {
+  Field,
+  Control,
+  Button,
+  Label,
+  Select,
+  Tag,
+  Delete,
+} from 'bloomer';
 
 import HeroSlide from '../../reusables/HeroSlide';
 
@@ -10,21 +18,21 @@ const LanguageSelector = ({
   onLanguageSelect,
   onDeleteClick,
   onButtonClick,
-  profileUnchanged
+  profileUnchanged,
 }) => (
   <HeroSlide subtitle="What languages do you speak?" isColor="dark">
     <Field>
       <Label
         style={{
           color: 'rgba(255, 255, 255, 0.9)',
-          textAlign: 'center'
+          textAlign: 'center',
         }}
       >
         Select:
       </Label>
       <Control style={{ display: 'flex', justifyContent: 'center' }}>
         <Select onChange={onLanguageSelect}>
-          {allLanguages.map(language => (
+          {allLanguages.map((language) => (
             <option key={language.value} value={language.value}>
               {language.label}
             </option>
@@ -35,7 +43,7 @@ const LanguageSelector = ({
     <Field>
       <div>
         {languages &&
-          languages.map(language => (
+          languages.map((language) => (
             <Tag
               key={language.value}
               value={language.value}
@@ -43,8 +51,11 @@ const LanguageSelector = ({
               isSize="small"
               style={{ marginTop: 12, marginRight: 12 }}
             >
-              {language.label}{' '}
-              <Delete isSize="medium" onClick={() => onDeleteClick(language)} />
+              {language.label.toUpperCase()}{' '}
+              <Delete
+                isSize="medium"
+                onClick={() => onDeleteClick(language)}
+              />
             </Tag>
           ))}
       </div>

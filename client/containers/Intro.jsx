@@ -2,8 +2,13 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
-import { Field, Control, Button } from 'bloomer';
-import { ImagePicker, ActivityIndicator, Flex } from 'antd-mobile';
+import { Field, Control, Button, Subtitle } from 'bloomer';
+import {
+  ActivityIndicator,
+  ImagePicker,
+  Flex,
+  WhiteSpace,
+} from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
@@ -59,6 +64,7 @@ class Intro extends Component {
     insertedBooks: 0,
     introFinished: false,
     isLogin: false,
+    gettingLocation: false,
   };
 
   componentDidMount() {
@@ -379,8 +385,6 @@ class Intro extends Component {
   insertBook = async (book) => {
     const { insertedBooks, searchResults } = this.state;
 
-    console.log(book);
-
     try {
       await ('insertBook', book);
       successDialog(
@@ -397,16 +401,38 @@ class Intro extends Component {
       console.log(error);
       errorDialog(error.reason);
     }
-
     if (insertedBooks >= 2) {
-      await call('setIntroDone');
+      this.goNext();
     }
   };
 
-  finishIntro = () => {
-    this.setState({
-      introFinished: true,
-    });
+  getGeoLocation = () => {
+    this.setState({ gettingLocation: true });
+    const geolocation = navigator.geolocation;
+    geolocation &&
+      geolocation.getCurrentPosition((position) => {
+        const coords = {
+          latitude: position.coords.latitude.toString(),
+          longitude: position.coords.longitude.toString(),
+          accuracy: position.coords.accuracy.toString(),
+        };
+        this.setGeoLocationCoords(coords);
+      });
+  };
+
+  setGeoLocationCoords = async (coords) => {
+    try {
+      await call('setGeoLocationCoords', coords);
+      successDialog('Your location is successfully set');
+      this.goNext();
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    }
+  };
+
+  finishIntro = async () => {
+    await call('setIntroDone');
   };
 
   render() {
@@ -430,6 +456,7 @@ class Intro extends Component {
       insertedBooks,
       introFinished,
       isLogin,
+      gettingLocation,
     } = this.state;
 
     if (introFinished) {
@@ -671,6 +698,46 @@ class Intro extends Component {
             this.setState({ searchValue: event.target.value })
           }
         />
+
+        <HeroSlide
+          subtitle="Almost there! We only need to set your location so that we could show you nearby books"
+          isColor="dark"
+        >
+          <Subtitle isSize={6}>
+            Your location will never be shared publicly, or anyone.
+          </Subtitle>
+          <WhiteSpace size="lg" />
+          <Button
+            onClick={this.getGeoLocation}
+            hasTextAlign="centered"
+            isLoading={gettingLocation}
+            isPulled="center"
+          >
+            Set Your Location
+          </Button>
+          <WhiteSpace size="lg" />
+          <Subtitle isSize={6}>
+            After clicking, you will be prompted by your device to ask
+            for permission
+          </Subtitle>
+        </HeroSlide>
+
+        <HeroSlide subtitle="Congratulations!" isColor="success">
+          <Subtitle isSize={4}>
+            Now you are ready to start lending and borrowing books
+          </Subtitle>
+          <WhiteSpace size="lg" />
+          <Button
+            isColor="light"
+            isInverted
+            isLink
+            className="is-rounded"
+            onClick={this.finishIntro}
+            isPulled="right"
+          >
+            Get Started
+          </Button>
+        </HeroSlide>
       </Slider>
     );
   }

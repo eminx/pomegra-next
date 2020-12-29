@@ -120,21 +120,6 @@ class Home extends Component {
         <WhiteSpace size="lg" />
         <ActivityIndicator animating={isLoading} text="Loading..." />
 
-        {/* {!currentUser && (
-          <div>
-            <div>
-              <p style={{ textAlign: 'center' }}>
-                <span>Already have an account?</span>
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center' }}>
-                <Button isSize="small" onClick={() => this.openLoginScreen()}>
-                  Login
-                </Button>
-              </div>
-            </div>
-          </div>
-        )} */}
-
         <HomeWidget
           title="homeWidget1Title"
           message="homeWidget1Message"
@@ -197,7 +182,6 @@ function HomeWidget({
           <Button
             isColor="light"
             isInverted
-            // isOutlined
             isLink
             className="is-rounded"
             onClick={() => redirectTo(redirectPath)}
