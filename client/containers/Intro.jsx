@@ -138,6 +138,18 @@ class Intro extends Component {
     return password.length < 6;
   };
 
+  handleEmailButtonClick = async () => {
+    const { email } = this.state;
+    const isEmailRegistered = await call('isEmailRegistered', email);
+    if (isEmailRegistered) {
+      errorDialog(
+        `The email address ${email} is already registered for an account. Please log in if it's you`,
+      );
+      return;
+    }
+    this.goNext();
+  };
+
   handleUsernameButtonClick = async () => {
     const { username } = this.state;
     const isUsernameTaken = await call('isUsernameTaken', username);
@@ -180,9 +192,9 @@ class Intro extends Component {
         errorDialog(error);
         console.log(error);
       }
-      successDialog('You are successfully logged in');
       this.setState({ isLogin: false });
     });
+    this.slider.slickGoTo(1, true);
   };
 
   forgotPassword = () => {
@@ -495,7 +507,7 @@ class Intro extends Component {
       arrows: false,
       dots: false,
       afterChange: this.handleSlideChange,
-      swipe: true,
+      swipe: false,
       infinite: false,
       adaptiveHeight: true,
       className: 'intro-slider',
@@ -536,7 +548,7 @@ class Intro extends Component {
               this.setState({ email: event.target.value })
             }
             isEmailInvalid={isEmailInvalid}
-            onButtonClick={this.goNext}
+            onButtonClick={this.handleEmailButtonClick}
             initLogin={() => this.setState({ isLogin: true })}
           >
             {isLogin && (
@@ -606,7 +618,7 @@ class Intro extends Component {
             this.setState({ lastName: e.target.value })
           }
           onBioChange={(e) => this.setState({ bio: e.target.value })}
-          onSubmitInfoForm={this.saveInfo}
+          onSubmitInfoForm={this.goNext}
         />
 
         <LanguageSelector
@@ -615,9 +627,7 @@ class Intro extends Component {
           onDeleteClick={(language) =>
             this.handleRemoveLanguage(language)
           }
-          onButtonClick={
-            profileUnchanged ? this.goNext : this.saveInfo
-          }
+          onButtonClick={this.saveInfo}
           profileUnchanged={profileUnchanged}
         />
 
@@ -711,7 +721,7 @@ class Intro extends Component {
             onClick={this.getGeoLocation}
             hasTextAlign="centered"
             isLoading={gettingLocation}
-            isPulled="center"
+            isPulled="centered"
           >
             Set Your Location
           </Button>
@@ -730,7 +740,7 @@ class Intro extends Component {
           <Button
             isColor="light"
             isInverted
-            isLink
+            isOutlined
             className="is-rounded"
             onClick={this.finishIntro}
             isPulled="right"

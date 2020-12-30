@@ -20,7 +20,10 @@ const LanguageSelector = ({
   onButtonClick,
   profileUnchanged,
 }) => (
-  <HeroSlide subtitle="What languages do you speak?" isColor="dark">
+  <HeroSlide
+    subtitle="What languages can you read in?"
+    isColor="dark"
+  >
     <Field>
       <Label
         style={{

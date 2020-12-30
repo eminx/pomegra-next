@@ -765,6 +765,11 @@ Meteor.methods({
     const user = Accounts.findUserByUsername(username);
     return Boolean(user);
   },
+
+  isEmailRegistered(email) {
+    const user = Accounts.findUserByEmail(email);
+    return Boolean(user);
+  },
 });
 
 // PUBLICATIONS
