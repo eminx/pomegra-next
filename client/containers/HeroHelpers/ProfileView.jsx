@@ -16,9 +16,9 @@ const ProfileView = ({ currentUser, onButtonClick }) => {
       hasTextColor="light"
       className="no-padding-hero align-start"
     >
-      <Carousel autoplay infinite style={{ width: '100vw' }}>
-        {currentUser.coverImages &&
-          currentUser.coverImages.map((image) => (
+      {currentUser.coverImages && currentUser.coverImages.length > 0 && (
+        <Carousel autoplay infinite style={{ width: '100vw' }}>
+          {currentUser.coverImages.map((image) => (
             <Image
               key={image}
               src={image}
@@ -29,9 +29,11 @@ const ProfileView = ({ currentUser, onButtonClick }) => {
               fit="cover"
             />
           ))}
-      </Carousel>
+        </Carousel>
+      )}
 
       <WhiteSpace size="md" />
+
       <div
         style={{
           display: 'flex',
