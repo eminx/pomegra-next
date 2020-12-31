@@ -244,7 +244,7 @@ class Intro extends Component {
 
     try {
       await call('updateProfile', values, languages);
-      successDialog('Your profile is successfully updated', 1);
+      successDialog('Your profile is successfully updated', 2);
       this.goNext();
     } catch (error) {
       console.log(error);
@@ -299,7 +299,6 @@ class Intro extends Component {
 
   handleCoverPick = (pickedImages, type, index) => {
     const { coverImages } = this.state;
-    console.log(type);
     if (type === 'remove') {
       this.setState({
         coverImages: coverImages.filter((cover, i) => i !== index),

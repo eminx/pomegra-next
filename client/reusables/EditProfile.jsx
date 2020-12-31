@@ -22,7 +22,6 @@ import {
 } from 'react-sortable-hoc';
 
 import allLanguages from '../allLanguages';
-import GeoLocationTracker from './GeoLocationTracker';
 
 const Item = List.Item;
 
@@ -105,20 +104,24 @@ class EditProfileUI extends Component {
   render() {
     const {
       currentUser,
+      avatar,
       coverImages,
-      avatarImage,
       uploadingImages,
-      unSavedImageChange,
+      unSavedAvatarChange,
+      unSavedCoverChange,
       unSavedInfoChange,
       setUnSavedInfoChange,
       onSortEnd,
-      handleCoverImagePick,
-      handleRemoveImage,
-      handleAvatarImagePick,
-      handleSaveImages,
+      handleCoverPick,
+      handleRemoveCover,
+      handleAvatarPick,
+      handleSaveAvatar,
+      handleSaveCovers,
       handleTabClick,
       openTab,
       setGeoLocationCoords,
+      savingAvatar,
+      savingCover,
     } = this.props;
     const { getFieldProps, getFieldError } = this.props.form;
     const { languages } = this.state;
@@ -147,18 +150,18 @@ class EditProfileUI extends Component {
           <div>
             <h3>Avatar</h3>
             <WingBlank>
-              <Flex justify="center">
+              <Flex align="stretch" direction="column">
                 <div
                   style={{
-                    width: 120,
-                    height: 120,
-                    borderRadius: '50%',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
                   }}
                 >
                   <ImagePicker
-                    files={avatarImage ? [avatarImage] : []}
-                    onChange={handleAvatarImagePick}
-                    selectable={!avatarImage}
+                    files={avatar ? [avatar] : []}
+                    onChange={handleAvatarPick}
+                    selectable={!avatar}
                     accept="image/jpeg,image/jpg,image/png"
                     multiple={false}
                     length={1}
@@ -167,10 +170,18 @@ class EditProfileUI extends Component {
                     }}
                   />
                 </div>
+                <Button
+                  type="primary"
+                  onClick={handleSaveAvatar}
+                  disabled={!unSavedAvatarChange}
+                  loading={savingAvatar}
+                >
+                  Save Avatar
+                </Button>
               </Flex>
             </WingBlank>
 
-            <WhiteSpace size="lg" />
+            <WhiteSpace size="xl" />
 
             <h3>Cover Images</h3>
 
@@ -180,21 +191,19 @@ class EditProfileUI extends Component {
               helperClass="sortableHelper"
               pressDelay={250}
             >
-              {coverImages
-                .map((cover) => ({ url: cover }))
-                .map((image, index) => (
-                  <SortableItem
-                    key={image.url}
-                    index={index}
-                    image={image}
-                    handleRemoveImage={() => handleRemoveImage(index)}
-                  />
-                ))}
+              {coverImages.map((image, index) => (
+                <SortableItem
+                  key={image.url}
+                  index={index}
+                  image={image}
+                  handleRemoveCover={() => handleRemoveCover(index)}
+                />
+              ))}
             </SortableContainer>
 
             <WingBlank>
               <Dropzone
-                onDrop={handleCoverImagePick}
+                onDrop={handleCoverPick}
                 accepted={['image/jpeg', 'image/jpg', 'image/png']}
                 multiple
                 noDrag
@@ -219,10 +228,11 @@ class EditProfileUI extends Component {
             <Item>
               <Button
                 type="primary"
-                onClick={handleSaveImages}
-                disabled={!unSavedImageChange}
+                onClick={handleSaveCovers}
+                disabled={!unSavedCoverChange}
+                loading={savingCover}
               >
-                Save
+                Save Cover Images
               </Button>
             </Item>
           </div>
@@ -353,11 +363,11 @@ class EditProfileUI extends Component {
 }
 
 const SortableItem = sortableElement(
-  ({ image, index, handleRemoveImage }) => {
+  ({ image, index, handleRemoveCover }) => {
     const handleRemoveClick = (event) => {
       event.stopPropagation();
       event.preventDefault();
-      handleRemoveImage();
+      handleRemoveCover();
     };
 
     return (
@@ -384,7 +394,7 @@ const pickerStyle = {
   width: '100%',
   backgroundColor: '#fff',
   padding: 12,
-  marginTop: 24,
+  marginTop: 12,
   borderRadius: 5,
   border: '#108ee9 1px solid',
   color: '#108ee9',

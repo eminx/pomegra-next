@@ -39,9 +39,9 @@ export default GeoLocationTracker = geolocated({
 /* AVAILABLE OPTIONS!
   {
     positionOptions: {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: Infinity,
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: Infinity,
     },
     watchPosition: false,
     userDecisionTimeout: null,

@@ -20,6 +20,8 @@ import {
   successDialog,
   dataURLtoFile,
   resizeImage,
+  uploadImage,
+  call,
 } from '../functions';
 
 import { uploadProfileImage } from './HeroHelpers';
@@ -27,47 +29,67 @@ import { UserContext } from './Layout';
 
 class Profile extends PureComponent {
   state = {
+    avatar: null,
     coverImages: [],
-    avatarImage: null,
     parsedAvatarImage: [],
     isEditDialogOpen: false,
     uploadingImages: false,
     progress: null,
     uploadingCoverImages: false,
     uploadingAvatarImage: false,
-    unSavedImageChange: false,
+    unSavedAvatarChange: false,
+    unSavedCoverChange: false,
     unSavedInfoChange: false,
+    savingAvatar: false,
+    savingCover: false,
   };
 
   openEditDialog = () => {
     const { currentUser } = this.context;
+    if (!currentUser) {
+      return;
+    }
 
     this.setState({
       isEditDialogOpen: true,
-      coverImages: (currentUser && currentUser.coverImages) || [],
-      avatarImage: currentUser && currentUser.avatar,
+      coverImages:
+        currentUser.coverImages.map((cover) => ({
+          url: cover,
+          isNewImage: false,
+        })) || [],
+      avatar: currentUser.avatar,
     });
   };
 
   closeEditDialog = () => {
-    const { unSavedInfoChange, unSavedImageChange } = this.state;
+    const {
+      unSavedInfoChange,
+      unSavedAvatarChange,
+      unSavedCoverChange,
+    } = this.state;
+
     const closeEditDialog = () => {
       this.setState({
         isEditDialogOpen: false,
         coverImages: [],
-        avatarImage: null,
-        unSavedImageChange: false,
+        avatar: null,
+        unSavedAvatarChange: false,
+        unSavedCoverChange: false,
         uploadingImages: false,
         unSavedInfoChange: false,
       });
     };
 
     let changedTab = false;
-    if (unSavedInfoChange && unSavedImageChange) {
+    if (
+      unSavedInfoChange &&
+      unSavedAvatarChange &&
+      unSavedCoverChange
+    ) {
       changedTab = 'images and info sections';
     } else if (unSavedInfoChange) {
       changedTab = 'info section';
-    } else if (unSavedImageChange) {
+    } else if (unSavedAvatarChange || unSavedCoverChange) {
       changedTab = 'images section';
     }
 
@@ -95,103 +117,85 @@ class Profile extends PureComponent {
   };
 
   updateProfile = (values, languages) => {
-    Meteor.call(
-      'updateProfile',
-      values,
-      languages,
-      (error, respond) => {
-        if (error) {
-          console.log(error);
-          errorDialog(error.reason);
-        } else {
-          this.setState({
-            isEditDialogOpen: false,
-          });
-          successDialog('Your profile is successfully updated');
-        }
-      },
-    );
+    try {
+      call('updateProfile', values, languages);
+      successDialog('Your profile is successfully updated');
+      this.setState({
+        unSavedInfoChange: false,
+      });
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    }
   };
 
-  handleCoverImagePick = (pickedImages) => {
+  handleAvatarPick = (images, type, index) => {
+    if (type === 'remove') {
+      this.setState({
+        avatar: null,
+        unSavedImageChange: true,
+      });
+      return;
+    }
+    this.setState({
+      avatar: images[0],
+      unSavedAvatarChange: true,
+    });
+  };
+
+  saveAvatar = async () => {
+    const { avatar } = this.state;
+
+    this.setState({
+      savingAvatar: true,
+    });
+
+    try {
+      const resizedAvatar = await resizeImage(avatar.file, 300);
+      const uploadedAvatar = await uploadImage(
+        resizedAvatar,
+        'profileImageUpload',
+      );
+      const avatarToSave = {
+        name: avatar.file.name,
+        url: uploadedAvatar,
+        uploadDate: new Date(),
+      };
+      await call('setNewAvatar', avatarToSave);
+      successDialog('Your avatar is successfully updated');
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
+      this.setState({
+        savingAvatar: false,
+        unSavedAvatarChange: false,
+      });
+    }
+  };
+
+  handleCoverPick = (pickedImages) => {
     const { coverImages } = this.state;
+
     const imageSet = pickedImages.map((image) => ({
       file: image,
       url: URL.createObjectURL(image),
       isNewImage: true,
     }));
+
     this.setState({
       coverImages: [...coverImages, ...imageSet],
-      unSavedImageChange: true,
-      coverChange: true,
+      unSavedCoverChange: true,
     });
   };
 
-  handleRemoveImage = (imageIndex) => {
+  handleRemoveCover = (imageIndex) => {
     const { coverImages } = this.state;
     this.setState({
       coverImages: coverImages.filter(
         (image, index) => imageIndex !== index,
       ),
-      unSavedImageChange: true,
-      coverChange: true,
-    });
-  };
-
-  handleAvatarImagePick = (images, type, index) => {
-    this.setState({
-      avatarImage: images[0],
-      unSavedImageChange: true,
-      avatarChange: true,
-    });
-  };
-
-  handleAvatarImageRemove = (images, type, index) => {
-    this.setState({
-      avatarImage: null,
-      unSavedImageChange: true,
-      avatarChange: true,
-    });
-  };
-
-  resizeImages = () => {
-    const { coverImages, progress } = this.state;
-    this.setState({
-      uploadingImages: true,
-    });
-
-    const uploadedImages = [];
-
-    const uploadableCoverImages = coverImages.filter(
-      (image) => image.isNewImage && image.file,
-    );
-
-    let progressCounter = progress;
-    uploadableCoverImages.forEach((image, index) => {
-      resizeImage(image, 500, (uri) => {
-        const uploadableImage = dataURLtoFile(uri, image.file.name);
-        uploadProfileImage(uploadableImage, (error, respond) => {
-          if (error) {
-            console.log('error!', error);
-            return;
-          }
-          uploadedImages.push({
-            url: respond,
-            name: image.file.name,
-            uploadDate: new Date(),
-          });
-          progressCounter =
-            (80 * uploadedImages.length) /
-            uploadableCoverImages.length;
-          this.setState({
-            progress: progressCounter,
-          });
-          uploadedImages.length === uploadableCoverImages.length &&
-            this.setState({ uploadedImages }, () =>
-              this.setNewImages(),
-            );
-        });
-      });
+      unSavedCoverChange: true,
     });
   };
 
@@ -207,107 +211,57 @@ class Profile extends PureComponent {
     }));
   };
 
-  handleSaveImages = () => {
-    const { coverImages } = this.state;
-
+  saveCoverImages = async () => {
     this.setState({
-      progress: 5,
+      savingCover: true,
     });
 
-    const isThereNewImage = coverImages.some(
-      (image) => image.isNewImage,
-    );
-    if (isThereNewImage) {
-      this.resizeImages();
-    } else {
-      this.setNewImages();
+    const { coverImages } = this.state;
+
+    try {
+      const imagesReadyToSave = await Promise.all(
+        coverImages.map(async (cover, index) => {
+          if (!cover.isNewImage) {
+            return cover.url;
+          }
+          const resizedImage = await resizeImage(cover.file, 1200);
+          const uploadedImageUrl = await uploadImage(
+            resizedImage,
+            'coverUpload',
+          );
+          return uploadedImageUrl;
+        }),
+      );
+      await call('setNewCoverImages', imagesReadyToSave);
+      successDialog('Your cover images are successfully updated');
+    } catch (error) {
+      console.error('Error uploading:', error);
+      errorDialog(error.reason);
+    } finally {
+      this.setState({
+        savingCover: false,
+        unSavedCoverChange: false,
+      });
     }
   };
 
-  setNewImages = () => {
-    const {
-      uploadedImages,
-      coverImages,
-      avatarImage,
-      avatarChange,
-    } = this.state;
+  handleAvatarImageRemove = (images, type, index) => {
+    this.setState({
+      avatarImage: null,
+      unSavedImageChange: true,
+      avatarChange: true,
+    });
+  };
 
-    let newImageSet;
-
-    if (!uploadedImages) {
-      newImageSet = coverImages;
-    } else {
-      newImageSet = coverImages
-        .filter((image) => !image.file)
-        .concat(uploadedImages);
+  onSortEnd = ({ oldIndex, newIndex }) => {
+    if (oldIndex === newIndex) {
+      return;
     }
 
-    Meteor.call(
-      'setNewCoverImages',
-      newImageSet,
-      (error, respond) => {
-        if (error) {
-          console.log(error);
-          errorDialog(error.reason);
-          return;
-        }
-        if (avatarChange && avatarImage) {
-          resizeImage(avatarImage, 180, (uri) => {
-            const uploadableImage = dataURLtoFile(
-              uri,
-              avatarImage.file.name,
-            );
-            uploadProfileImage(uploadableImage, (error, respond) => {
-              if (error) {
-                console.log('error!', error);
-                errorDialog(error.reason);
-                return;
-              }
-              const avatar = {
-                name: avatarImage.file.name,
-                url: respond,
-                uploadDate: new Date(),
-              };
-              Meteor.call(
-                'setNewAvatar',
-                avatar,
-                (error, respond) => {
-                  if (error) {
-                    console.log(error);
-                    errorDialog(error.reason);
-                    return;
-                  }
-                },
-              );
-            });
-          });
-        } else if (avatarChange && !avatarImage) {
-          Meteor.call('setAvatarEmpty', (error, respond) => {
-            if (error) {
-              console.log(error);
-              errorDialog(error.reason);
-              return;
-            }
-          });
-        }
-
-        this.setState({
-          progress: 100,
-          uploadingImages: false,
-          unSavedImageChange: false,
-        });
-
-        successDialog('Your images are successfully  saved');
-        setTimeout(
-          () =>
-            this.setState({
-              progress: null,
-              isEditDialogOpen: false,
-            }),
-          2000,
-        );
-      },
-    );
+    this.setState(({ coverImages }) => ({
+      coverImages: arrayMove(coverImages, oldIndex, newIndex),
+      unSavedCoverChange: true,
+    }));
   };
 
   setGeoLocationCoords = (coords) => {
@@ -316,30 +270,29 @@ class Profile extends PureComponent {
       longitude: coords.longitude.toString(),
       accuracy: coords.accuracy.toString(),
     };
-    Meteor.call(
-      'setGeoLocationCoords',
-      theCoords,
-      (error, respond) => {
-        if (error) {
-          console.log(error);
-          errorDialog(error.reason);
-          return;
-        }
-        successDialog('Your location is successfully set');
-      },
-    );
+
+    try {
+      call('setGeoLocationCoords', theCoords);
+      successDialog('Your location is successfully set');
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    }
   };
 
   render() {
     const { currentUser } = this.context;
     const {
       isEditDialogOpen,
+      avatar,
       coverImages,
-      avatarImage,
-      unSavedImageChange,
+      unSavedAvatarChange,
+      unSavedCoverChange,
       unSavedInfoChange,
       uploadingImages,
       progress,
+      savingAvatar,
+      savingCover,
     } = this.state;
 
     if (!currentUser) {
@@ -426,18 +379,20 @@ class Profile extends PureComponent {
             currentUser={currentUser}
             onSubmit={this.updateProfile}
             coverImages={coverImages}
-            avatarImage={avatarImage}
+            avatar={avatar}
+            savingAvatar={savingAvatar}
+            savingCover={savingCover}
             uploadingImages={uploadingImages}
-            unSavedImageChange={unSavedImageChange}
+            unSavedAvatarChange={unSavedAvatarChange}
+            unSavedCoverChange={unSavedCoverChange}
             unSavedInfoChange={unSavedInfoChange}
             setUnSavedInfoChange={this.setUnSavedInfoChange}
             onSortEnd={this.onSortEnd}
-            handleCoverImagePick={this.handleCoverImagePick}
-            handleRemoveImage={(index) =>
-              this.handleRemoveImage(index)
-            }
-            handleAvatarImagePick={this.handleAvatarImagePick}
-            handleSaveImages={this.handleSaveImages}
+            handleAvatarPick={this.handleAvatarPick}
+            handleCoverPick={this.handleCoverPick}
+            handleRemoveCover={this.handleRemoveCover}
+            handleSaveAvatar={this.saveAvatar}
+            handleSaveCovers={this.saveCoverImages}
             handleTabClick={(tab, index) =>
               this.setState({ openTab: index })
             }
@@ -457,20 +412,6 @@ const slideStyle = (backgroundImage) => ({
   backgroundPosition: 'center',
   backgroundSize: 'cover',
   touchAction: 'none',
-});
-
-const avatarStyle = (backgroundImage) => ({
-  width: 80,
-  height: 80,
-  margin: 12,
-  flexBasis: 80,
-  flexGrow: 0,
-  flexShrink: 0,
-  backgroundImage: `url('${backgroundImage}')`,
-  backgroundPosition: 'center',
-  backgroundSize: 'cover',
-  borderRadius: '50%',
-  boxShadow: '0 0 5px',
 });
 
 Profile.contextType = UserContext;
