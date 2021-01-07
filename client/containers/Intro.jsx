@@ -267,6 +267,12 @@ class Intro extends Component {
   saveAvatar = async () => {
     const { avatar } = this.state;
 
+    const { currentUser } = this.props;
+    if (currentUser.avatar) {
+      this.goNext();
+      return;
+    }
+
     this.setState({
       savingAvatar: true,
     });
@@ -335,11 +341,17 @@ class Intro extends Component {
   };
 
   saveCoverImages = async () => {
+    const { coverImages } = this.state;
+    const { currentUser } = this.props;
+
+    if (currentUser.coverImages) {
+      this.goNext();
+      return;
+    }
+
     this.setState({
       savingCover: true,
     });
-
-    const { coverImages } = this.state;
 
     try {
       const imagesReadyToSave = await Promise.all(
@@ -653,7 +665,11 @@ class Intro extends Component {
                 className="is-rounded"
                 isPulled="right"
               >
-                {savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
+                {currentUser.avatar
+                  ? 'Continue'
+                  : savingAvatar
+                  ? 'Saving Avatar... '
+                  : 'Save Avatar'}
                 <ActivityIndicator animating={savingAvatar} />
               </Button>
             </Control>
@@ -666,7 +682,13 @@ class Intro extends Component {
         >
           <Field>
             <ImagePicker
-              files={coverImages.map((cover) => ({ url: cover }))}
+              files={
+                currentUser.coverImages
+                  ? currentUser.coverImages.map((image) => ({
+                      url: image,
+                    }))
+                  : coverImages
+              }
               onChange={this.handleCoverPick}
               selectable
               accept="image/jpeg,image/jpg,image/png"
@@ -681,7 +703,11 @@ class Intro extends Component {
                 className="is-rounded"
                 isPulled="right"
               >
-                {savingCover ? 'Saving... ' : 'Save'}
+                {currentUser.coverImages
+                  ? 'Continue'
+                  : savingCover
+                  ? 'Saving... '
+                  : 'Save'}
                 <ActivityIndicator animating={savingCover} />
               </Button>
             </Control>

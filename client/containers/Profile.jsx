@@ -351,7 +351,7 @@ class Profile extends PureComponent {
             </Flex>
             <WhiteSpace size="md" />
 
-            <Stack direction="row" justify="center">
+            <Stack direction="row" justify="center" wrap="wrap">
               {currentUser.languages.map((language) => (
                 <Tag
                   key={language.value}
