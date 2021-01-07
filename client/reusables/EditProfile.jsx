@@ -392,6 +392,7 @@ const SortableContainer = sortableContainer(({ children }) => {
 
 const pickerStyle = {
   width: '100%',
+  height: 48,
   backgroundColor: '#fff',
   padding: 12,
   marginTop: 12,
