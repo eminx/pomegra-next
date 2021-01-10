@@ -910,11 +910,11 @@ Meteor.startup(function () {
         requesterUsername: request.requester_name,
         ownerAvatar: request.owner_profile_image,
         requesterAvatar: request.requester_profile_image,
-        dateRequested: request.date_requested,
         isConfirmed: request.is_confirmed || false,
-        isRepliedAndNotSeen: request.is_replied_and_not_seen || false,
         isHanded: request.is_handed || false,
         isReturned: request.is_returned || false,
+        isRepliedAndNotSeen: request.is_replied_and_not_seen || false,
+        dateRequested: request.date_requested,
       },
     });
   });

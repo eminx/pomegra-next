@@ -97,7 +97,6 @@ class MyBooks extends Component {
   filteredSortedBooks = (sortedBooks) => {
     const { filterValue } = this.state;
     return sortedBooks.filter((book) => {
-      console.log(book);
       return (
         (book.title &&
           book.title
