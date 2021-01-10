@@ -140,7 +140,7 @@ Meteor.methods({
     }
     const currentUserId = user._id;
     const bookExists = Books.findOne({
-      title_lowercase: book.title_lowercase,
+      title: book.title,
       ownerId: currentUserId,
     });
 
@@ -151,9 +151,8 @@ Meteor.methods({
     }
 
     let imageUrl =
-      theBook.imageLinks &&
-      (theBook.imageLinks.thumbnail ||
-        theBook.imageLinks.smallThumbnail);
+      book.imageLinks &&
+      (book.imageLinks.thumbnail || book.imageLinks.smallThumbnail);
 
     if (imageUrl && imageUrl.substring(0, 5) === 'http:') {
       imageUrl = imageUrl.slice(0, 4) + 's' + imageUrl.slice(4);
@@ -840,9 +839,6 @@ Meteor.publish('myMessages', function (requestId) {
 
 Meteor.startup(function () {
   Books.find().forEach((book) => {
-    if (book.title) {
-      return;
-    }
     if (book.selfLinkGoogle) {
       fetch(book.selfLinkGoogle)
         .then((response) => {

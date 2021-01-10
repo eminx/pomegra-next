@@ -21,7 +21,6 @@ const HeroSlide = ({
     isBold
     isColor={isColor}
     isPaddingless={false}
-    goNext
     {...otherProps}
   >
     <HeroBody>

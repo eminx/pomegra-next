@@ -70,18 +70,19 @@ class AddBook extends Component {
       errorDialog('You already own this book');
       return;
     }
-    console.log(book);
 
     try {
       await call('insertBook', book);
       successDialog(
         'Book is successfully added to your virtual shelf',
+        1,
       );
       this.setState({
         openBook: null,
       });
     } catch (error) {
-      errorDialog(error.reason);
+      console.log(error);
+      errorDialog(error.reason || error.error);
     }
   };
 

@@ -202,7 +202,7 @@ class MyBooks extends Component {
                 onClick={() => this.viewBookInDetail(book)}
               >
                 <b>{book.title}</b>
-                {suggestedBook.authors.map((author) => (
+                {book.authors.map((author) => (
                   <Brief key={author}>{author}</Brief>
                 ))}
               </ListItem>
