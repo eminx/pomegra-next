@@ -84,7 +84,7 @@ Meteor.methods({
   getMyBooks: () => {
     const currentUserId = Meteor.userId();
     try {
-      const myBooks = Books.find({ added_by: currentUserId }).fetch();
+      const myBooks = Books.find({ ownerId: currentUserId }).fetch();
       return myBooks;
     } catch (error) {
       return error;
@@ -97,7 +97,7 @@ Meteor.methods({
     try {
       return Books.findOne({
         _id: bookId,
-        added_by: currentUserId,
+        ownerId: currentUserId,
       });
     } catch (error) {
       return error;
@@ -121,7 +121,7 @@ Meteor.methods({
       if (currentUserId) {
         return Books.find(
           {
-            added_by: { $ne: currentUserId },
+            ownerId: { $ne: currentUserId },
           },
           { limit: 50 },
         ).fetch();
@@ -133,55 +133,48 @@ Meteor.methods({
     }
   },
 
-  insertBook: (theBook) => {
+  insertBook: (book) => {
     const user = Meteor.user();
     if (!user) {
       return false;
     }
     const currentUserId = user._id;
-    console.log(theBook);
-    // const bookExists = Books.findOne({
-    //   b_title_lowercase: theBook.b_title_lowercase,
-    //   added_by: currentUserId,
-    // });
+    const bookExists = Books.findOne({
+      title_lowercase: book.title_lowercase,
+      ownerId: currentUserId,
+    });
 
-    // if (bookExists) {
-    //   throw new Meteor.Error('You have already added a book with same title');
-    // }
-
-    let image_url =
-      theBook.imageLinks && theBook.imageLinks.thumbnail;
-
-    if (image_url && image_url.substring(0, 5) === 'http:') {
-      image_url = image_url.slice(0, 4) + 's' + image_url.slice(4);
+    if (bookExists) {
+      throw new Meteor.Error(
+        'You have already added a book with same title',
+      );
     }
 
-    const book = { ...theBook };
+    let imageUrl =
+      theBook.imageLinks &&
+      (theBook.imageLinks.thumbnail ||
+        theBook.imageLinks.smallThumbnail);
 
-    const myBook = {
-      date_added: new Date(),
-      b_title: theBook.title,
-      b_title_lowercase: theBook.title.toLowerCase(),
-      b_author: theBook.authors && theBook.authors[0],
-      b_author_lowercase:
-        theBook.authors && theBook.authors[0].toLowerCase(),
-      b_lang: theBook.language || '',
-      image_url: image_url,
-      b_cat: (theBook.categories && theBook.categories[0]) || '',
-      b_ISBN:
-        theBook.industryIdentifiers && theBook.industryIdentifiers[0],
-      selfLinkGoogle: theBook.selfLink,
-      added_by: currentUserId,
-      owner_name: user.username,
-      // owner_profile_image_url: user.profile.image_url,
-      x_times: 0,
-      is_available: true,
-      ...theBook,
+    if (imageUrl && imageUrl.substring(0, 5) === 'http:') {
+      imageUrl = imageUrl.slice(0, 4) + 's' + imageUrl.slice(4);
+    }
+
+    const newBook = {
+      ...book,
+      titleLowercase: theBook.title.toLowerCase(),
+      dateAdded: new Date(),
+      imageUrl,
+      ownerId: currentUserId,
+      ownerUsername: user.username,
+      ownerAvatar: user.avatar,
+      xTimes: 0,
+      isAvailable: true,
     };
 
-    const bookId = Books.insert(myBook, function (error, result) {
+    const bookId = Books.insert(newBook, function (error, result) {
       if (error) {
-        console.log(error, 'error!');
+        console.log('error!', error);
+        throw new Meteor.error(error);
       } else {
         return bookId;
       }
@@ -190,10 +183,10 @@ Meteor.methods({
 
   updateBook: (bookId, values) => {
     if (!Meteor.userId()) {
-      return false;
+      return;
     }
     const theBook = Books.findOne(bookId);
-    if (theBook.added_by !== Meteor.userId()) {
+    if (theBook.ownerId !== Meteor.userId()) {
       return;
     }
     try {
@@ -201,11 +194,10 @@ Meteor.methods({
         { _id: bookId },
         {
           $set: {
-            b_title: values.title,
-            b_author: values.author,
-            b_lang: values.b_lang,
-            'b_ISBN.identifier': values.isbn,
-            b_description: values.description,
+            title: values.title,
+            authors: values.author,
+            language: values.b_lang,
+            description: values.description,
           },
         },
       );
@@ -219,7 +211,7 @@ Meteor.methods({
       return;
     }
     const theBook = Books.findOne(bookId);
-    if (theBook.added_by !== Meteor.userId()) {
+    if (theBook.ownerId !== Meteor.userId()) {
       return;
     }
 
@@ -233,12 +225,15 @@ Meteor.methods({
   getRequests: () => {
     const currentUserId = Meteor.userId();
     if (!currentUserId) {
-      return false;
+      return;
     }
 
     try {
       return Requests.find({
-        $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
+        $or: [
+          { requesterId: currentUserId },
+          { ownerId: currentUserId },
+        ],
       }).fetch();
     } catch (error) {
       return error;
@@ -253,8 +248,11 @@ Meteor.methods({
 
     try {
       return Requests.findOne({
-        _id: reqId,
-        $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
+        _id: requestId,
+        $or: [
+          { requesterId: currentUserId },
+          { ownerId: currentUserId },
+        ],
       });
     } catch (error) {
       return error;
@@ -270,54 +268,56 @@ Meteor.methods({
     try {
       const theBook = Books.findOne(bookId);
       const currentUser = Meteor.user();
-      const owner = Meteor.users.findOne(theBook.added_by);
+      const owner = Meteor.users.findOne(theBook.ownerId);
 
       if (
-        Requests.findOne({ req_b_id: bookId, req_by: currentUserId })
+        Requests.findOne({
+          bookId: bookId,
+          requesterId: currentUserId,
+        })
       ) {
         throw new Meteor.Error(
           'You have already requested this item',
         );
       }
 
-      const reqId = Requests.insert({
-        req_b_id: bookId,
-        req_by: currentUserId,
-        req_from: theBook.added_by,
-        book_name: theBook.b_title,
-        book_author: theBook.b_author,
-        owner_name: theBook.owner_name,
-        requester_name: currentUser.username,
-        book_image_url: theBook.image_url || '',
-        owner_profile_image:
-          (owner.profile && owner.profile.image_url) || '',
-        requester_profile_image:
-          (currentUser.profile && currentUser.profile.image_url) ||
-          '',
-        date_requested: new Date(),
+      const requestId = Requests.insert({
+        bookId: bookId,
+        requesterId: currentUserId,
+        ownerId: theBook.ownerId,
+        ownerUsername: theBook.ownerUsername,
+        requesterUsername: currentUser.username,
+        ownerAvatar: owner.avatar && owner.avatar.url,
+        requesterAvatar: currentUser.avatar && currentUser.avatar.url,
+        bookTitle: theBook.title,
+        bookAuthors: theBook.authors,
+        bookImage: theBook.imageUrl,
+        bookLanguage: theBook.language,
+        bookCategories: theBook.categories,
+        dateRequested: new Date(),
       });
 
       Messages.insert({
-        req_id: reqId,
-        borrower_id: currentUserId,
-        lender_id: theBook.added_by,
-        is_seen_by_other: false,
+        requestId: requestId,
+        borrowerId: currentUserId,
+        lenderId: theBook.ownerId,
+        isSeenByOther: false,
         messages: new Array(),
       });
 
       Books.update(bookId, {
         $set: {
-          on_request: true,
-          is_available: false,
+          onRequest: true,
+          isAvailable: false,
         },
       });
 
-      return reqId;
+      return requestId;
 
       // const subjectEmail = 'Someone is interested in reading your book';
       // var textEmail =
       //   'Hi ' +
-      //   ownerName +
+      //   ownerUsername +
       //   '. ' +
       //   requesterName +
       //   ' has requested to borrow a book from you. Please go ahead and reply at: https://app.pomegra.org/my-requests/';
@@ -327,25 +327,25 @@ Meteor.methods({
     }
   },
 
-  acceptRequest: (reqId) => {
+  acceptRequest: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('You are not logged in!');
     }
 
-    const req = Requests.findOne(reqId);
-    if (req.req_from !== currentUserId) {
-      return false;
+    const request = Requests.findOne(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
     }
 
     try {
       Requests.update(
-        { _id: reqId },
+        { _id: requestId },
         {
           $set: {
-            is_confirmed: new Date(),
-            is_replied_and_not_seen: true,
+            isConfirmed: new Date(),
+            isRepliedAndNotSeen: true,
           },
         },
       );
@@ -354,148 +354,148 @@ Meteor.methods({
         { _id: bookId },
         {
           $set: {
-            on_request: false,
-            on_acceptance: true,
+            onRequest: false,
+            onAcceptance: true,
           },
         },
       );
-      return;
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
 
+    return;
+
     const subjectEmail = 'Your request has been accepted!';
-    const textEmail = `Congratulations! One of your requests has been accepted. Check at: https://app.pomegra.org/request/${reqId}`;
+    const textEmail = `Congratulations! One of your requests has been accepted. Check at: https://app.pomegra.org/request/${requestId}`;
     Meteor.call('sendEmail', borrowerId, subjectEmail, textEmail);
   },
 
-  denyRequest: (reqId) => {
+  denyRequest: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('You are not logged in');
     }
 
-    const request = Requests.findOne(reqId);
-    if (request.req_from !== currentUserId) {
-      return false;
+    const request = Requests.findOne(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
     }
 
     Requests.update(
-      { _id: reqId },
+      { _id: requestId },
       {
         $set: {
-          is_denied: new Date(),
+          isDenied: new Date(),
         },
       },
     );
 
     Books.update(
-      { _id: request.req_b_id },
+      { _id: request.bookId },
       {
         $set: {
-          on_request: false,
-          is_available: true,
+          onRequest: false,
+          isAvailable: true,
         },
       },
     );
   },
 
-  isHanded: (reqId) => {
+  isHanded: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('You are not logged in');
     }
 
-    const request = Requests.findOne(reqId);
-    if (request.req_from !== currentUserId) {
-      return false;
+    const request = Requests.findOne(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
     }
 
     Requests.update(
-      { _id: reqId },
+      { _id: requestId },
       {
         $set: {
-          is_handed: new Date(),
+          isHanded: new Date(),
         },
       },
     );
 
     Books.update(
-      { _id: request.req_b_id },
+      { _id: request.bookId },
       {
         $set: {
-          on_acceptance: false,
-          on_lend: true,
+          onAcceptance: false,
+          onLend: true,
         },
       },
     );
   },
 
-  isReturned: (reqId) => {
+  isReturned: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('You are not logged in');
     }
 
-    const request = Requests.findOne(reqId);
-    if (request.req_from !== currentUserId) {
-      return false;
+    const request = Requests.findOne(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
     }
 
     Requests.update(
-      { _id: reqId },
+      { _id: requestId },
       {
         $set: {
-          is_returned: new Date(),
+          isReturned: new Date(),
         },
       },
     );
 
     Books.update(
-      { _id: request.req_b_id },
+      { _id: request.bookId },
       {
         $set: {
-          on_lend: false,
+          onLend: false,
           returned: true,
-          is_available: true,
+          isAvailable: true,
         },
         $inc: {
-          x_times: 1,
+          xTimes: 1,
         },
       },
     );
   },
 
-  abortRequest: (reqId) => {
+  abortRequest: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('You are not logged in');
     }
 
-    const request = Requests.findOne(reqId);
-    if (request.req_from !== currentUserId) {
-      return false;
+    const request = Requests.findOne(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
     }
 
     Requests.update(
-      { _id: reqId },
+      { _id: requestId },
       {
         $set: {
-          is_archived: true,
-          is_aborted: true,
+          isAborted: true,
         },
       },
     );
 
     Books.update(
-      { _id: request.req_b_id },
+      { _id: request.bookId },
       {
         $set: {
-          is_available: true,
+          isAvailable: true,
         },
       },
     );
@@ -505,21 +505,21 @@ Meteor.methods({
     const currentUserId = Meteor.userId();
     currentUser = Meteor.user();
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('You are not logged in');
     }
     const theMessage = Messages.findOne({
-      req_id: requestId,
+      requestId,
     });
     if (
-      currentUserId !== theMessage.lender_id &&
-      currentUserId !== theMessage.borrower_id
+      currentUserId !== theMessage.lenderId &&
+      currentUserId !== theMessage.borrowerId
     ) {
       return;
     }
     try {
-      const Message = Messages.findOne({ req_id: requestId });
+      const theMessage = Messages.findOne({ requestId });
       Messages.update(
-        { req_id: requestId },
+        { requestId },
         {
           $push: {
             messages: {
@@ -530,13 +530,13 @@ Meteor.methods({
             },
           },
           $set: {
-            is_seen_by_other: false,
-            last_msg_by: currentUserId,
+            isSeenByOther: false,
+            lastMessageBy: currentUserId,
           },
         },
       );
 
-      const unSeenIndex = Message.messages.length;
+      const unSeenIndex = theMessage.messages.length;
       Meteor.call(
         'createNotification',
         'request',
@@ -550,22 +550,22 @@ Meteor.methods({
 
     // let othersId;
     // const theRequest = Requests.findOne(requestId);
-    // if (theRequest.owner_name === currentUser.username) {
-    //   othersId = theRequest.req_by;
+    // if (theRequest.ownerUsername === currentUser.username) {
+    //   othersId = theRequest.requesterId;
     // } else {
-    //   othersId = theRequest.req_from;
+    //   othersId = theRequest.ownerId;
     // }
 
     // if (
     //   Messages.findOne({
-    //     is_seen_by_other: false,
+    //     isSeenByOther: false,
     //     req_id: requestId
     //   })
     // ) {
     // const myName = Meteor.user().username;
     // const subjectEmail = 'You have a new message!';
-    // const textEmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
-    // Meteor.call('sendEmail', othersId, subjectEmail, textEmail);
+    // const teREmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
+    // Meteor.cAl('sendEmail', othersId, subjectEmail, textEmail);
     // }
   },
 
@@ -580,9 +580,9 @@ Meteor.methods({
       }
       const theRequest = Requests.findOne(contextId);
       const theOthersId =
-        theRequest.req_by === currentUser._id
-          ? theRequest.req_from
-          : theRequest.req_by;
+        theRequest.requesterId === currentUser._id
+          ? theRequest.ownerId
+          : theRequest.requesterId;
       const theOther = Meteor.users.findOne(theOthersId);
 
       const contextIdIndex =
@@ -786,7 +786,7 @@ Meteor.publish('me', function () {
 Meteor.publish('myBooks', function () {
   const currentUserId = this.userId;
   return Books.find({
-    added_by: currentUserId,
+    ownerId: currentUserId,
   });
 });
 
@@ -795,7 +795,7 @@ Meteor.publish('othersBooks', function () {
   if (currentUserId) {
     return Books.find(
       {
-        added_by: { $ne: currentUserId },
+        ownerId: { $ne: currentUserId },
       },
       { limit: 20 },
     );
@@ -814,26 +814,23 @@ Meteor.publish('singleBook', function (bookId) {
 Meteor.publish('myRequests', function () {
   var currentUserId = this.userId;
   return Requests.find({
-    $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
+    $or: [{ requesterId: currentUserId }, { ownerId: currentUserId }],
   });
 });
 
-Meteor.publish('singleRequest', function (reqId) {
+Meteor.publish('singleRequest', function (requestId) {
   var currentUserId = this.userId;
   return Requests.find({
-    _id: reqId,
-    $or: [{ req_by: currentUserId }, { req_from: currentUserId }],
+    _id: requestId,
+    $or: [{ requesterId: currentUserId }, { ownerId: currentUserId }],
   });
 });
 
-Meteor.publish('myMessages', function (reqId) {
+Meteor.publish('myMessages', function (requestId) {
   var currentUserId = this.userId;
   return Messages.find({
-    req_id: reqId,
-    $or: [
-      { borrower_id: currentUserId },
-      { lender_id: currentUserId },
-    ],
+    req_id: requestId,
+    $or: [{ borrowerId: currentUserId }, { lenderId: currentUserId }],
   });
 });
 

@@ -13,7 +13,7 @@ import { FadeInUp } from 'animate-components';
 
 import { UserContext } from './Layout';
 import BookDetailTobeAdded from './BookDetailTobeAdded';
-import { successDialog, errorDialog } from '../functions';
+import { successDialog, errorDialog, call } from '../functions';
 import BookCardNext from '../reusables/BookCardNext';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
@@ -65,30 +65,29 @@ class AddBook extends Component {
     });
   };
 
-  insertBook = (book) => {
-    // if (this.alreadyOwnsBook(book)) {
-    //   errorDialog('You already own this book');
-    //   return;
-    // }
+  insertBook = async (book) => {
+    if (this.alreadyOwnsBook(book)) {
+      errorDialog('You already own this book');
+      return;
+    }
+    console.log(book);
+    return;
 
-    Meteor.call('insertBook', book, (error, respond) => {
-      if (error) {
-        errorDialog(error.reason);
-      } else if (respond && respond.error) {
-        errorDialog(respond.error);
-      }
-
+    try {
+      await call('insertBook', book);
       successDialog(
         'Book is successfully added to your virtual shelf',
       );
       this.setState({
         openBook: null,
       });
-    });
+    } catch (error) {
+      errorDialog(error.reason);
+    }
   };
 
   alreadyOwnsBook = (book) => {
-    const { currentUser } = this.props;
+    const { currentUser } = this.context;
     return Books.findOne({
       b_title: book.b_title,
       added_by: currentUser._id,
