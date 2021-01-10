@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
-import { List, Button, InputItem, Picker, TextareaItem } from 'antd-mobile';
+import {
+  List,
+  Button,
+  InputItem,
+  Picker,
+  TextareaItem,
+} from 'antd-mobile';
 import { createForm } from 'rc-form';
 
 import allLanguages from '../allLanguages';
@@ -8,7 +14,7 @@ const Item = List.Item;
 
 class EditBookUI extends Component {
   onSubmit = () => {
-    this.props.form.validateFields({ force: true }, error => {
+    this.props.form.validateFields({ force: true }, (error) => {
       if (!error) {
         const values = this.props.form.getFieldsValue();
         this.props.onSubmit(values);
@@ -37,16 +43,20 @@ class EditBookUI extends Component {
         <List
           renderHeader={() => 'Edit details of your book'}
           renderFooter={() =>
-            getFieldError('account') && getFieldError('account').join(',')
+            getFieldError('account') &&
+            getFieldError('account').join(',')
           }
         >
           <InputItem
             {...getFieldProps('title', {
               rules: [
-                { required: true, message: 'please enter the book title' },
-                { validator: this.validateAccount }
+                {
+                  required: true,
+                  message: 'please enter the book title',
+                },
+                { validator: this.validateAccount },
               ],
-              initialValue: book ? book.b_title : null
+              initialValue: book ? book.title : null,
             })}
             clear
             error={!!getFieldError('title')}
@@ -61,10 +71,14 @@ class EditBookUI extends Component {
           <InputItem
             {...getFieldProps('author', {
               rules: [
-                { required: true, message: 'please enter the book title' },
-                { validator: this.validateAccount }
+                {
+                  required: true,
+                  message: 'please enter the book title',
+                },
+                { validator: this.validateAccount },
               ],
-              initialValue: book ? book.b_author : null
+              initialValue:
+                book && book.authors ? book.authors[0] : null,
             })}
             clear
             error={!!getFieldError('author')}
@@ -75,7 +89,8 @@ class EditBookUI extends Component {
 
           <InputItem
             {...getFieldProps('isbn', {
-              initialValue: book && book.b_ISBN && book.b_ISBN.identifier
+              initialValue:
+                book && book.b_ISBN && book.b_ISBN.identifier,
             })}
             clear
             error={!!getFieldError('isbn')}
@@ -90,14 +105,14 @@ class EditBookUI extends Component {
             cols={1}
             okText="Confirm"
             dismissText="Cancel"
-            extra={book.b_lang}
+            extra={book.language}
           >
             <Item arrow="horizontal">language</Item>
           </Picker>
 
           <TextareaItem
             {...getFieldProps('description', {
-              initialValue: book && book.b_description
+              initialValue: book && book.b_description,
             })}
             title="description"
             placeholder="description"

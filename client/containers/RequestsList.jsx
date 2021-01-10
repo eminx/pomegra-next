@@ -66,11 +66,11 @@ class RequestsList extends Component {
     switch (this.state.requestType) {
       case 'By Me':
         return requests.filter(
-          (request) => request.req_by === currentUserId,
+          (request) => request.requesterId === currentUserId,
         );
       case 'From Me':
         return requests.filter(
-          (request) => request.req_from === currentUserId,
+          (request) => request.ownerId === currentUserId,
         );
       default:
         return requests;
@@ -112,7 +112,7 @@ class RequestsList extends Component {
           <NavBar mode="light">Requests</NavBar>
           <WhiteSpace size="lg" />
           <Result
-            // img={myImg(request.book_image_url)}
+            // img={myImg(request.bookImage)}
             title="No Interactions just yet"
             message="Please feel free to go to the discover section and request a book from someone. People are all nice here"
           />
@@ -128,13 +128,13 @@ class RequestsList extends Component {
 
     const filteredRequests = typeOfRequests.filter((request) => {
       return (
-        request.book_name
+        request.bookTitle
           .toLowerCase()
           .indexOf(filterValue.toLowerCase()) !== -1 ||
-        request.owner_name
+        request.ownerUsername
           .toLowerCase()
           .indexOf(filterValue.toLowerCase()) !== -1 ||
-        request.requester_name
+        request.requesterUsername
           .toLowerCase()
           .indexOf(filterValue.toLowerCase()) !== -1
       );
@@ -173,22 +173,22 @@ class RequestsList extends Component {
                 key={request._id}
                 multipleLine
                 align="top"
-                thumb={request.book_image_url}
+                thumb={request.bookImage}
                 onClick={() => this.viewRequestInDetail(request)}
                 extra={
-                  request.date_requested &&
-                  request.date_requested.toLocaleDateString()
+                  request.dateRequested &&
+                  request.dateRequested.toLocaleDateString()
                 }
               >
                 <div>
                   <Badge dot={this.getNotificationsCount(request)}>
                     <b>
-                      {currentUser.username === request.owner_name
-                        ? request.requester_name
-                        : request.owner_name}
+                      {currentUser.username === request.ownerUsername
+                        ? request.requesterUsername
+                        : request.ownerUsername}
                     </b>
                   </Badge>
-                  <ListItem.Brief>{request.book_name}</ListItem.Brief>
+                  <ListItem.Brief>{request.bookTitle}</ListItem.Brief>
                 </div>
               </ListItem>
             ))}

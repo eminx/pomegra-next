@@ -17,7 +17,7 @@ const BookCard = ({
   <Card>
     <CardHeader title={<BookTitle book={book} />} />
     <CardBody>
-      <p>{book.description || book.b_description}</p>
+      <p>{book.description}</p>
     </CardBody>
     <CardFooter
       content={
@@ -32,16 +32,16 @@ const BookCard = ({
 const BookTitle = ({ book }) => (
   <div style={{ width: '100%' }}>
     <Title isSize={5} hasTextAlign="centered">
-      {book.title || book.b_title}
+      {book.title}
     </Title>
     <Subtitle isSize={5} hasTextAlign="centered">
-      {book.authors ? parseAuthors(book.authors) : book.b_author}
+      {book.authors && parseAuthors(book.authors)}
     </Subtitle>
 
     <Flex justify="start" align="start" style={{ paddingTop: 8 }}>
       <img
-        src={book.image_url}
-        alt={book.b_title}
+        src={book.imageUrl}
+        alt={book.title}
         style={{ maxHeight: 140, flexGrow: 0, marginRight: 12 }}
       />
 
@@ -51,15 +51,13 @@ const BookTitle = ({ book }) => (
             <td>
               <LightSpan>category</LightSpan>
             </td>
-            <td>
-              {(book.categories && book.categories[0]) || book.b_cat}
-            </td>
+            <td>{book.category}</td>
           </tr>
           <tr>
             <td>
               <LightSpan>languauge</LightSpan>
             </td>
-            <td>{book.language || book.b_lang}</td>
+            <td>{book.language}</td>
           </tr>
         </tbody>
       </Table>

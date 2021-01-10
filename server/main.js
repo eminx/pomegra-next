@@ -161,7 +161,8 @@ Meteor.methods({
 
     const newBook = {
       ...book,
-      titleLowercase: theBook.title.toLowerCase(),
+      category: categories[0],
+      titleLowerCase: theBook.title.toLowerCase(),
       dateAdded: new Date(),
       imageUrl,
       ownerId: currentUserId,
@@ -559,7 +560,7 @@ Meteor.methods({
     // if (
     //   Messages.findOne({
     //     isSeenByOther: false,
-    //     req_id: requestId
+    //     requestId: requestId
     //   })
     // ) {
     // const myName = Meteor.user().username;
@@ -829,7 +830,7 @@ Meteor.publish('singleRequest', function (requestId) {
 Meteor.publish('myMessages', function (requestId) {
   var currentUserId = this.userId;
   return Messages.find({
-    req_id: requestId,
+    requestId: requestId,
     $or: [{ borrowerId: currentUserId }, { lenderId: currentUserId }],
   });
 });

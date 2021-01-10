@@ -89,8 +89,8 @@ class AddBook extends Component {
   alreadyOwnsBook = (book) => {
     const { currentUser } = this.context;
     return Books.findOne({
-      b_title: book.b_title,
-      added_by: currentUser._id,
+      title: book.title,
+      ownerId: currentUser._id,
     });
   };
 

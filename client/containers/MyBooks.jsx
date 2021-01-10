@@ -70,27 +70,27 @@ class MyBooks extends Component {
 
     switch (sortBy) {
       case 'book title':
-        return myBooks.sort((a, b) =>
-          a.b_title.localeCompare(b.b_title),
-        );
+        return myBooks.sort((a, b) => a.title.localeCompare(b.title));
       case 'book author':
         return myBooks.sort(
           (a, b) =>
-            a.b_author && a.b_author.localeCompare(b.b_author),
+            a.authors &&
+            b.authors &&
+            a.authors[0].localeCompare(b.authors[0]),
         );
       case 'request condition':
         return myBooks.sort(
           (a, b) =>
-            b.on_request - a.on_request ||
-            b.on_acceptance - a.on_acceptance ||
-            b.on_lend - a.on_lend,
+            b.onRequest - a.onRequest ||
+            b.onAcceptance - a.onAcceptance ||
+            b.onLend - a.onLend,
         );
       case 'language':
         return myBooks.sort((a, b) =>
-          a.b_lang.localeCompare(b.b_lang),
+          a.language.localeCompare(b.language),
         );
       default:
-        return myBooks.sort((a, b) => b.date_added - a.date_added);
+        return myBooks.sort((a, b) => b.dateAdded - a.dateAdded);
     }
   };
 
@@ -98,19 +98,22 @@ class MyBooks extends Component {
     const { filterValue } = this.state;
     return sortedBooks.filter((book) => {
       return (
-        (book.b_title &&
-          book.b_title
+        (book.title &&
+          book.title
             .toLowerCase()
             .indexOf(filterValue.toLowerCase()) !== -1) ||
-        (book.b_author &&
-          book.b_author
+        (book.authors &&
+          book.authors.forEach((author) => {
+            return (
+              author
+                .toLowerCase()
+                .indexOf(filterValue.toLowerCase()) !== -1
+            );
+          })) ||
+        (book.category &&
+          book.category
             .toLowerCase()
-            .indexOf(filterValue.toLowerCase()) !== -1) ||
-        book.b_cat &
-          (book.b_cat
-            .toLowerCase()
-            .indexOf(filterValue.toLowerCase()) !==
-            -1)
+            .indexOf(filterValue.toLowerCase()) !== -1)
       );
     });
   };
@@ -192,14 +195,16 @@ class MyBooks extends Component {
                 thumb={
                   <img
                     style={{ width: 33, height: 44 }}
-                    src={book.image_url}
+                    src={book.imageUrl}
                   />
                 }
-                extra={book.b_cat}
+                extra={book.category}
                 onClick={() => this.viewBookInDetail(book)}
               >
-                <b>{book.b_title}</b>
-                <Brief>{book.b_author}</Brief>
+                <b>{book.title}</b>
+                {suggestedBook.authors.map((author) => (
+                  <Brief key={author}>{author}</Brief>
+                ))}
               </ListItem>
             ))}
           </List>

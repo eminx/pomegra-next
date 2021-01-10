@@ -105,16 +105,16 @@ class Request extends Component {
     const { currentUser, request } = this.props;
     if (currentUser._id === message.from) {
       return 'me';
-    } else if (request.requester_name === currentUser.username) {
-      return request.owner_name;
+    } else if (request.requesterUsername === currentUser.username) {
+      return request.ownerUsername;
     } else {
-      return request.requester_name;
+      return request.requesterUsername;
     }
   };
 
   acceptRequest = () => {
     const { currentUser, request } = this.props;
-    if (currentUser._id !== request.req_from) {
+    if (currentUser._id !== request.ownerId) {
       return;
     }
 
@@ -129,7 +129,7 @@ class Request extends Component {
 
   denyRequest = () => {
     const { currentUser, request } = this.props;
-    if (currentUser._id !== request.req_from) {
+    if (currentUser._id !== request.ownerId) {
       return;
     }
 
@@ -149,7 +149,7 @@ class Request extends Component {
 
   isHanded = () => {
     const { currentUser, request } = this.props;
-    if (currentUser._id !== request.req_from) {
+    if (currentUser._id !== request.ownerId) {
       return;
     }
 
@@ -164,7 +164,7 @@ class Request extends Component {
 
   isReturned = () => {
     const { currentUser, request } = this.props;
-    if (currentUser._id !== request.req_from) {
+    if (currentUser._id !== request.ownerId) {
       return;
     }
 
@@ -220,10 +220,10 @@ class Request extends Component {
 
   getOthersName = () => {
     const { request, currentUser } = this.props;
-    if (request.requester_name === currentUser.username) {
-      return request.owner_name;
+    if (request.requesterUsername === currentUser.username) {
+      return request.ownerUsername;
     } else {
-      return request.requester_name;
+      return request.requesterUsername;
     }
   };
 
@@ -247,7 +247,7 @@ class Request extends Component {
 
     const requestedNotResponded =
       !request.is_confirmed && !request.is_denied;
-    const iAmTheOwner = currentUser._id === request.req_from;
+    const iAmTheOwner = currentUser._id === request.ownerId;
 
     return (
       <div>
@@ -274,9 +274,9 @@ class Request extends Component {
             {requestedNotResponded && iAmTheOwner ? (
               <div>
                 <Result
-                  img={myImg(request.book_image_url)}
-                  title={request.book_name}
-                  message={`${request.requester_name}`}
+                  img={myImg(request.bookImage)}
+                  title={request.bookTitle}
+                  message={`${request.requesterUsername}`}
                   buttonText="Accept"
                   buttonType="primary"
                   onButtonClick={() => this.acceptRequest()}
@@ -296,12 +296,12 @@ class Request extends Component {
             ) : (
               <div>
                 <Result
-                  img={myImg(request.book_image_url)}
-                  title={request.book_name}
-                  message={`${request.requester_name}`}
+                  img={myImg(request.bookImage)}
+                  title={request.bookTitle}
+                  message={`${request.requesterUsername}`}
                 />
                 <WhiteSpace size="lg" />
-                {/* <Flex justify="center">{myImg(request.book_image_url)}</Flex> */}
+                {/* <Flex justify="center">{myImg(request.bookImage)}</Flex> */}
                 <div>
                   <Steps
                     current={this.getCurrentStatus()}
@@ -316,7 +316,7 @@ class Request extends Component {
 
             {request.is_confirmed &&
               !request.is_handed &&
-              currentUser._id === request.req_from && (
+              currentUser._id === request.ownerId && (
                 <Flex justify="center" style={{ padding: 12 }}>
                   <WhiteSpace size="lg" />
                   <Button
@@ -332,7 +332,7 @@ class Request extends Component {
 
             {request.is_handed &&
               !request.is_returned &&
-              currentUser._id === request.req_from && (
+              currentUser._id === request.ownerId && (
                 <Flex justify="center" style={{ padding: 12 }}>
                   <WhiteSpace size="lg" />
                   <Button
@@ -412,8 +412,7 @@ export default RequestContainer = withTracker((props) => {
   const request = currentUser && Requests.findOne(requestId);
 
   const msgSub = Meteor.subscribe('myMessages', requestId);
-  const messages =
-    currentUser && Messages.findOne({ req_id: requestId });
+  const messages = currentUser && Messages.findOne({ requestId });
 
   const isLoading = !reqSub.ready() || !msgSub.ready();
 

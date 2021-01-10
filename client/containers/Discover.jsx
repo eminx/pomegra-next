@@ -54,17 +54,19 @@ class Discover extends Component {
                 thumb={
                   <img
                     style={{ width: 33, height: 44 }}
-                    src={suggestedBook.image_url}
+                    src={suggestedBook.imageUrl}
                   />
                 }
                 multipleLine
-                extra={suggestedBook.b_cat}
+                extra={suggestedBook.category}
                 onClick={() =>
                   this.viewBookInDetail(suggestedBook._id)
                 }
               >
-                <b>{suggestedBook.b_title}</b>
-                <Brief>{suggestedBook.b_author}</Brief>
+                <b>{suggestedBook.title}</b>
+                {suggestedBook.authors.map((author) => (
+                  <Brief key={author}>{author}</Brief>
+                ))}
               </ListItem>
             ))}
         </List>

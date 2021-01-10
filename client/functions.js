@@ -65,13 +65,13 @@ const uploadImage = (image, directory) =>
   });
 
 const parseUrlForSSL = (imageLink) => {
-  let image_url = imageLink;
+  let imageUrl = imageLink;
 
-  if (image_url && image_url.substring(0, 5) === 'http:') {
-    image_url = image_url.slice(0, 4) + 's' + image_url.slice(4);
+  if (imageUrl && imageUrl.substring(0, 5) === 'http:') {
+    imageUrl = imageUrl.slice(0, 4) + 's' + imageUrl.slice(4);
   }
 
-  return image_url;
+  return imageUrl;
 };
 
 const slingshotUpload = (directory) =>
