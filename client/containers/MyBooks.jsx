@@ -97,14 +97,16 @@ class MyBooks extends Component {
   filteredSortedBooks = (sortedBooks) => {
     const { filterValue } = this.state;
     return sortedBooks.filter((book) => {
+      console.log(book);
       return (
         (book.title &&
           book.title
             .toLowerCase()
             .indexOf(filterValue.toLowerCase()) !== -1) ||
         (book.authors &&
-          book.authors.forEach((author) => {
+          book.authors.find((author) => {
             return (
+              author &&
               author
                 .toLowerCase()
                 .indexOf(filterValue.toLowerCase()) !== -1

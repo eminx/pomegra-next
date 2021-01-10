@@ -41,8 +41,10 @@ class BookDetailTobeRequested extends Component {
 
     Meteor.call('makeRequest', book._id, (error, respond) => {
       if (error) {
+        console.log(error);
         errorDialog(error.reason);
       } else if (respond.error) {
+        console.log(error);
         errorDialog(respond.error);
       } else {
         successDialog('Your request is successfully sent!');
