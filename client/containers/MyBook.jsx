@@ -49,9 +49,9 @@ class MyBook extends PureComponent {
     const { book } = this.props;
 
     if (values.language) {
-      values.b_lang = values.language[0];
+      values.language = values.language[0];
     } else {
-      values.b_lang = book.b_lang;
+      values.language = book.language;
     }
 
     Meteor.call('updateBook', book._id, values, (error, respond) => {

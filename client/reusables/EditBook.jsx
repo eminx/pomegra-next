@@ -112,7 +112,7 @@ class EditBookUI extends Component {
 
           <TextareaItem
             {...getFieldProps('description', {
-              initialValue: book && book.b_description,
+              initialValue: book && book.description,
             })}
             title="description"
             placeholder="description"

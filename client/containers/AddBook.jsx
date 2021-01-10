@@ -71,7 +71,6 @@ class AddBook extends Component {
       return;
     }
     console.log(book);
-    return;
 
     try {
       await call('insertBook', book);
