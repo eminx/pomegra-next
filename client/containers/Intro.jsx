@@ -407,9 +407,8 @@ class Intro extends Component {
 
   insertBook = async (book) => {
     const { insertedBooks, searchResults } = this.state;
-
     try {
-      await ('insertBook', book);
+      await call('insertBook', book);
       successDialog(
         'Book is successfully added to your virtual shelf',
         1,
