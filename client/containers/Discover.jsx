@@ -64,9 +64,10 @@ class Discover extends Component {
                 }
               >
                 <b>{suggestedBook.title}</b>
-                {suggestedBook.authors.map((author) => (
-                  <Brief key={author}>{author}</Brief>
-                ))}
+                {suggestedBook.authors &&
+                  suggestedBook.authors.map((author) => (
+                    <Brief key={author}>{author}</Brief>
+                  ))}
               </ListItem>
             ))}
         </List>
