@@ -70,7 +70,9 @@ class MyBooks extends Component {
 
     switch (sortBy) {
       case 'book title':
-        return myBooks.sort((a, b) => a.title.localeCompare(b.title));
+        return myBooks.sort(
+          (a, b) => a.title && a.title.localeCompare(b.title),
+        );
       case 'book author':
         return myBooks.sort(
           (a, b) =>
