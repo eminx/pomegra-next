@@ -55,6 +55,32 @@ Slingshot.createDirective('coverUpload', Slingshot.S3Storage, {
   },
 });
 
+Slingshot.fileRestrictions('bookImageUpload', {
+  allowedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+  maxSize: 5 * 3024 * 3024,
+});
+
+Slingshot.createDirective('bookImageUpload', Slingshot.S3Storage, {
+  AWSAccessKeyId: s3Settings.AWSAccessKeyId,
+  AWSSecretAccessKey: s3Settings.AWSSecretAccessKey,
+  bucket: s3Settings.AWSBucketName,
+  acl: 'public-read',
+  region: s3Settings.AWSRegion,
+
+  authorize: function () {
+    if (!this.userId) {
+      var message = 'Please login before posting images';
+      throw new Meteor.Error('Login Required', message);
+    }
+    return true;
+  },
+
+  key: function (file) {
+    var currentUser = Meteor.user();
+    return currentUser.username + '/' + file.name;
+  },
+});
+
 Meteor.methods({
   registerUser: (user) => {
     Accounts.createUser({
@@ -161,11 +187,52 @@ Meteor.methods({
     const newBook = {
       ...book,
       category: book.categories[0],
-      titleLowerCase: book.title.toLowerCase(),
+      titleLowerCase: book.title && book.title.toLowerCase(),
+      authorsLowerCase:
+        book.authors &&
+        book.authors.length > 0 &&
+        book.authors.map((author) => author.toLowerCase()),
       ISBN:
         book.industryIdentifiers &&
         book.industryIdentifiers[0].identifier,
       imageUrl,
+      ownerId: currentUserId,
+      ownerUsername: user.username,
+      ownerAvatar: user.avatar,
+      xTimes: 0,
+      isAvailable: true,
+      dateAdded: new Date(),
+    };
+
+    const bookId = Books.insert(newBook, function (error, result) {
+      if (error) {
+        console.log('error!', error);
+        throw new Meteor.error(error);
+      } else {
+        return bookId;
+      }
+    });
+  },
+
+  insertBookManually: (book) => {
+    const user = Meteor.user();
+    if (!user) {
+      return false;
+    }
+    const currentUserId = user._id;
+    const bookExists = Books.findOne({
+      title: book.title,
+      ownerId: currentUserId,
+    });
+
+    if (bookExists) {
+      throw new Meteor.Error(
+        'You have already added a book with same title',
+      );
+    }
+
+    const newBook = {
+      ...book,
       ownerId: currentUserId,
       ownerUsername: user.username,
       ownerAvatar: user.avatar,

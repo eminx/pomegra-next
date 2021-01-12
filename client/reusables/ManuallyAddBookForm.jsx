@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Icon,
+  ImagePicker,
   InputItem,
   List,
   Picker,
@@ -18,6 +19,8 @@ const linkStyle = { color: '#108ee9', cursor: 'pointer' };
 
 const ManuallyAddBookForm = ({
   values,
+  bookImage,
+  onImagePick,
   onFormChange,
   onAddAuthor,
   onRemoveAuthor,
@@ -43,6 +46,19 @@ const ManuallyAddBookForm = ({
 
   return (
     <div>
+      <Flex justify="center">
+        <ImagePicker
+          files={bookImage ? [bookImage] : []}
+          onChange={onImagePick}
+          selectable={!bookImage}
+          accept="image/jpeg,image/jpg,image/png"
+          multiple={false}
+          length={1}
+          style={{
+            width: 120,
+          }}
+        />
+      </Flex>
       <List renderHeader={() => 'Please enter the book details'}>
         <InputItem
           name="title"

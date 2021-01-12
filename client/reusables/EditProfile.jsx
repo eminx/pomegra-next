@@ -151,13 +151,7 @@ class EditProfileUI extends Component {
             <h3>Avatar</h3>
             <WingBlank>
               <Flex align="stretch" direction="column">
-                <div
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                  }}
-                >
+                <Flex justify="center">
                   <ImagePicker
                     files={avatar ? [avatar] : []}
                     onChange={handleAvatarPick}
@@ -169,7 +163,7 @@ class EditProfileUI extends Component {
                       width: 120,
                     }}
                   />
-                </div>
+                </Flex>
                 <Button
                   type="primary"
                   onClick={handleSaveAvatar}

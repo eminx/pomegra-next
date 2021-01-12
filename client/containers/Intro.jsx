@@ -186,9 +186,7 @@ class Intro extends Component {
   };
 
   signIn = () => {
-    console.log('trying to login');
     const { username, password } = this.state;
-    console.log(username, password);
     Meteor.loginWithPassword(username, password, (error) => {
       if (error) {
         console.log(error);

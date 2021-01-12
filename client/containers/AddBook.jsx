@@ -13,13 +13,19 @@ import {
 import { FadeInUp } from 'animate-components';
 
 import { UserContext } from './Layout';
-import { successDialog, errorDialog, call } from '../functions';
+import {
+  successDialog,
+  errorDialog,
+  resizeImage,
+  uploadImage,
+  call,
+} from '../functions';
 import BookCardNext from '../reusables/BookCardNext';
 import ManuallyAddBookForm from '../reusables/ManuallyAddBookForm';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
-const manualFormModel = {
+const formValuesModel = {
   title: '',
   author1: '',
   language: [],
@@ -38,8 +44,9 @@ class AddBook extends Component {
     openBook: null,
     backToShelf: false,
     bookImage: null,
+    uploadedBookImage: null,
     unSavedImageChange: false,
-    manualForm: manualFormModel,
+    formValues: formValuesModel,
   };
 
   componentDidMount() {
@@ -99,39 +106,39 @@ class AddBook extends Component {
   };
 
   handleFormChange = (field, value, authorIndex) => {
-    const { manualForm } = this.state;
-    const newManualForm = {
-      ...manualForm,
+    const { formValues } = this.state;
+    const newformValues = {
+      ...formValues,
     };
-    newManualForm[field] = value;
-    this.setState({ manualForm: newManualForm });
+    newformValues[field] = value;
+    this.setState({ formValues: newformValues });
   };
 
   handleAddAuthor = () => {
-    const { manualForm } = this.state;
-    const nthAuthor = manualForm.numberOfAuthors + 1;
-    const newManualForm = {
-      ...manualForm,
+    const { formValues } = this.state;
+    const nthAuthor = formValues.numberOfAuthors + 1;
+    const newformValues = {
+      ...formValues,
       numberOfAuthors: nthAuthor,
     };
-    newManualForm['author' + nthAuthor.toString()] = '';
+    newformValues['author' + nthAuthor.toString()] = '';
     this.setState({
-      manualForm: newManualForm,
+      formValues: newformValues,
     });
   };
 
   handleRemoveAuthor = () => {
-    const { manualForm } = this.state;
-    const nthAuthor = manualForm.numberOfAuthors - 1;
-    const newManualForm = {
-      ...manualForm,
+    const { formValues } = this.state;
+    const nthAuthor = formValues.numberOfAuthors - 1;
+    const newformValues = {
+      ...formValues,
       numberOfAuthors: nthAuthor,
     };
-    delete newManualForm[
-      'author' + manualForm.numberOfAuthors.toString()
+    delete newformValues[
+      'author' + formValues.numberOfAuthors.toString()
     ];
     this.setState({
-      manualForm: newManualForm,
+      formValues: newformValues,
     });
   };
 
@@ -163,23 +170,46 @@ class AddBook extends Component {
         url: uploadedImage,
         uploadDate: new Date(),
       };
-      this.setState({
-        uploadedBookImage,
-      });
+      this.setState(
+        {
+          uploadedBookImage,
+        },
+        this.insertBookManually,
+      );
     } catch (error) {
       console.log(error);
       errorDialog(error.reason);
-    } finally {
     }
   };
 
-  insertBookManually = async (book) => {
-    if (this.alreadyOwnsBook(book)) {
+  insertBookManually = async () => {
+    const { uploadedBookImage, formValues } = this.state;
+    if (!uploadedBookImage) {
+      errorDialog('Please add image');
+    }
+
+    if (this.alreadyOwnsBook(formValues)) {
       errorDialog('You already own this book');
       return;
     }
 
-    const { uploadBookImage, manualForm } = this.state;
+    let authorsNr = [];
+    for (let i = 1; i <= formValues.numberOfAuthors; i++) {
+      authorsNr.push(i.toString());
+    }
+
+    const authors = authorsNr.map((a) => {
+      return formValues[`author${a}`];
+    });
+
+    const book = {
+      ...formValues,
+      authors,
+      imageInfo: uploadedBookImage,
+      imageUrl: uploadedBookImage.url,
+      titleLowerCase: formValues.title.toLowerCase(),
+      authorsLowerCase: authors.map((author) => author.toLowerCase()),
+    };
 
     try {
       await call('insertBookManually', book);
@@ -188,7 +218,10 @@ class AddBook extends Component {
         1,
       );
       this.setState({
-        openBook: null,
+        formValues: formValuesModel,
+        bookImage: null,
+        uploadedBookImage: null,
+        unSavedImageChange: false,
       });
     } catch (error) {
       console.log(error);
@@ -223,8 +256,9 @@ class AddBook extends Component {
       isLoading,
       openBook,
       backToShelf,
-      manualForm,
-      isManualFormOpen,
+      bookImage,
+      formValues,
+      isformValuesOpen,
     } = this.state;
 
     if (backToShelf) {
@@ -296,7 +330,7 @@ class AddBook extends Component {
         <Flex justify="center">
           <Button
             type="ghost"
-            onClick={() => this.setState({ isManualFormOpen: true })}
+            onClick={() => this.setState({ isformValuesOpen: true })}
             size="small"
           >
             Manually Add Book
@@ -304,17 +338,19 @@ class AddBook extends Component {
         </Flex>
 
         <Modal
-          visible={isManualFormOpen}
+          visible={isformValuesOpen}
           closable
-          onClose={() => this.setState({ isManualFormOpen: false })}
+          onClose={() => this.setState({ isformValuesOpen: false })}
         >
           <ManuallyAddBookForm
-            values={manualForm}
+            values={formValues}
+            bookImage={bookImage}
+            onImagePick={this.handleImagePick}
             onFormChange={this.handleFormChange}
             onAddAuthor={this.handleAddAuthor}
             onRemoveAuthor={this.handleRemoveAuthor}
-            onSave={this.insertBookManually}
-            onClose={() => this.setState({ isManualFormOpen: false })}
+            onSave={this.uploadBookImage}
+            onClose={() => this.setState({ isformValuesOpen: false })}
           />
         </Modal>
       </div>
