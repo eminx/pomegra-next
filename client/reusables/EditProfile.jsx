@@ -13,8 +13,8 @@ import {
   WhiteSpace,
   WingBlank,
 } from 'antd-mobile';
-import { Subtitle } from 'bloomer';
 import { createForm } from 'rc-form';
+import { Subtitle } from 'bloomer';
 import Dropzone from 'react-dropzone';
 import {
   sortableContainer,
@@ -277,7 +277,7 @@ class EditProfileUI extends Component {
               </InputItem>
 
               <TextareaItem
-                {...getFieldProps('io', {
+                {...getFieldProps('bio', {
                   initialValue: currentUser.bio,
                   onChange: setUnSavedInfoChange,
                 })}

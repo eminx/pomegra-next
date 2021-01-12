@@ -1,4 +1,3 @@
-import { Meteor } from 'meteor/meteor';
 import React, { Fragment, PureComponent } from 'react';
 import {
   ActivityIndicator,
@@ -18,13 +17,11 @@ import EditProfile from '../reusables/EditProfile';
 import {
   errorDialog,
   successDialog,
-  dataURLtoFile,
   resizeImage,
   uploadImage,
   call,
 } from '../functions';
 
-import { uploadProfileImage } from './HeroHelpers';
 import { UserContext } from './Layout';
 
 class Profile extends PureComponent {
@@ -133,7 +130,7 @@ class Profile extends PureComponent {
     if (type === 'remove') {
       this.setState({
         avatar: null,
-        unSavedImageChange: true,
+        unSavedAvatarChange: true,
       });
       return;
     }
@@ -206,7 +203,7 @@ class Profile extends PureComponent {
 
     this.setState(({ coverImages }) => ({
       coverImages: arrayMove(coverImages, oldIndex, newIndex),
-      unSavedImageChange: true,
+      unSavedCoverChange: true,
       coverChange: true,
     }));
   };
@@ -248,7 +245,7 @@ class Profile extends PureComponent {
   handleAvatarImageRemove = (images, type, index) => {
     this.setState({
       avatarImage: null,
-      unSavedImageChange: true,
+      unSavedAvatarChange: true,
       avatarChange: true,
     });
   };

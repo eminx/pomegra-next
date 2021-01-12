@@ -186,15 +186,19 @@ class Intro extends Component {
   };
 
   signIn = () => {
+    console.log('trying to login');
     const { username, password } = this.state;
+    console.log(username, password);
     Meteor.loginWithPassword(username, password, (error) => {
       if (error) {
-        errorDialog(error);
         console.log(error);
+        errorDialog(error.reason);
+        return;
+      } else {
+        this.setState({ isLogin: false });
+        this.slider.slickGoTo(1, true);
       }
-      this.setState({ isLogin: false });
     });
-    this.slider.slickGoTo(1, true);
   };
 
   forgotPassword = () => {

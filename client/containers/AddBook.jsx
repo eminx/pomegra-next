@@ -1,24 +1,33 @@
-import { Meteor } from 'meteor/meteor';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
 import {
   ActivityIndicator,
+  Button,
   Icon,
+  Flex,
+  Modal,
   NavBar,
   SearchBar,
-  List,
 } from 'antd-mobile';
 import { FadeInUp } from 'animate-components';
 
 import { UserContext } from './Layout';
-import BookDetailTobeAdded from './BookDetailTobeAdded';
 import { successDialog, errorDialog, call } from '../functions';
 import BookCardNext from '../reusables/BookCardNext';
+import ManuallyAddBookForm from '../reusables/ManuallyAddBookForm';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
-const ListItem = List.Item;
+const manualFormModel = {
+  title: '',
+  author1: '',
+  language: [],
+  category: '',
+  description: '',
+  ISBN: '',
+  numberOfAuthors: 1,
+};
 
 class AddBook extends Component {
   state = {
@@ -28,6 +37,9 @@ class AddBook extends Component {
     searchbarFocused: false,
     openBook: null,
     backToShelf: false,
+    bookImage: null,
+    unSavedImageChange: false,
+    manualForm: manualFormModel,
   };
 
   componentDidMount() {
@@ -86,6 +98,104 @@ class AddBook extends Component {
     }
   };
 
+  handleFormChange = (field, value, authorIndex) => {
+    const { manualForm } = this.state;
+    const newManualForm = {
+      ...manualForm,
+    };
+    newManualForm[field] = value;
+    this.setState({ manualForm: newManualForm });
+  };
+
+  handleAddAuthor = () => {
+    const { manualForm } = this.state;
+    const nthAuthor = manualForm.numberOfAuthors + 1;
+    const newManualForm = {
+      ...manualForm,
+      numberOfAuthors: nthAuthor,
+    };
+    newManualForm['author' + nthAuthor.toString()] = '';
+    this.setState({
+      manualForm: newManualForm,
+    });
+  };
+
+  handleRemoveAuthor = () => {
+    const { manualForm } = this.state;
+    const nthAuthor = manualForm.numberOfAuthors - 1;
+    const newManualForm = {
+      ...manualForm,
+      numberOfAuthors: nthAuthor,
+    };
+    delete newManualForm[
+      'author' + manualForm.numberOfAuthors.toString()
+    ];
+    this.setState({
+      manualForm: newManualForm,
+    });
+  };
+
+  handleImagePick = (images, type, index) => {
+    if (type === 'remove') {
+      this.setState({
+        bookImage: null,
+        unSavedImageChange: true,
+      });
+      return;
+    }
+    this.setState({
+      bookImage: images[0],
+      unSavedImageChange: true,
+    });
+  };
+
+  uploadBookImage = async () => {
+    const { bookImage } = this.state;
+
+    try {
+      const resizedImage = await resizeImage(bookImage.file, 400);
+      const uploadedImage = await uploadImage(
+        resizedImage,
+        'bookImageUpload',
+      );
+      const uploadedBookImage = {
+        name: bookImage.file.name,
+        url: uploadedImage,
+        uploadDate: new Date(),
+      };
+      this.setState({
+        uploadedBookImage,
+      });
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
+    }
+  };
+
+  insertBookManually = async (book) => {
+    if (this.alreadyOwnsBook(book)) {
+      errorDialog('You already own this book');
+      return;
+    }
+
+    const { uploadBookImage, manualForm } = this.state;
+
+    try {
+      await call('insertBookManually', book);
+      successDialog(
+        'Book is successfully added to your virtual shelf',
+        1,
+      );
+      this.setState({
+        openBook: null,
+      });
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason || error.error);
+    }
+  };
+
   alreadyOwnsBook = (book) => {
     const { currentUser } = this.context;
     return Books.findOne({
@@ -107,7 +217,15 @@ class AddBook extends Component {
 
   render() {
     const { currentUser, userLoading } = this.context;
-    const { backToShelf } = this.state;
+    const {
+      searchResults,
+      searchbarInput,
+      isLoading,
+      openBook,
+      backToShelf,
+      manualForm,
+      isManualFormOpen,
+    } = this.state;
 
     if (backToShelf) {
       return <Redirect to="/my-shelf" />;
@@ -117,12 +235,6 @@ class AddBook extends Component {
       <ActivityIndicator toast text="Loading..." />;
     }
 
-    const {
-      searchResults,
-      searchbarInput,
-      isLoading,
-      openBook,
-    } = this.state;
     return (
       <div>
         <NavBar
@@ -180,6 +292,31 @@ class AddBook extends Component {
               </FadeInUp>
             ))}
         </div>
+
+        <Flex justify="center">
+          <Button
+            type="ghost"
+            onClick={() => this.setState({ isManualFormOpen: true })}
+            size="small"
+          >
+            Manually Add Book
+          </Button>
+        </Flex>
+
+        <Modal
+          visible={isManualFormOpen}
+          closable
+          onClose={() => this.setState({ isManualFormOpen: false })}
+        >
+          <ManuallyAddBookForm
+            values={manualForm}
+            onFormChange={this.handleFormChange}
+            onAddAuthor={this.handleAddAuthor}
+            onRemoveAuthor={this.handleRemoveAuthor}
+            onSave={this.insertBookManually}
+            onClose={() => this.setState({ isManualFormOpen: false })}
+          />
+        </Modal>
       </div>
     );
   }

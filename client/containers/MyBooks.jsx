@@ -12,7 +12,6 @@ import {
   Picker,
 } from 'antd-mobile';
 import { Button, Title, Subtitle } from 'bloomer';
-import { IoMdAddCircle } from 'react-icons/io';
 
 import { UserContext } from './Layout';
 import Anchor from '../reusables/Anchor';
@@ -73,7 +72,7 @@ class MyBooks extends Component {
         return myBooks.sort(
           (a, b) => a.title && a.title.localeCompare(b.title),
         );
-      case 'book author':
+      case 'book a  uthor':
         return myBooks.sort(
           (a, b) =>
             a.authors &&
