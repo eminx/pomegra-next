@@ -59,7 +59,9 @@ const ManuallyAddBookForm = ({
           }}
         />
       </Flex>
-      <List renderHeader={() => 'Please enter the book details'}>
+      <List
+        renderHeader={() => 'Please enter the details of your book'}
+      >
         <InputItem
           name="title"
           type="text"

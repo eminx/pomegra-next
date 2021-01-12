@@ -341,6 +341,7 @@ class AddBook extends Component {
           visible={isformValuesOpen}
           closable
           onClose={() => this.setState({ isformValuesOpen: false })}
+          title="Manually Add Book"
         >
           <ManuallyAddBookForm
             values={formValues}
