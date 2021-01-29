@@ -20,6 +20,7 @@ const linkStyle = { color: '#108ee9', cursor: 'pointer' };
 const ManuallyAddBookForm = ({
   values,
   bookImage,
+  isSaving,
   onImagePick,
   onFormChange,
   onAddAuthor,
@@ -143,8 +144,8 @@ const ManuallyAddBookForm = ({
         />
 
         <ListItem>
-          <Button type="primary" onClick={onSave}>
-            Save
+          <Button type="primary" onClick={onSave} loading={isSaving}>
+            {isSaving ? 'Saving' : 'Save'}
           </Button>
         </ListItem>
       </List>

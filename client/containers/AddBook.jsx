@@ -47,6 +47,8 @@ class AddBook extends Component {
     uploadedBookImage: null,
     unSavedImageChange: false,
     formValues: formValuesModel,
+    isManuallyAddModalOpen: false,
+    isSaving: false,
   };
 
   componentDidMount() {
@@ -159,6 +161,10 @@ class AddBook extends Component {
   uploadBookImage = async () => {
     const { bookImage } = this.state;
 
+    this.setState({
+      isSaving: true,
+    });
+
     try {
       const resizedImage = await resizeImage(bookImage.file, 400);
       const uploadedImage = await uploadImage(
@@ -177,6 +183,9 @@ class AddBook extends Component {
         this.insertBookManually,
       );
     } catch (error) {
+      this.setState({
+        isSaving: false,
+      });
       console.log(error);
       errorDialog(error.reason);
     }
@@ -222,8 +231,13 @@ class AddBook extends Component {
         bookImage: null,
         uploadedBookImage: null,
         unSavedImageChange: false,
+        isManuallyAddModalOpen: false,
+        isSaving: false,
       });
     } catch (error) {
+      this.setState({
+        isSaving: true,
+      });
       console.log(error);
       errorDialog(error.reason || error.error);
     }
@@ -258,7 +272,8 @@ class AddBook extends Component {
       backToShelf,
       bookImage,
       formValues,
-      isformValuesOpen,
+      isManuallyAddModalOpen,
+      isSaving,
     } = this.state;
 
     if (backToShelf) {
@@ -330,7 +345,9 @@ class AddBook extends Component {
         <Flex justify="center">
           <Button
             type="ghost"
-            onClick={() => this.setState({ isformValuesOpen: true })}
+            onClick={() =>
+              this.setState({ isManuallyAddModalOpen: true })
+            }
             size="small"
           >
             Manually Add Book
@@ -338,20 +355,25 @@ class AddBook extends Component {
         </Flex>
 
         <Modal
-          visible={isformValuesOpen}
+          visible={isManuallyAddModalOpen}
           closable
-          onClose={() => this.setState({ isformValuesOpen: false })}
+          onClose={() =>
+            this.setState({ isManuallyAddModalOpen: false })
+          }
           title="Manually Add Book"
         >
           <ManuallyAddBookForm
             values={formValues}
             bookImage={bookImage}
+            isSaving={isSaving}
             onImagePick={this.handleImagePick}
             onFormChange={this.handleFormChange}
             onAddAuthor={this.handleAddAuthor}
             onRemoveAuthor={this.handleRemoveAuthor}
             onSave={this.uploadBookImage}
-            onClose={() => this.setState({ isformValuesOpen: false })}
+            onClose={() =>
+              this.setState({ isManuallyAddModalOpen: false })
+            }
           />
         </Modal>
       </div>
