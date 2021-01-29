@@ -746,7 +746,8 @@ class Intro extends Component {
           isColor="dark"
         >
           <Subtitle isSize={6}>
-            Your location will never be shared publicly, or anyone.
+            Your location will never be shared publicly, or with third
+            parties.
           </Subtitle>
           <WhiteSpace size="lg" />
           <Button

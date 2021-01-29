@@ -39,8 +39,7 @@ function Routes() {
             component={ForgotPasswordPage}
           />
           <Route
-            exact
-            path="/reset-password"
+            path="/reset-password/:token"
             component={ResetPasswordPage}
           />
 

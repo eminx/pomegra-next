@@ -186,7 +186,7 @@ Meteor.methods({
 
     const newBook = {
       ...book,
-      category: book.categories[0],
+      category: book.categories ? book.categories[0] : '',
       titleLowerCase: book.title && book.title.toLowerCase(),
       authorsLowerCase:
         book.authors &&

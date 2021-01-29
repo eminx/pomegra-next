@@ -20,15 +20,23 @@ const routesWithTabBar = [
   '/profile',
 ];
 
+const ignoredPathnames = ['forgot-password', 'reset-password'];
+
 class Layout extends PureComponent {
   state = {};
 
   componentDidMount() {
-    const { currentUser } = this.props;
-    if (!currentUser || !currentUser.isIntroDone) {
-      this.changeRoute('/intro');
-    }
-    this.setState({ isLoading: false });
+    const { currentUser, location } = this.props;
+    setTimeout(() => {
+      if (!currentUser || !currentUser.isIntroDone) {
+        if (
+          !ignoredPathnames.includes(location.pathname.split('/')[1])
+        ) {
+          this.changeRoute('/intro');
+        }
+      }
+      this.setState({ isLoading: false });
+    }, 2000);
   }
 
   shouldRenderTabBar = () => {

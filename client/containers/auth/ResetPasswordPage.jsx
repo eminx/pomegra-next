@@ -17,11 +17,12 @@ function ResetPasswordPage({ history, match }) {
 
   const handleResetPassword = async (password) => {
     try {
+      console.log(token, password);
       await call('resetPassword', token, password);
       Toast.success(
         'Your password is successfully reset. Now you can login',
       );
-      history.push('/login');
+      history.push('/intro');
     } catch (error) {
       Toast.fail(error.reason);
     }
