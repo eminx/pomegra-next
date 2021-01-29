@@ -42,12 +42,7 @@ function ForgotPassword({ onForgotPassword }) {
           label="Type your email please"
           margin={{ bottom: 'medium', top: 'medium' }}
         >
-          <TextInput
-            plain={false}
-            type="email"
-            name="email"
-            placeholder=""
-          />
+          <TextInput plain type="email" name="email" placeholder="" />
         </FormField>
 
         <Box direction="row" justify="end" pad="small">
@@ -79,12 +74,7 @@ function ResetPassword({ onResetPassword }) {
           help={<Notice>minimum 8 characters</Notice>}
           error={<Notice isError>{passwordError}</Notice>}
         >
-          <TextInput
-            plain={false}
-            type="password"
-            name="password"
-            placeholder=""
-          />
+          <TextInput type="password" name="password" placeholder="" />
         </FormField>
 
         <Box direction="row" justify="end" pad="small">

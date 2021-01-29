@@ -16,6 +16,7 @@ function ForgotPasswordPage({ history }) {
   }
 
   const handleForgotPassword = async (email) => {
+    console.log(email);
     try {
       await call('forgotPassword', email);
       Toast.success(
@@ -28,7 +29,10 @@ function ForgotPasswordPage({ history }) {
   };
 
   return (
-    <Box width="100%">
+    <Box
+      width="100%"
+      pad={{ vertical: 'large', horizontal: 'small' }}
+    >
       <Box width="medium" alignSelf="center">
         <Heading level={2}>Forgot Password</Heading>
         <Text size="large" margin={{ bottom: 'medium' }}>
@@ -39,7 +43,7 @@ function ForgotPasswordPage({ history }) {
         ) : (
           <ForgotPassword onForgotPassword={handleForgotPassword} />
         )}
-        <Box
+        {/* <Box
           direction="row"
           justify="around"
           margin={{ top: 'small', left: 'large', right: 'large' }}
@@ -54,7 +58,7 @@ function ForgotPasswordPage({ history }) {
               Signup
             </Anchor>
           </SimpleText>
-        </Box>
+        </Box> */}
       </Box>
     </Box>
   );

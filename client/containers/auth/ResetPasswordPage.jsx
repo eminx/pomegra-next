@@ -29,14 +29,17 @@ function ResetPasswordPage({ history, match }) {
   };
 
   return (
-    <Box width="100%">
+    <Box
+      width="100%"
+      pad={{ vertical: 'large', horizontal: 'small' }}
+    >
       <Box width="medium" alignSelf="center">
         <Heading level={2}>Reset Your Password</Heading>
         <Text size="large" margin={{ bottom: 'medium' }}>
           Type your desired password
         </Text>
         <ResetPassword onResetPassword={handleResetPassword} />
-        <Box
+        {/* <Box
           direction="row"
           justify="around"
           margin={{ top: 'small', left: 'large', right: 'large' }}
@@ -51,7 +54,7 @@ function ResetPasswordPage({ history, match }) {
               Signup
             </Anchor>
           </SimpleText>
-        </Box>
+        </Box> */}
       </Box>
     </Box>
   );
