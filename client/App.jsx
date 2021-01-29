@@ -14,6 +14,8 @@ import RequestsList from './containers/RequestsList';
 import RequestContainer from './containers/RequestContainer';
 import Profile from './containers/Profile';
 import Intro from './containers/Intro';
+import ResetPasswordPage from './containers/auth/ResetPasswordPage';
+import ForgotPasswordPage from './containers/auth/ForgotPasswordPage';
 
 const browserHistory = createBrowserHistory();
 
@@ -30,6 +32,17 @@ function Routes() {
           <Route exact path="/messages" component={RequestsList} />
           <Route exact path="/profile" component={Profile} />
           <Route exact path="/intro" component={Intro} />
+
+          <Route
+            exact
+            path="/forgot-password"
+            component={ForgotPasswordPage}
+          />
+          <Route
+            exact
+            path="/reset-password"
+            component={ResetPasswordPage}
+          />
 
           <Route
             exact
