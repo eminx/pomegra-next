@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import { Anchor, Box, Heading, Text } from 'grommet';
-import { message } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 
 import { ResetPassword, SimpleText } from './index';
 import { call } from '../../functions';
@@ -18,12 +18,12 @@ function ResetPasswordPage({ history, match }) {
   const handleResetPassword = async (password) => {
     try {
       await call('resetPassword', token, password);
-      message.success(
+      Toast.success(
         'Your password is successfully reset. Now you can login',
       );
       history.push('/login');
     } catch (error) {
-      message.error(error.reason);
+      Toast.fail(error.reason);
     }
   };
 

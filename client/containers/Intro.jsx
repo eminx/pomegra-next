@@ -63,6 +63,7 @@ class Intro extends Component {
     openBook: null,
     insertedBooks: 0,
     introFinished: false,
+    forgotPassword: false,
     isLogin: false,
     gettingLocation: false,
   };
@@ -200,7 +201,9 @@ class Intro extends Component {
   };
 
   forgotPassword = () => {
-    alert('This is not implemented yet, try again later please');
+    this.setState({
+      forgotPassword: true,
+    });
   };
 
   handleLanguageSelect = (event) => {
@@ -479,12 +482,15 @@ class Intro extends Component {
       openBook,
       insertedBooks,
       introFinished,
+      forgotPassword,
       isLogin,
       gettingLocation,
     } = this.state;
 
     if (introFinished) {
       return <Redirect to="/" />;
+    } else if (forgotPassword) {
+      return <Redirect to="/forgot-password" />;
     }
 
     if (currentUser && currentUser.isIntroDone) {

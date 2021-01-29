@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import React, { useState } from 'react';
 import { Redirect } from 'react-router';
 import { Anchor, Box, Heading, Text } from 'grommet';
-import { message } from 'antd-mobile';
+import { Toast } from 'antd-mobile';
 
 import { ForgotPassword, SimpleText } from './index';
 import { call } from '../../functions';
@@ -18,12 +18,12 @@ function ForgotPasswordPage({ history }) {
   const handleForgotPassword = async (email) => {
     try {
       await call('forgotPassword', email);
-      message.success(
+      Toast.success(
         'Please check your email and see if you received a link to reset your password',
       );
       setEmailSent(true);
     } catch (error) {
-      message.error(error.reason);
+      Toast.fail(error.reason);
     }
   };
 
