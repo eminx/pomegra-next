@@ -27,7 +27,7 @@
     "less": "^3.11.1",
     "less-loader": "^5.0.0",
     "meteor-node-stubs": "^1.0.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.4",
     "npm": "^6.13.2",
     "polished": "^3.5.2",
     "rc-form": "^2.4.11",
