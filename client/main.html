@@ -1,0 +1,52 @@
+<head>
+  <title>librella</title>
+
+  <!-- Required meta tags-->
+  <meta charset="utf-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover"
+  />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="msapplication-TileColor" content="#da532c" />
+  <meta name="theme-color" content="#ffffff" />
+  <script src="https://as.alipayobjects.com/g/component/fastclick/1.0.6/fastclick.js"></script>
+  <script>
+    if ("addEventListener" in document) {
+      document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+          FastClick.attach(document.body);
+        },
+        false
+      );
+    }
+    if (!window.Promise) {
+      document.writeln(
+        '<script src="https://as.alipayobjects.com/g/component/es6-promise/3.2.2/es6-promise.min.js"' +
+          ">" +
+          "<" +
+          "/" +
+          "script>"
+      );
+    }
+  </script>
+
+  <noscript>
+    <style>
+      body:before {
+        content: "Sorry, your browser does not support JavaScript!";
+      }
+    </style>
+  </noscript>
+</head>
+
+<body>
+  <div id="react-target"></div>
+</body>

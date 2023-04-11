@@ -1,0 +1,173 @@
+import { Meteor } from "meteor/meteor";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Divider, List, NavBar, Picker, SearchBar, Space } from "antd-mobile";
+import { Button, Title, Subtitle } from "bloomer";
+import { Box, Center, Flex } from "@chakra-ui/react";
+
+import Anchor from "../components/Anchor";
+
+const ListItem = List.Item;
+
+const sortByMethods = [
+  "last added",
+  "book title",
+  "book author",
+  "book language",
+  "request condition",
+];
+
+function MyShelf() {
+  const [books, setBooks] = useState([]);
+  const [filterValue, setFilterValue] = useState("");
+  const [sortBy, setSortBy] = useState("last added");
+  const [isLoading, setIsLoading] = useState(true);
+  const [pickerVisible, setPickerVisible] = useState(false);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    Meteor.call("getMyBooks", (error, respond) => {
+      setBooks(respond);
+      setIsLoading(false);
+    });
+  }, []);
+
+  const getBooksSorted = () => {
+    if (!books || books.length === 0) {
+      return;
+    }
+
+    switch (sortBy) {
+      case "book title":
+        return books.sort((a, b) => a.title && a.title.localeCompare(b.title));
+      case "book author":
+        return books.sort(
+          (a, b) =>
+            a.authors && b.authors && a.authors[0].localeCompare(b.authors[0])
+        );
+      case "request condition":
+        return books.sort(
+          (a, b) =>
+            b.onRequest - a.onRequest ||
+            b.onAcceptance - a.onAcceptance ||
+            b.onLend - a.onLend
+        );
+      case "language":
+        return books.sort((a, b) => a.language.localeCompare(b.language));
+      default:
+        return books.sort((a, b) => b.dateAdded - a.dateAdded);
+    }
+  };
+
+  const getBooksFiltered = (sortedBooks) => {
+    return sortedBooks.filter((book) => {
+      return (
+        (book.title &&
+          book.title.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1) ||
+        (book.authors &&
+          book.authors.find((author) => {
+            return (
+              author &&
+              author.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1
+            );
+          })) ||
+        (book.category &&
+          book.category.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1)
+      );
+    });
+  };
+
+  const sortedBooks = getBooksSorted();
+  const filteredSortedBooks = sortedBooks && getBooksFiltered(sortedBooks);
+
+  return (
+    <div>
+      <NavBar mode="light" onBack={() => navigate("/")}>
+        My Shelf
+      </NavBar>
+
+      <Center pt="4">
+        <Link to="/add">
+          <Button isColor="light" isLink isOutlined className="is-rounded">
+            Add Book
+          </Button>
+        </Link>
+      </Center>
+
+      <Divider />
+
+      <Box px="4">
+        <SearchBar
+          placeholder="Filter"
+          cancelText="Cancel"
+          onChange={(value) => setFilterValue(value)}
+          onClear={() => setFilterValue("")}
+          style={{ touchAction: "none" }}
+        />
+      </Box>
+
+      <Center mb="4">
+        <Anchor
+          label="sorted by"
+          style={{ marginTop: 12 }}
+          onClick={() => setPickerVisible(true)}
+        >
+          {sortBy}
+        </Anchor>
+      </Center>
+
+      <Picker
+        cancelText="Cancel"
+        columns={[
+          sortByMethods.map((method) => ({
+            value: method,
+            label: method,
+          })),
+        ]}
+        confirmText="Confirm"
+        title="Sort by"
+        value={sortBy}
+        visible={pickerVisible}
+        onConfirm={(value) => setSortBy(value[0])}
+        onClose={() => setPickerVisible(false)}
+      />
+
+      {filteredSortedBooks ? (
+        <List style={{ marginBottom: 80 }}>
+          {filteredSortedBooks.map((book) => (
+            <ListItem
+              key={book._id}
+              align="top"
+              thumb={
+                <img style={{ width: 33, height: 44 }} src={book.imageUrl} />
+              }
+              extra={book.category}
+              onClick={() => navigate(`/my-shelf/${book._id}`)}
+            >
+              <b>{book.title}</b>
+              {book.authors.map((author) => (
+                <div key={author}>{author}</div>
+              ))}
+            </ListItem>
+          ))}
+        </List>
+      ) : (
+        isLoading && <div>Loading your books...</div>
+      )}
+
+      {books && books.length === 0 && (
+        <Space>
+          <Title isSize={4} hasTextAlign="centered">
+            No books
+          </Title>
+          <Subtitle isSize={6} hasTextAlign="centered">
+            You don't have any books in your shelf yet. Please add new books
+          </Subtitle>
+        </Space>
+      )}
+    </div>
+  );
+}
+
+export default MyShelf;

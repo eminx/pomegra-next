@@ -1,0 +1,62 @@
+{
+  "name": "librella",
+  "private": true,
+  "scripts": {
+    "start": "meteor run --settings settings.json",
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
+    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "lint": "eslint .",
+    "pretest": "npm run lint --silent"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.20.7",
+    "@chakra-ui/react": "^2.5.5",
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "animate-components": "^1.4.8",
+    "antd-mobile": "^5.29.1",
+    "array-move": "^4.0.0",
+    "bloomer": "^0.6.5",
+    "bulma": "^0.9.4",
+    "framer-motion": "^10.11.2",
+    "grommet": "^2.31.0",
+    "meteor-node-stubs": "^1.2.5",
+    "moment": "^2.29.4",
+    "rc-form": "^2.4.12",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-dropzone": "^14.2.3",
+    "react-icons": "^4.8.0",
+    "react-image-file-resizer": "^0.4.8",
+    "react-intl": "^6.3.2",
+    "react-router": "^6.10.0",
+    "react-router-dom": "^6.10.0",
+    "react-slick": "^0.29.0",
+    "react-sortable-hoc": "^2.0.0",
+    "shallow-equal": "^3.1.0",
+    "slick-carousel": "^1.8.1",
+    "styled-components": "^5.3.9"
+  },
+  "meteor": {
+    "mainModule": {
+      "client": "client/main.jsx",
+      "server": "server/main.js"
+    },
+    "testModule": "tests/main.js"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.21.3",
+    "@meteorjs/eslint-config-meteor": "^1.0.5",
+    "eslint": "^8.38.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-import-resolver-meteor": "^0.4.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-plugin-meteor": "^7.3.0",
+    "eslint-plugin-react": "^7.32.2"
+  },
+  "eslintConfig": {
+    "extends": "@meteorjs/eslint-config-meteor"
+  }
+}
