@@ -1,49 +1,93 @@
-import React, { Component, Fragment } from "react";
+import React, { useState, Fragment } from 'react';
+import { Button, Form, Input, ImageUploader, Picker, Tabs, TextArea } from 'antd-mobile';
+import { Box, Center, Flex, Stack, Tag, TagCloseButton, Text } from '@chakra-ui/react';
+import { Subtitle } from 'bloomer';
+import { shallowEqualArrays } from 'shallow-equal';
+
+import allLanguages from '../../api/_utils/langs/allLanguages';
 import {
-  List,
-  Flex,
-  Icon,
-  ImagePicker,
-  Button,
-  InputItem,
-  Tag,
-  Picker,
-  TextareaItem,
-  Tabs,
-  WhiteSpace,
-  WingBlank,
-} from "antd-mobile";
-import { createForm } from "rc-form";
-import { Subtitle } from "bloomer";
-import Dropzone from "react-dropzone";
-import { sortableContainer, sortableElement } from "react-sortable-hoc";
+  errorDialog,
+  successDialog,
+  resizeImage,
+  uploadImage,
+  call,
+} from '../../api/_utils/functions';
+import FilePicker from './FilePicker';
 
-import allLanguages from "../../api/_utils/langs/allLanguages";
+const { Tab } = Tabs;
 
-const Item = List.Item;
+const imageModel = {
+  uploadableImage: null,
+  uploadableImageLocal: null,
+};
 
-class EditProfileUI extends Component {
-  state = {
-    languages: [],
-  };
+function EditProfile({ currentUser }) {
+  const [image, setImage] = useState(imageModel);
+  const [user, setUser] = useState(currentUser);
+  const [pickerVisible, setPickerVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [form] = Form.useForm();
 
-  componentDidMount() {
-    const { currentUser } = this.props;
-    if (!currentUser) {
+  const setUploadableImage = (files) => {
+    if (files.length > 1) {
+      message.error('Please select only one file');
       return;
     }
-    this.setState({
-      languages: currentUser.languages || [],
-    });
-  }
+    const uploadableImage = files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(uploadableImage);
+    reader.addEventListener(
+      'load',
+      () => {
+        setImage({
+          uploadableImage,
+          uploadableImageLocal: reader.result,
+        });
+      },
+      false
+    );
+  };
 
-  handleLanguageSelect = (selectedLanguages) => {
+  const handleUploadImage = async () => {
+    setIsSaving(true);
+    const { uploadableImage } = image;
+    try {
+      const resizedImage = await resizeImage(uploadableImage, 600);
+      const uploadedImage = await uploadImage(resizedImage, 'profileImageUpload');
+      await call('updateProfileImage', uploadedImage);
+      successDialog('Your new image is set');
+    } catch (error) {
+      console.log('Error uploading:', error);
+      errorDialog(error.reason);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleUpdateProfile = () => {
+    setIsSaving(true);
+    const values = form.getFieldsValue();
+
+    try {
+      call('updateProfile', values);
+      successDialog('Your profile is successfully updated');
+      setUser({
+        ...user,
+        values,
+      });
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleLanguageSelect = (selectedLanguages) => {
     const selectedLanguageValue = selectedLanguages[0];
-    const { languages } = this.state;
+    const { languages } = user;
 
-    if (
-      languages.some((language) => language.value === selectedLanguageValue)
-    ) {
+    if (languages.some((language) => language.value === selectedLanguageValue)) {
       return;
     }
 
@@ -52,346 +96,194 @@ class EditProfileUI extends Component {
     );
 
     const newLanguages = [...languages, selectedLanguage];
-    this.setState({
+
+    setUser({
+      ...user,
       languages: newLanguages,
     });
-
-    this.props.setUnSavedInfoChange();
   };
 
-  handleRemoveLanguage = (languageValue) => {
-    const { languages } = this.state;
-    const newLanguages = languages.filter(
-      (language) => languageValue !== language.value
-    );
-    this.setState({
+  const handleRemoveLanguage = (languageValue) => {
+    const { languages } = user;
+    const newLanguages = languages.filter((language) => languageValue !== language.value);
+    setUser({
+      ...user,
       languages: newLanguages,
     });
-
-    this.props.setUnSavedInfoChange();
   };
 
-  handleDetailsFormSubmit = () => {
-    const { languages } = this.state;
-    this.props.form.validateFields({ force: true }, (error) => {
-      if (!error) {
-        const values = this.props.form.getFieldsValue();
-        this.props.onSubmit(values, languages);
-      } else {
-        alert("Validation failed");
-      }
-    });
-  };
-
-  onReset = () => {
-    this.props.form.resetFields();
-  };
-
-  validateAccount = (rule, value, callback) => {
-    if (value && value.length > 3) {
-      callback();
-    } else {
-      callback(new Error("At least four characters for account"));
+  const handleUpdateLanguages = () => {
+    setIsSaving(true);
+    const { languages } = user;
+    try {
+      call('updateLanguages', languages);
+      successDialog('Your languages successfully updated');
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  render() {
-    const {
-      currentUser,
-      avatar,
-      coverImages,
-      uploadingImages,
-      unSavedAvatarChange,
-      unSavedCoverChange,
-      unSavedInfoChange,
-      setUnSavedInfoChange,
-      onSortEnd,
-      handleCoverPick,
-      handleRemoveCover,
-      handleAvatarPick,
-      handleSaveAvatar,
-      handleSaveCovers,
-      handleTabClick,
-      openTab,
-      setGeoLocationCoords,
-      savingAvatar,
-      savingCover,
-    } = this.props;
-    const { getFieldProps, getFieldError } = this.props.form;
-    const { languages } = this.state;
-
-    const getGeoLocation = () => {
-      const geolocation = navigator.geolocation;
-      geolocation &&
-        geolocation.getCurrentPosition((position) => {
-          setGeoLocationCoords(position.coords);
-        });
-    };
-
-    return (
-      <div>
-        <Tabs
-          tabs={[{ title: "Images" }, { title: "Info" }, { title: "Location" }]}
-          page={openTab}
-          onTabClick={handleTabClick}
-          swipeable={false}
-          animated={false}
-        >
-          <div>
-            <h3>Avatar</h3>
-            <WingBlank>
-              <Flex align="stretch" direction="column">
-                <Flex justify="center">
-                  <ImagePicker
-                    files={avatar ? [avatar] : []}
-                    onChange={handleAvatarPick}
-                    selectable={!avatar}
-                    accept="image/jpeg,image/jpg,image/png"
-                    multiple={false}
-                    length={1}
-                    style={{
-                      width: 120,
-                    }}
-                  />
-                </Flex>
-                <Button
-                  type="primary"
-                  onClick={handleSaveAvatar}
-                  disabled={!unSavedAvatarChange}
-                  loading={savingAvatar}
-                >
-                  Save Avatar
-                </Button>
-              </Flex>
-            </WingBlank>
-
-            <WhiteSpace size="xl" />
-
-            <h3>Cover Images</h3>
-
-            <SortableContainer
-              onSortEnd={onSortEnd}
-              axis="xy"
-              helperClass="sortableHelper"
-              pressDelay={250}
-            >
-              {coverImages.map((image, index) => (
-                <SortableItem
-                  key={image.url}
-                  index={index}
-                  image={image}
-                  handleRemoveCover={() => handleRemoveCover(index)}
-                />
-              ))}
-            </SortableContainer>
-
-            <WingBlank>
-              <Dropzone
-                onDrop={handleCoverPick}
-                accepted={["image/jpeg", "image/jpg", "image/png"]}
-                multiple
-                noDrag
-              >
-                {({ getRootProps, getInputProps }) => (
-                  <div {...getRootProps()} style={pickerStyle}>
-                    {!uploadingImages ? (
-                      <div>
-                        <input {...getInputProps()} />
-                        Select images from your device
-                      </div>
-                    ) : (
-                      ""
-                    )}
-                  </div>
-                )}
-              </Dropzone>
-            </WingBlank>
-
-            <WhiteSpace size="lg" />
-
-            <Item>
-              <Button
-                type="primary"
-                onClick={handleSaveCovers}
-                disabled={!unSavedCoverChange}
-                loading={savingCover}
-              >
-                Save Cover Images
-              </Button>
-            </Item>
-          </div>
-          <div>
-            <List renderHeader={() => "Edit your details"}>
-              <InputItem value={currentUser.username} editable={false} disabled>
-                Username
-              </InputItem>
-
-              <InputItem
-                {...getFieldProps("firstName", {
-                  rules: [
-                    {
-                      required: false,
-                      message: "please enter your first name",
-                    },
-                  ],
-                  initialValue: currentUser.firstName,
-                  onChange: setUnSavedInfoChange,
-                })}
-                clear
-                // error={!!getFieldError('firstName')}
-                placeholder="first name"
-              >
-                First name
-              </InputItem>
-
-              <InputItem
-                {...getFieldProps("lastName", {
-                  initialValue: currentUser.lastName,
-                  onChange: setUnSavedInfoChange,
-                })}
-                clear
-                // error={!!getFieldError('lastName')}
-                placeholder="last name"
-              >
-                Last name
-              </InputItem>
-
-              <TextareaItem
-                {...getFieldProps("bio", {
-                  initialValue: currentUser.bio,
-                  onChange: setUnSavedInfoChange,
-                })}
-                title="Bio"
-                placeholder="bio"
-                rows={5}
-              />
-
-              <Picker
-                {...getFieldProps("language")}
-                data={allLanguages}
-                cols={1}
-                okText="Confirm"
-                dismissText="Cancel"
-                extra="add language"
-                onOk={this.handleLanguageSelect}
-              >
-                <Item arrow="horizontal">Languages</Item>
-              </Picker>
-
-              <WhiteSpace />
-
-              <div>
-                {languages.map((language) => (
-                  <Tag
-                    key={language.value}
-                    style={{ margin: 8, color: "#000" }}
-                    closable
-                    onClose={() => this.handleRemoveLanguage(language.value)}
-                  >
-                    {language.label}
-                  </Tag>
-                ))}
-              </div>
-
-              <WhiteSpace size="lg" />
-
-              <Item>
-                <Button
-                  type="primary"
-                  onClick={this.handleDetailsFormSubmit}
-                  disabled={!unSavedInfoChange}
-                >
-                  Save
-                </Button>
-              </Item>
-            </List>
-          </div>
-
-          <div>
-            <WingBlank>
-              <WhiteSpace />
-              <p>
-                We will use your location in order to find books that are
-                located close to you so you can go pick them up.
-              </p>
-              <WhiteSpace />
-              {currentUser.geoLocationCoords ? (
-                <Fragment>
-                  <Subtitle isSize={6}>Your location is set</Subtitle>
-                  <WhiteSpace size="lg" />
-                  <Button onClick={() => getGeoLocation()}>
-                    Update Your Location
-                  </Button>
-                </Fragment>
-              ) : (
-                <Button type="primary" onClick={() => getGeoLocation()}>
-                  Set Your Location
-                </Button>
-              )}
-            </WingBlank>
-          </div>
-        </Tabs>
-        <WhiteSpace size={100} />
-      </div>
-    );
-  }
-}
-
-const SortableItem = sortableElement(({ image, index, handleRemoveCover }) => {
-  const handleRemoveClick = (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-    handleRemoveCover();
+  const getGeoLocation = () => {
+    const geolocation = navigator.geolocation;
+    geolocation &&
+      geolocation.getCurrentPosition((position) => {
+        setGeoLocationCoords(position.coords);
+      });
   };
 
+  const setGeoLocationCoords = (coords) => {
+    setIsSaving(true);
+    const theCoords = {
+      latitude: coords.latitude.toString(),
+      longitude: coords.longitude.toString(),
+      accuracy: coords.accuracy.toString(),
+    };
+
+    try {
+      call('setGeoLocationCoords', theCoords);
+      successDialog('Your location is successfully set');
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const { images, languages } = user;
+
   return (
-    <div key={image.url} style={thumbStyle(image.url)}>
-      <Icon type="cross" style={thumbIconStyle} onClick={handleRemoveClick} />
-    </div>
+    <>
+      <Tabs>
+        <Tab title="Image" key="image">
+          <Center mb="8">
+            <FilePicker
+              imageUrl={images && images[0]}
+              height="120px"
+              width="120px"
+              uploadableImageLocal={image?.uploadableImageLocal}
+              setUploadableImage={setUploadableImage}
+            />
+          </Center>
+
+          <Button
+            block
+            color="primary"
+            onClick={handleUploadImage}
+            // disabled={!unSavedAvatarChange}
+            loading={isSaving}
+          >
+            Save
+          </Button>
+        </Tab>
+
+        <Tab title="Info" key="info">
+          <Form
+            initialValues={currentUser}
+            form={form}
+            layout="horizontal"
+            footer={
+              <Button block color="primary" type="submit" onClick={handleUpdateProfile}>
+                Save
+              </Button>
+            }
+          >
+            {/* <Form.Header></Form.Header> */}
+
+            <Box p="2">
+              <Input value={user.username} disabled />
+            </Box>
+
+            <Form.Item
+              name="firstName"
+              label="First name"
+              rules={[{ required: true, message: 'First name is required' }]}
+            >
+              <Input placeholder="Franz" />
+            </Form.Item>
+
+            <Form.Item
+              name="lastName"
+              label="Last name"
+              rules={[{ required: true, message: 'Last name is required' }]}
+            >
+              <Input placeholder="Kafka" />
+            </Form.Item>
+
+            <Form.Item name="bio" label="About me">
+              <TextArea rows={4} placeholder="I love to read..." />
+            </Form.Item>
+          </Form>
+        </Tab>
+
+        <Tab title="Languages" key="languages">
+          <Form>
+            <Form.Item
+              name="language"
+              label="Pick language"
+              rules={[{ required: true, message: 'Language is required' }]}
+              onClick={() => setPickerVisible(true)}
+            >
+              <Picker
+                columns={[allLanguages]}
+                confirmText="Confirm"
+                cancelText="Cancel"
+                visible={pickerVisible}
+                onClose={() => setPickerVisible(false)}
+                onConfirm={handleLanguageSelect}
+              />
+            </Form.Item>
+          </Form>
+
+          <Stack direction="row" justify="center" py="2" wrap="wrap">
+            {languages?.map((language) => (
+              <Tag key={language.value} onClose={() => handleRemoveLanguage(language.value)}>
+                {language.label}
+                <TagCloseButton onClick={() => handleRemoveLanguage(language.value)} />
+              </Tag>
+            ))}
+          </Stack>
+
+          <Box my="4">
+            <Button
+              block
+              color="primary"
+              disabled={shallowEqualArrays(currentUser.languages, user.languages)}
+              onClick={() => handleUpdateLanguages()}
+            >
+              Save
+            </Button>
+          </Box>
+        </Tab>
+
+        <Tab title="Location" key="location">
+          <Text mt="2" mb="6">
+            We will use your location in order to find books that are located close to you so you
+            can go pick them up.
+          </Text>
+          {currentUser.geoLocationCoords ? (
+            <Fragment>
+              <Subtitle isSize={6}>Your location is set</Subtitle>
+              <Box my="4">
+                <Button block onClick={() => getGeoLocation()}>
+                  Update Your Location
+                </Button>
+              </Box>
+            </Fragment>
+          ) : (
+            <Box my="4">
+              <Button block color="primary" onClick={() => getGeoLocation()}>
+                Set Your Location
+              </Button>
+            </Box>
+          )}
+        </Tab>
+      </Tabs>
+    </>
   );
-});
-
-const SortableContainer = sortableContainer(({ children }) => {
-  return (
-    <Flex justify="center" wrap="wrap">
-      {children}
-    </Flex>
-  );
-});
-
-const pickerStyle = {
-  width: "100%",
-  height: 48,
-  backgroundColor: "#fff",
-  padding: 12,
-  marginTop: 12,
-  borderRadius: 5,
-  border: "#108ee9 1px solid",
-  color: "#108ee9",
-};
-
-const thumbStyle = (backgroundImage) => ({
-  flexBasis: 120,
-  height: 80,
-  margin: 8,
-  backgroundImage: `url('${backgroundImage}')`,
-  backgroundPosition: "center",
-  backgroundSize: "cover",
-  borderRadius: 5,
-  border: "1px solid #fff",
-});
-
-const thumbIconStyle = {
-  width: 24,
-  height: 24,
-  float: "right",
-  margin: 2,
-  color: "#1b1b1b",
-  borderRadius: "50%",
-  backgroundColor: "rgba(255, 255, 255, .3)",
-  cursor: "pointer",
-};
-
-const EditProfile = createForm()(EditProfileUI);
+}
 
 export default EditProfile;

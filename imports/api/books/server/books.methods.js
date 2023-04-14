@@ -1,5 +1,5 @@
-import { Meteor } from "meteor/meteor";
-import { BooksCollection } from "../../collections";
+import { Meteor } from 'meteor/meteor';
+import { BooksCollection } from '../../collections';
 
 Meteor.methods({
   getMyBooks: () => {
@@ -65,30 +65,28 @@ Meteor.methods({
     });
 
     if (bookExists) {
-      throw new Meteor.Error("You have already added a book with same title");
+      throw new Meteor.Error('You have already added a book with same title');
     }
 
-    let imageUrl =
-      book.imageLinks &&
-      (book.imageLinks.thumbnail || book.imageLinks.smallThumbnail);
+    let imageUrl = book.imageLinks && (book.imageLinks.thumbnail || book.imageLinks.smallThumbnail);
 
-    if (imageUrl && imageUrl.substring(0, 5) === "http:") {
-      imageUrl = imageUrl.slice(0, 4) + "s" + imageUrl.slice(4);
+    if (imageUrl && imageUrl.substring(0, 5) === 'http:') {
+      imageUrl = imageUrl.slice(0, 4) + 's' + imageUrl.slice(4);
     }
 
     const newBook = {
       ...book,
-      category: book.categories ? book.categories[0] : "",
+      category: book.categories ? book.categories[0] : '',
       titleLowerCase: book.title && book.title.toLowerCase(),
       authorsLowerCase:
         book.authors &&
         book.authors.length > 0 &&
         book.authors.map((author) => author.toLowerCase()),
-      ISBN: book.industryIdentifiers && book.industryIdentifiers[0].identifier,
+      ISBN: book.industryIdentifiers && book.industryIdentifiers[1]?.identifier,
       imageUrl,
       ownerId: currentUserId,
       ownerUsername: user.username,
-      ownerAvatar: user.avatar,
+      ownerImage: user.images[0],
       xTimes: 0,
       isAvailable: true,
       dateAdded: new Date(),
@@ -96,7 +94,7 @@ Meteor.methods({
 
     const bookId = BooksCollection.insert(newBook, function (error, result) {
       if (error) {
-        console.log("error!", error);
+        console.log('error!', error);
         throw new Meteor.error(error);
       } else {
         return bookId;
@@ -116,14 +114,14 @@ Meteor.methods({
     });
 
     if (bookExists) {
-      throw new Meteor.Error("You have already added a book with same title");
+      throw new Meteor.Error('You have already added a book with same title');
     }
 
     const newBook = {
       ...book,
       ownerId: currentUserId,
       ownerUsername: user.username,
-      ownerAvatar: user.avatar,
+      ownerImage: user.images && user.images[0],
       xTimes: 0,
       isAvailable: true,
       dateAdded: new Date(),
@@ -131,7 +129,7 @@ Meteor.methods({
 
     const bookId = BooksCollection.insert(newBook, function (error, result) {
       if (error) {
-        console.log("error!", error);
+        console.log('error!', error);
         throw new Meteor.error(error);
       } else {
         return bookId;
@@ -152,10 +150,7 @@ Meteor.methods({
         { _id: bookId },
         {
           $set: {
-            title: values.title,
-            authors: values.author,
-            language: values.b_lang,
-            description: values.description,
+            ...values,
           },
         }
       );

@@ -1,12 +1,12 @@
-import React, { PureComponent } from "react";
-import { Title, Subtitle, Container, Heading, Button } from "bloomer";
-import { Flex } from "@chakra-ui/react";
+import React, { PureComponent } from 'react';
+import { Title, Subtitle, Container, Heading, Button } from 'bloomer';
+import { Flex } from '@chakra-ui/react';
 
-import { parseUrlForSSL, parseAuthors } from "../../api/_utils/functions";
-import allLanguages from "../../api/_utils/langs/allLanguages";
+import { parseUrlForSSL, parseAuthors } from '../../api/_utils/functions';
+import allLanguages from '../../api/_utils/langs/allLanguages';
 
 const imageContainerStyle = {
-  flexBasis: "20vw",
+  flexBasis: '20vw',
   flexGrow: 0,
   flexShrink: 1,
   minWidth: 120,
@@ -15,11 +15,12 @@ const imageContainerStyle = {
 
 const containerStyle = {
   padding: 12,
-  width: "100vw",
+  paddingBottom: 24,
+  width: '100vw',
   marginBottom: 24,
-  boxShadow: "0 0 12px rgba(120, 120, 120, 0.6)",
-  overflowY: "hidden",
-  transition: "max-height .2s ease",
+  boxShadow: '0 0 12px rgba(120, 120, 120, 0.6)',
+  overflowY: 'hidden',
+  transition: 'max-height .2s ease',
 };
 
 class BookCardNext extends PureComponent {
@@ -60,22 +61,15 @@ class BookCardNext extends PureComponent {
         </span>
       );
     } else {
-      publishText = "";
+      publishText = '';
     }
 
     return publishText;
   };
 
   render() {
-    const {
-      volumeInfo,
-      onClickBook,
-      isOpen,
-      onButtonClick,
-      buttonText,
-      isIntro,
-      isDark,
-    } = this.props;
+    const { volumeInfo, onClickBook, isOpen, onButtonClick, buttonText, isIntro, isDark } =
+      this.props;
     const { visibleHeight, hiddenHeight } = this.state;
 
     const language = allLanguages.find(
@@ -97,14 +91,13 @@ class BookCardNext extends PureComponent {
     }
 
     if (isDark) {
-      cardContainerStyle.backgroundColor = "#3E3E3E";
+      cardContainerStyle.backgroundColor = '#3E3E3E';
     } else {
-      cardContainerStyle.backgroundColor = "whitesmoke";
+      cardContainerStyle.backgroundColor = 'whitesmoke';
     }
 
     if (isIntro) {
-      (cardContainerStyle.marginLeft = -24),
-        (cardContainerStyle.marginRight = -24);
+      (cardContainerStyle.marginLeft = -24), (cardContainerStyle.marginRight = -24);
     }
 
     const publishText = this.getPublishText();
@@ -116,23 +109,18 @@ class BookCardNext extends PureComponent {
             justify="between"
             align="stretch"
             onClick={onClickBook}
-            style={{ cursor: "pointer" }}
+            style={{ cursor: 'pointer' }}
           >
-            <Flex
-              direction="column"
-              justify="between"
-              align="start"
-              style={{ flexGrow: 1 }}
-            >
+            <Flex direction="column" justify="between" align="start" style={{ flexGrow: 1 }}>
               <div style={{ flexGrow: 1 }}>
                 <Title
-                  hasTextColor={isDark ? "light" : "dark"}
+                  hasTextColor={isDark ? 'light' : 'dark'}
                   isSize={5}
                   // style={{ fontFamily: "'Georgia', serif" }}
                 >
                   {volumeInfo.title}
                 </Title>
-                <Subtitle hasTextColor={isDark ? "light" : "dark"} isSize={6}>
+                <Subtitle hasTextColor={isDark ? 'light' : 'dark'} isSize={6}>
                   {parseAuthors(volumeInfo.authors)}
                 </Subtitle>
               </div>
@@ -141,14 +129,13 @@ class BookCardNext extends PureComponent {
                   style={{
                     paddingTop: 12,
                     paddingBottom: 12,
-                    color: "#ababab",
+                    color: '#ababab',
                   }}
                 >
-                  <b>{volumeInfo.printType}</b> in {}{" "}
-                  <b>{language && language.label}</b>
+                  <b>{volumeInfo.printType}</b> in {} <b>{language && language.label}</b>
                   {category && (
                     <span>
-                      {" "}
+                      {' '}
                       about <b>{category}</b>
                     </span>
                   )}
@@ -159,15 +146,12 @@ class BookCardNext extends PureComponent {
 
             <div style={imageContainerStyle}>
               <img
-                src={
-                  volumeInfo.imageLinks &&
-                  parseUrlForSSL(volumeInfo.imageLinks.thumbnail)
-                }
+                src={volumeInfo.imageLinks && parseUrlForSSL(volumeInfo.imageLinks.thumbnail)}
                 width={120}
                 alt={volumeInfo.title}
                 style={{
                   marginRight: 12,
-                  backgroundColor: "coral",
+                  backgroundColor: 'coral',
                   maxHeight: 180,
                 }}
                 onLoad={() => this.setMaxHeight()}
@@ -176,31 +160,28 @@ class BookCardNext extends PureComponent {
           </Flex>
         </div>
 
-        <div
-          ref={(element) => (this.hidden = element)}
-          style={{ paddingTop: 12 }}
-        >
+        <div ref={(element) => (this.hidden = element)} style={{ paddingTop: 12 }}>
           <Flex justify="center" direction="column">
             <Subtitle
               isSize={6}
-              hasTextColor={isDark ? "light" : "dark"}
-              style={{ marginBottom: 5 }}
+              hasTextColor={isDark ? 'light' : 'dark'}
+              style={{ marginBottom: 5, textAlign: 'center', marginBottom: 12 }}
             >
               Have this book?
             </Subtitle>
             <Button
-              isColor={isDark ? "light" : "dark"}
-              isOutlined
+              isColor={isDark ? 'light' : 'dark'}
+              isInverted
+              isSize="small"
+              style={{ marginBottom: 24 }}
               onClick={onButtonClick}
             >
               {buttonText}
             </Button>
           </Flex>
 
-          <Container hasTextColor={isDark ? "light" : "dark"}>
-            <p style={{ fontWeight: 500 }}>
-              {volumeInfo && volumeInfo.description}
-            </p>
+          <Container hasTextColor={isDark ? 'light' : 'dark'}>
+            <p style={{ fontWeight: 400, fontSize: 14 }}>{volumeInfo && volumeInfo.description}</p>
           </Container>
         </div>
       </div>

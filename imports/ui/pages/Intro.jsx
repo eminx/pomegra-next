@@ -1,20 +1,20 @@
-import { Meteor } from "meteor/meteor";
-import { withTracker } from "meteor/react-meteor-data";
-import React, { Component } from "react";
-import { Redirect } from "react-router-dom";
-import { Field, Control, Button, Subtitle } from "bloomer";
-import { ImageUploader } from "antd-mobile";
-import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
-import { FadeInUp } from "animate-components";
-import { shallowEqualArrays } from "shallow-equal";
-import { Flex } from "@chakra-ui/react";
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
+import React, { Component } from 'react';
+import { Redirect } from 'react-router-dom';
+import { Field, Control, Button, Subtitle } from 'bloomer';
+import { ImageUploader } from 'antd-mobile';
+import Slider from 'react-slick';
+import 'slick-carousel/slick/slick.css';
+import 'slick-carousel/slick/slick-theme.css';
+import { FadeInUp } from 'animate-components';
+import { shallowEqualArrays } from 'shallow-equal';
+import { Flex } from '@chakra-ui/react';
 
-import HeroSlide from "../components/HeroSlide";
-import LoginForm from "../components/LoginForm";
+import HeroSlide from '../components/HeroSlide';
+import LoginForm from '../components/LoginForm';
 
-import allLanguages from "../../api/_utils/langs/allLanguages";
+import allLanguages from '../../api/_utils/langs/allLanguages';
 
 import {
   resizeImage,
@@ -23,7 +23,7 @@ import {
   successDialog,
   validateEmail,
   call,
-} from "../../api/_utils/functions";
+} from '../../api/_utils/functions';
 
 import {
   InfoForm,
@@ -35,26 +35,26 @@ import {
   BookInserter,
   introSlides,
   googleApi,
-} from "../layouts/hero";
-import NiceShelf from "../components/NiceShelf";
+} from '../layouts/hero';
+import NiceShelf from '../components/NiceShelf';
 
 const regexUsername = /[^a-z0-9]+/g;
 
 class Intro extends Component {
   state = {
     carouselIndex: 0,
-    email: "",
-    username: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    bio: "",
+    email: '',
+    username: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    bio: '',
     languages: [],
-    avatar: null,
-    coverImages: [],
+    images: null,
+    images: [],
     savingAvatar: false,
     savingCover: false,
-    searchValue: "",
+    searchValue: '',
     searchResults: null,
     isSearching: false,
     openBook: null,
@@ -85,9 +85,9 @@ class Intro extends Component {
     }
 
     this.setState({
-      firstName: currentUser.firstName || "",
-      lastName: currentUser.lastName || "",
-      bio: currentUser.bio || "",
+      firstName: currentUser.firstName || '',
+      lastName: currentUser.lastName || '',
+      bio: currentUser.bio || '',
       languages: currentUser.languages || [],
       avatar: currentUser.avatar || null,
       coverImages: currentUser.coverImages || [],
@@ -105,11 +105,7 @@ class Intro extends Component {
     const { carouselIndex } = this.state;
     // if ([].includes(carouselIndex)) return true;
     if ([0, 1, 2, 3, 7, 8, 9].includes(carouselIndex)) return false;
-    return (
-      this.isEmailInvalid() ||
-      this.isUsernameInvalid() ||
-      this.isPasswordInvalid()
-    );
+    return this.isEmailInvalid() || this.isUsernameInvalid() || this.isPasswordInvalid();
   };
 
   goNext = () => {
@@ -138,7 +134,7 @@ class Intro extends Component {
 
   handleEmailButtonClick = async () => {
     const { email } = this.state;
-    const isEmailRegistered = await call("isEmailRegistered", email);
+    const isEmailRegistered = await call('isEmailRegistered', email);
     if (isEmailRegistered) {
       errorDialog(
         `The email address ${email} is already registered for an account. Please log in if it's you`
@@ -150,7 +146,7 @@ class Intro extends Component {
 
   handleUsernameButtonClick = async () => {
     const { username } = this.state;
-    const isUsernameTaken = await call("isUsernameTaken", username);
+    const isUsernameTaken = await call('isUsernameTaken', username);
     if (isUsernameTaken) {
       errorDialog(`Username ${username} is already taken. Please try another`);
       return;
@@ -168,8 +164,8 @@ class Intro extends Component {
     this.setState({ isLoading: true });
 
     try {
-      await call("registerUser", values);
-      successDialog("Your account is successfully created");
+      await call('registerUser', values);
+      successDialog('Your account is successfully created');
       this.signIn();
     } catch (error) {
       console.log(error);
@@ -204,9 +200,7 @@ class Intro extends Component {
   handleLanguageSelect = (event) => {
     const { languages } = this.state;
     const selectedLanguageValue = event.target.value;
-    if (
-      languages.some((language) => language.value === selectedLanguageValue)
-    ) {
+    if (languages.some((language) => language.value === selectedLanguageValue)) {
       return;
     }
 
@@ -223,9 +217,7 @@ class Intro extends Component {
     const { languages } = this.state;
     const languageValue = language.value;
 
-    const newLanguages = languages.filter(
-      (language) => languageValue !== language.value
-    );
+    const newLanguages = languages.filter((language) => languageValue !== language.value);
     this.setState({
       languages: newLanguages,
     });
@@ -240,8 +232,8 @@ class Intro extends Component {
     };
 
     try {
-      await call("updateProfile", values, languages);
-      successDialog("Your profile is successfully updated", 2);
+      await call('updateProfile', values, languages);
+      successDialog('Your profile is successfully updated', 2);
       this.goNext();
     } catch (error) {
       console.log(error);
@@ -250,7 +242,7 @@ class Intro extends Component {
   };
 
   handleAvatarPick = (images, type, index) => {
-    if (type === "remove") {
+    if (type === 'remove') {
       this.setState({
         avatar: null,
       });
@@ -276,16 +268,13 @@ class Intro extends Component {
 
     try {
       const resizedAvatar = await resizeImage(avatar.file, 300);
-      const uploadedAvatar = await uploadImage(
-        resizedAvatar,
-        "profileImageUpload"
-      );
+      const uploadedAvatar = await uploadImage(resizedAvatar, 'profileImageUpload');
       const avatarToSave = {
         name: avatar.file.name,
         url: uploadedAvatar,
         uploadDate: new Date(),
       };
-      await call("setNewAvatar", avatarToSave);
+      await call('setNewAvatar', avatarToSave);
       this.setState({
         isUploading: false,
       });
@@ -302,7 +291,7 @@ class Intro extends Component {
 
   handleCoverPick = (pickedImages, type, index) => {
     const { coverImages } = this.state;
-    if (type === "remove") {
+    if (type === 'remove') {
       this.setState({
         coverImages: coverImages.filter((cover, i) => i !== index),
       });
@@ -352,13 +341,13 @@ class Intro extends Component {
       const imagesReadyToSave = await Promise.all(
         coverImages.map(async (cover, index) => {
           const resizedImage = await resizeImage(cover.file, 1200);
-          const uploadedImage = await uploadImage(resizedImage, "coverUpload");
+          const uploadedImage = await uploadImage(resizedImage, 'coverUpload');
           return uploadedImage;
         })
       );
-      await call("setNewCoverImages", imagesReadyToSave);
+      await call('setNewCoverImages', imagesReadyToSave);
     } catch (error) {
-      console.error("Error uploading:", error);
+      console.error('Error uploading:', error);
       errorDialog(error.reason);
     } finally {
       this.setState({
@@ -400,10 +389,10 @@ class Intro extends Component {
   insertBook = async (book) => {
     const { insertedBooks, searchResults } = this.state;
     try {
-      await call("insertBook", book);
-      successDialog("Book is successfully added to your virtual shelf", 1);
+      await call('insertBook', book);
+      successDialog('Book is successfully added to your virtual shelf', 1);
       this.setState({
-        searchValue: "",
+        searchValue: '',
         openBook: null,
         insertedBooks: insertedBooks + 1,
         searchResults: insertedBooks === 2 ? [] : searchResults,
@@ -433,8 +422,8 @@ class Intro extends Component {
 
   setGeoLocationCoords = async (coords) => {
     try {
-      await call("setGeoLocationCoords", coords);
-      successDialog("Your location is successfully set");
+      await call('setGeoLocationCoords', coords);
+      successDialog('Your location is successfully set');
       this.goNext();
     } catch (error) {
       console.log(error);
@@ -443,7 +432,7 @@ class Intro extends Component {
   };
 
   finishIntro = async () => {
-    await call("setIntroDone");
+    await call('setIntroDone');
   };
 
   render() {
@@ -501,8 +490,7 @@ class Intro extends Component {
       );
     }
 
-    const profileUnchanged =
-      areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
+    const profileUnchanged = areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
 
     const sliderProps = {
       ref: (component) => (this.slider = component),
@@ -512,7 +500,7 @@ class Intro extends Component {
       swipe: false,
       infinite: false,
       adaptiveHeight: true,
-      className: "intro-slider",
+      className: 'intro-slider',
       onTouchEnd: swipeAction,
       onTouchMove: swipeAction,
       onTouchStart: swipeAction,
@@ -522,7 +510,7 @@ class Intro extends Component {
       return (
         <Slider {...sliderProps}>
           <HeroSlide>
-            <Flex justify="center" style={{ height: "100vh" }}>
+            <Flex justify="center" style={{ height: '100vh' }}>
               <Flex align="center" direction="column">
                 <NiceShelf width={192} height={192} color="#3e3e3e" />
                 <img
@@ -556,12 +544,8 @@ class Intro extends Component {
                 <LoginForm
                   username={username}
                   password={password}
-                  onUsernameChange={(value) =>
-                    this.setState({ username: value })
-                  }
-                  onPasswordChange={(value) =>
-                    this.setState({ password: value })
-                  }
+                  onUsernameChange={(value) => this.setState({ username: value })}
+                  onPasswordChange={(value) => this.setState({ password: value })}
                   onButtonClick={() => this.signIn()}
                   onSecondaryButtonClick={this.forgotPassword}
                   closeLogin={() => this.setState({ isLogin: false })}
@@ -572,18 +556,14 @@ class Intro extends Component {
 
           <UsernameSlide
             username={username}
-            onChange={(event) =>
-              this.setState({ username: event.target.value })
-            }
+            onChange={(event) => this.setState({ username: event.target.value })}
             isUsernameInvalid={isUsernameInvalid}
             onButtonClick={this.handleUsernameButtonClick}
           />
 
           <PasswordSlide
             password={password}
-            onChange={(event) =>
-              this.setState({ password: event.target.value })
-            }
+            onChange={(event) => this.setState({ password: event.target.value })}
             isPasswordInvalid={isPasswordInvalid}
             onButtonClick={this.handleCreateAccount}
           />
@@ -594,7 +574,7 @@ class Intro extends Component {
     return (
       <Slider {...sliderProps}>
         <HeroSlide>
-          <Flex justify="center" style={{ height: "100vh" }}>
+          <Flex justify="center" style={{ height: '100vh' }}>
             <Flex align="center" direction="column">
               <NiceShelf width={192} height={192} color="#3e3e3e" />
               <img
@@ -611,9 +591,7 @@ class Intro extends Component {
           firstName={firstName}
           lastName={lastName}
           bio={bio}
-          onFirstNameChange={(e) =>
-            this.setState({ firstName: e.target.value })
-          }
+          onFirstNameChange={(e) => this.setState({ firstName: e.target.value })}
           onLastNameChange={(e) => this.setState({ lastName: e.target.value })}
           onBioChange={(e) => this.setState({ bio: e.target.value })}
           onSubmitInfoForm={this.goNext}
@@ -627,12 +605,9 @@ class Intro extends Component {
           profileUnchanged={profileUnchanged}
         />
 
-        <HeroSlide
-          subtitle="Great! Now let's get an avatar for you"
-          isColor="dark"
-        >
+        <HeroSlide subtitle="Great! Now let's get an avatar for you" isColor="dark">
           <Field>
-            <div style={{ maxWidth: 160, margin: "0 auto" }}>
+            <div style={{ maxWidth: 160, margin: '0 auto' }}>
               <ImageUploader
                 value={avatar ? [avatar] : []}
                 onChange={this.handleAvatarPick}
@@ -651,20 +626,17 @@ class Intro extends Component {
                 isPulled="right"
               >
                 {currentUser.avatar
-                  ? "Continue"
+                  ? 'Continue'
                   : savingAvatar
-                  ? "Saving Avatar... "
-                  : "Save Avatar"}
+                  ? 'Saving Avatar... '
+                  : 'Save Avatar'}
                 {/* <ActivityIndicator animating={savingAvatar} /> */}
               </Button>
             </Control>
           </Field>
         </HeroSlide>
 
-        <HeroSlide
-          subtitle="Awesome! Now let's set some cover images"
-          isColor="dark"
-        >
+        <HeroSlide subtitle="Awesome! Now let's set some cover images" isColor="dark">
           <Field>
             <ImageUploader
               value={
@@ -688,11 +660,7 @@ class Intro extends Component {
                 className="is-rounded"
                 isPulled="right"
               >
-                {currentUser.coverImages
-                  ? "Continue"
-                  : savingCover
-                  ? "Saving... "
-                  : "Save"}
+                {currentUser.coverImages ? 'Continue' : savingCover ? 'Saving... ' : 'Save'}
                 {/* <ActivityIndicator animating={savingCover} /> */}
               </Button>
             </Control>
@@ -711,9 +679,7 @@ class Intro extends Component {
           openBook={openBook}
           onButtonClick={() => this.finishIntro()}
           onAddButtonClick={this.insertBook}
-          onSearchValueChange={(event) =>
-            this.setState({ searchValue: event.target.value })
-          }
+          onSearchValueChange={(event) => this.setState({ searchValue: event.target.value })}
         />
 
         <HeroSlide
@@ -734,15 +700,12 @@ class Intro extends Component {
           </Button>
 
           <Subtitle isSize={6}>
-            After clicking, you will be prompted by your device to ask for
-            permission
+            After clicking, you will be prompted by your device to ask for permission
           </Subtitle>
         </HeroSlide>
 
         <HeroSlide subtitle="Congratulations!" isColor="success">
-          <Subtitle isSize={4}>
-            Now you are ready to start lending and borrowing books
-          </Subtitle>
+          <Subtitle isSize={4}>Now you are ready to start lending and borrowing books</Subtitle>
 
           <Button
             isColor="light"
@@ -767,21 +730,21 @@ const swipeAction = (event) => {
   const { screenX } = event.changedTouches[0];
   const threshold = 20;
 
-  if (type === "touchstart") {
+  if (type === 'touchstart') {
     startX = screenX;
-  } else if (type === "touchmove") {
+  } else if (type === 'touchmove') {
     if (screenX > startX + threshold || screenX < startX - threshold) {
       // moved more than 20px left or right
-      document.body.classList.add("prevent-scroll");
+      document.body.classList.add('prevent-scroll');
     }
-  } else if (type === "touchend") {
-    document.body.classList.remove("prevent-scroll");
+  } else if (type === 'touchend') {
+    document.body.classList.remove('prevent-scroll');
     startX = 0;
   }
 };
 
 export default IntroContainer = withTracker((props) => {
-  const currentUserSub = Meteor.subscribe("me");
+  const currentUserSub = Meteor.subscribe('me');
   const currentUser = Meteor.user();
 
   return {

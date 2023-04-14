@@ -16,6 +16,7 @@
     "@emotion/styled": "^11.10.6",
     "animate-components": "^1.4.8",
     "antd-mobile": "^5.29.1",
+    "antd-mobile-icons": "^0.3.0",
     "array-move": "^4.0.0",
     "bloomer": "^0.6.5",
     "bulma": "^0.9.4",

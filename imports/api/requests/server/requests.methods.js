@@ -1,9 +1,5 @@
-import { Meteor } from "meteor/meteor";
-import {
-  BooksCollection,
-  MessagesCollection,
-  RequestsCollection,
-} from "../../collections";
+import { Meteor } from 'meteor/meteor';
+import { BooksCollection, MessagesCollection, RequestsCollection } from '../../collections';
 
 Meteor.methods({
   getRequests: () => {
@@ -54,7 +50,7 @@ Meteor.methods({
           requesterId: currentUserId,
         })
       ) {
-        throw new Meteor.Error("You have already requested this item");
+        throw new Meteor.Error('You have already requested this item');
       }
       const requestId = RequestsCollection.insert({
         bookId: bookId,
@@ -62,8 +58,8 @@ Meteor.methods({
         ownerId: theBook.ownerId,
         ownerUsername: theBook.ownerUsername,
         requesterUsername: currentUser.username,
-        ownerAvatar: theBook.ownerAvatar,
-        requesterAvatar: currentUser.avatar,
+        ownerImage: theBook.ownerImage,
+        requesterImage: currentUser.images && currentUser.images[0],
         bookTitle: theBook.title,
         bookAuthors: theBook.authors,
         bookImage: theBook.imageUrl,
@@ -106,12 +102,12 @@ Meteor.methods({
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      throw new Meteor.Error("You are not logged in!");
+      throw new Meteor.Error('You are not logged in!');
     }
 
     const request = RequestsCollection.findOne(requestId);
     if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error("You are not the owner!");
+      throw new Meteor.Error('You are not the owner!');
     }
 
     try {
@@ -140,21 +136,21 @@ Meteor.methods({
 
     return;
 
-    const subjectEmail = "Your request has been accepted!";
+    const subjectEmail = 'Your request has been accepted!';
     const textEmail = `Congratulations! One of your requests has been accepted. Check at: https://app.pomegra.org/request/${requestId}`;
-    Meteor.call("sendEmail", borrowerId, subjectEmail, textEmail);
+    Meteor.call('sendEmail', borrowerId, subjectEmail, textEmail);
   },
 
   denyRequest: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      throw new Meteor.Error("You are not logged in");
+      throw new Meteor.Error('You are not logged in');
     }
 
     const request = RequestsCollection.findOne(requestId);
     if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error("You are not the owner!");
+      throw new Meteor.Error('You are not the owner!');
     }
 
     RequestsCollection.update(
@@ -181,12 +177,12 @@ Meteor.methods({
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      throw new Meteor.Error("You are not logged in");
+      throw new Meteor.Error('You are not logged in');
     }
 
     const request = RequestsCollection.findOne(requestId);
     if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error("You are not the owner!");
+      throw new Meteor.Error('You are not the owner!');
     }
 
     RequestsCollection.update(
@@ -213,12 +209,12 @@ Meteor.methods({
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      throw new Meteor.Error("You are not logged in");
+      throw new Meteor.Error('You are not logged in');
     }
 
     const request = RequestsCollection.findOne(requestId);
     if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error("You are not the owner!");
+      throw new Meteor.Error('You are not the owner!');
     }
 
     RequestsCollection.update(
@@ -249,12 +245,12 @@ Meteor.methods({
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
-      throw new Meteor.Error("You are not logged in");
+      throw new Meteor.Error('You are not logged in');
     }
 
     const request = RequestsCollection.findOne(requestId);
     if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error("You are not the owner!");
+      throw new Meteor.Error('You are not the owner!');
     }
 
     RequestsCollection.update(

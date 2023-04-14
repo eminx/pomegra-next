@@ -1,7 +1,8 @@
-import { Meteor } from "meteor/meteor";
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { NavBar, List } from "antd-mobile";
+import { Meteor } from 'meteor/meteor';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { NavBar, List } from 'antd-mobile';
+import AppTabBar from '../components/AppTabBar';
 
 const ListItem = List.Item;
 
@@ -10,7 +11,7 @@ function Discover() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    Meteor.call("getDiscoverBooks", (error, respond) => {
+    Meteor.call('getDiscoverBooks', (error, respond) => {
       if (error) {
         console.log(error);
         setIsLoading(false);
@@ -25,40 +26,35 @@ function Discover() {
     return null;
   }
 
-  if (!books || books.length === 0) {
-    // return <ActivityIndicator toast text="Loading..." />;
-    return null;
-  }
+  // if (!books || books.length === 0) {
+  //   // return <ActivityIndicator toast text="Loading..." />;
+  //   return null;
+  // }
 
   return (
     <div name="books">
-      <NavBar mode="light">Books</NavBar>
-      <List renderHeader={() => "Suggested books for you"}>
-        {books &&
-          books.length > 0 &&
-          books.map((suggestedBook) => (
+      <NavBar backArrow={false}>Lend Books</NavBar>
+      {books && books.length > 0 && (
+        <List renderHeader={() => 'Suggested books for you'}>
+          {books.map((suggestedBook) => (
             <ListItem
               key={suggestedBook._id}
               align="top"
-              thumb={
-                <img
-                  style={{ width: 33, height: 44 }}
-                  src={suggestedBook.imageUrl}
-                />
-              }
+              thumb={<img style={{ width: 33, height: 44 }} src={suggestedBook.imageUrl} />}
               multipleLine
               extra={suggestedBook.category}
             >
               <Link to={`/book/${suggestedBook._id}`}>
                 <b>{suggestedBook.title}</b>
                 {suggestedBook.authors &&
-                  suggestedBook.authors.map((author) => (
-                    <div key={author}>{author}</div>
-                  ))}
+                  suggestedBook.authors.map((author) => <div key={author}>{author}</div>)}
               </Link>
             </ListItem>
           ))}
-      </List>
+        </List>
+      )}
+
+      <AppTabBar />
     </div>
   );
 }

@@ -1,44 +1,56 @@
-import { Meteor } from "meteor/meteor";
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Modal, NavBar, Icon } from "antd-mobile";
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button, NavBar, Popup } from 'antd-mobile';
+import { Box, Flex, Heading } from '@chakra-ui/react';
+import { CloseOutline } from 'antd-mobile-icons';
 
-import { BookCard } from "../components/BookCard";
-import EditBook from "../components/EditBook";
-import { errorDialog, successDialog } from "../../api/_utils/functions";
-import { UserContext } from "../Layout";
+import { BookCard } from '../components/BookCard';
+import EditBook from '../layouts/EditBook';
+import { call, errorDialog, successDialog } from '../../api/_utils/functions';
+import { UserContext } from '../Layout';
 
 function MyBook() {
   const [book, setBook] = useState(null);
-  const [isEditDialog, setIsEditDialog] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
   const { currentUser } = useContext(UserContext);
   const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    Meteor.call("getMyBook", id, (error, respond) => {
-      setBook(respond);
-      setIsLoading(false);
-    });
+    getBook();
   }, []);
 
-  const updateBook = (values) => {
-    if (values.language) {
-      values.language = values.language[0];
-    } else {
-      values.language = book.language;
+  const getBook = async () => {
+    try {
+      const respond = await call('getMyBook', id);
+      setBook(respond);
+    } catch (error) {
+      errorDialog(error.reason || error.error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    Meteor.call("updateBook", book._id, values, (error, respond) => {
-      if (error) {
-        console.log(error);
-        errorDialog(error.reason);
-      } else {
-        successDialog("Your book is successfully updated");
+  const updateBook = async (formValues, uploadedImage) => {
+    setIsLoading(true);
+    try {
+      const values = {
+        ...formValues,
+      };
+      if (uploadedImage) {
+        values.imageUrl = uploadedImage;
       }
-    });
+      await call('updateBook', book._id, values);
+      await getBook();
+      successDialog('Your book is successfully updated');
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      console.log(error);
+      errorDialog(error.reason || error.error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading || !book) {
@@ -46,33 +58,43 @@ function MyBook() {
   }
 
   return (
-    <>
-      <NavBar
-        mode="light"
-        leftContent={<Icon type="left" />}
-        onBack={() => navigate("/my-shelf")}
-        rightContent={<Icon type="ellipsis" />}
-      >
+    <Box>
+      <NavBar onBack={() => navigate('/my-shelf')}>
         <b>{book.title}</b>
       </NavBar>
 
-      <BookCard
-        book={book}
-        onButtonClick={() => setIsEditDialog(true)}
-        buttonType="ghost"
-        buttonText="Edit"
-      />
+      <Box p="4">
+        <BookCard book={book} />
+      </Box>
 
-      <Modal
-        visible={currentUser && isEditDialog}
-        position="top"
+      <Box p="4">
+        <Button color="primary" block onClick={() => setIsEditDialogOpen(true)}>
+          Edit
+        </Button>
+      </Box>
+
+      <Popup
         closable
-        onClose={() => setIsEditDialog(false)}
-        title="Edit Book"
+        bodyStyle={{
+          minHeight: '100vh',
+          maxHeight: '100vh',
+          overflow: 'scroll',
+          padding: 12,
+        }}
+        position="bottom"
+        title="Edit your book"
+        visible={currentUser && isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
       >
-        <EditBook book={book} onSubmit={(values) => updateBook(values)} />
-      </Modal>
-    </>
+        <Flex justify="space-between" p="2">
+          <Heading size="md" fontWeight="normal">
+            Edit book
+          </Heading>
+          <CloseOutline fontSize="24px" onClick={() => setIsEditDialogOpen(false)} />
+        </Flex>
+        <EditBook book={book} updateBook={updateBook} />
+      </Popup>
+    </Box>
   );
 }
 

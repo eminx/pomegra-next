@@ -12,6 +12,7 @@ import {
 } from "antd-mobile";
 
 import { UserContext } from "../Layout";
+import AppTabBar from "../components/AppTabBar";
 
 const ListItem = List.Item;
 
@@ -180,6 +181,8 @@ class RequestsList extends Component {
               </ListItem>
             ))}
         </List>
+
+        <AppTabBar />
       </div>
     );
   }

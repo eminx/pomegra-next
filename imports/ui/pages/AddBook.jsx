@@ -1,67 +1,49 @@
-import React, {
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, Icon, NavBar, Popup, SearchBar, Space } from "antd-mobile";
-import { FadeInUp } from "animate-components";
-import { Box, Flex } from "@chakra-ui/react";
+import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, NavBar, Popup, SearchBar, Skeleton } from 'antd-mobile';
+import { FadeInUp } from 'animate-components';
+import { Box, Flex, Heading } from '@chakra-ui/react';
+import { CloseOutline } from 'antd-mobile-icons';
 
-import { UserContext } from "../Layout";
+import { UserContext } from '../Layout';
 import {
-  successDialog,
   errorDialog,
   resizeImage,
+  successDialog,
   uploadImage,
   call,
-} from "../../api/_utils/functions";
-import BookCardNext from "../components/BookCardNext";
-import ManuallyAddBookForm from "../components/ManuallyAddBookForm";
+} from '../../api/_utils/functions';
+import BookCardNext from '../components/BookCardNext';
+import AppTabBar from '../components/AppTabBar';
+import BookForm from '../components/BookForm';
 
-const googleApi = "https://www.googleapis.com/books/v1/volumes?q=";
+const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
-const formValuesModel = {
-  title: "",
-  author1: "",
-  language: [],
-  category: "",
-  description: "",
-  ISBN: "",
-  numberOfAuthors: 1,
+const bookModel = {
+  title: '',
+  author1: '',
+  category: '',
+  language: '',
+  ISBN: '',
+  publisher: '',
+  publishedDate: '',
+  description: '',
+};
+
+const imageModel = {
+  uploadableImage: null,
+  uploadableImageLocal: null,
 };
 
 function AddBook() {
-  const [isLoading, setIsLoading] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
-  const [searchbarInput, setSearchbarInput] = useState("");
+  const [searchbarInput, setSearchbarInput] = useState('');
+  const [image, setImage] = useState(imageModel);
   const [openBook, setOpenBook] = useState(null);
-  const [bookImage, setBookImage] = useState(null);
-  const [uploadedBookImage, setUploadedBookImage] = useState(null);
-  const [isUnsavedImageChange, setIsUnsavedImageChange] = useState(false);
-  const [formValues, setFormValues] = useState(formValuesModel);
   const [isManuallyAddModalOpen, setIsManuallyAddModalOpen] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const { currentUser, userLoading } = useContext(UserContext);
-  const searchbar = useRef();
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    autoFocusSearchBar();
-  }, []);
-
-  useLayoutEffect(() => {
-    if (uploadedBookImage) {
-      insertBookManually();
-    }
-  }, uploadedBookImage);
-
-  const autoFocusSearchBar = () => {
-    this.searchBar && this.searchBar.focus();
-  };
+  const { currentUser } = useContext(UserContext);
 
   const searchbarSearch = () => {
     setIsLoading(true);
@@ -70,7 +52,6 @@ function AddBook() {
         return results.json();
       })
       .then((parsedResults) => {
-        console.log(parsedResults);
         setSearchResults(parsedResults.items);
         setIsLoading(false);
       });
@@ -78,6 +59,7 @@ function AddBook() {
 
   const handleToggleBook = (index) => {
     if (openBook === index) {
+      setOpenBook(null);
       return;
     }
     setOpenBook(index);
@@ -85,13 +67,13 @@ function AddBook() {
 
   const insertBook = async (book) => {
     if (alreadyOwnsBook(book)) {
-      errorDialog("You already own this book");
+      errorDialog('You already own this book');
       return;
     }
 
     try {
-      await call("insertBook", book);
-      successDialog("Book is successfully added to your virtual shelf", 1);
+      await call('insertBook', book);
+      successDialog('Book is successfully added to your virtual shelf');
       setOpenBook(null);
     } catch (error) {
       console.log(error);
@@ -99,112 +81,62 @@ function AddBook() {
     }
   };
 
-  const handleFormChange = (field, value, authorIndex) => {
-    const newformValues = {
-      ...formValues,
-    };
-    newformValues[field] = value;
-    setFormValues(newformValues);
-  };
-
-  const handleAddAuthor = () => {
-    const nthAuthor = formValues.numberOfAuthors + 1;
-    const newformValues = {
-      ...formValues,
-      numberOfAuthors: nthAuthor,
-    };
-    newformValues["author" + nthAuthor.toString()] = "";
-    setFormValues(newformValues);
-  };
-
-  const handleRemoveAuthor = () => {
-    const nthAuthor = formValues.numberOfAuthors - 1;
-    const newformValues = {
-      ...formValues,
-      numberOfAuthors: nthAuthor,
-    };
-    delete newformValues["author" + formValues.numberOfAuthors.toString()];
-    setFormValues(newformValues);
-  };
-
-  const handleImagePick = (images, type, index) => {
-    if (type === "remove") {
-      setBookImage(null);
-      setIsUnsavedImageChange(true);
+  const setUploadableImage = (files) => {
+    if (files.length > 1) {
+      message.error('Please select only one file');
       return;
     }
-    setBookImage(images[0]);
-    setIsUnsavedImageChange(true);
+    const uploadableImage = files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(uploadableImage);
+    reader.addEventListener(
+      'load',
+      () => {
+        setImage({
+          uploadableImage,
+          uploadableImageLocal: reader.result,
+        });
+      },
+      false
+    );
   };
 
-  const uploadBookImage = async () => {
-    setIsSaving(true);
-
+  const handleUploadImage = async (values) => {
+    setIsLoading(true);
+    const { uploadableImage } = image;
     try {
-      const resizedImage = await resizeImage(bookImage.file, 400);
-      const uploadedImage = await uploadImage(resizedImage, "bookImageUpload");
-      const newUploadedBookImage = {
-        name: bookImage.file.name,
-        url: uploadedImage,
-        uploadDate: new Date(),
-      };
-      setUploadedBookImage(newUploadedBookImage);
+      const resizedImage = await resizeImage(uploadableImage, 180);
+      const uploadedImage = await uploadImage(resizedImage, 'bookImageUpload');
+      insertBookManually(values, uploadedImage);
     } catch (error) {
-      setIsSaving(false);
-      console.log(error);
+      console.log('Error uploading:', error);
       errorDialog(error.reason);
     }
   };
 
-  const insertBookManually = async () => {
-    if (!uploadedBookImage) {
-      errorDialog("Please add image");
-    }
-
-    if (alreadyOwnsBook(formValues)) {
-      errorDialog("You already own this book");
-      return;
-    }
-
-    let authorsNr = [];
-    for (let i = 1; i <= formValues.numberOfAuthors; i++) {
-      authorsNr.push(i.toString());
-    }
-
-    const authors = authorsNr.map((a) => {
-      return formValues[`author${a}`];
-    });
-
-    const book = {
-      ...formValues,
-      authors,
-      imageInfo: uploadedBookImage,
-      imageUrl: uploadedBookImage.url,
-      titleLowerCase: formValues.title.toLowerCase(),
-      authorsLowerCase: authors.map((author) => author.toLowerCase()),
-    };
-
+  const insertBookManually = async (formValues, uploadedImage) => {
     try {
-      await call("insertBookManually", book);
-      successDialog("Book is successfully added to your virtual shelf", 1);
-      this.setState({
-        formValues: formValuesModel,
-        bookImage: null,
-        uploadedBookImage: null,
-        unSavedImageChange: false,
-        isManuallyAddModalOpen: false,
-        isSaving: false,
-      });
+      const values = {
+        ...formValues,
+      };
+      if (uploadedImage) {
+        values.imageUrl = uploadedImage;
+      }
+      await call('insertBookManually', values);
+      successDialog('Your book is successfully added');
+      setIsManuallyAddModalOpen(false);
     } catch (error) {
       console.log(error);
       errorDialog(error.reason || error.error);
     } finally {
-      setFormValues(formValuesModel);
-      setBookImage(null);
-      setUploadedBookImage(null);
-      setIsUnsavedImageChange(false);
-      setIsManuallyAddModalOpen(false);
-      setIsSaving(false);
+    }
+  };
+
+  const handleSubmit = (values) => {
+    if (image.uploadableImage) {
+      handleUploadImage(values);
+    } else {
+      insertBookManually(values);
     }
   };
 
@@ -216,45 +148,32 @@ function AddBook() {
     // });
   };
 
-  const closeModal = () => {
-    setOpenBook(null);
-    autoFocusSearchBar();
-  };
-
   if (!currentUser) {
     return null;
-    // <ActivityIndicator toast text="Loading..." />;
   }
 
   return (
     <div>
-      <NavBar
-        mode="light"
-        leftContent={<Icon type="left" />}
-        onBack={() => navigate("/")}
-      >
-        Add book to your shelf
-      </NavBar>
+      <NavBar onBack={() => navigate('/')}>Add book to your shelf</NavBar>
+
       <Box p="4">
         <SearchBar
+          cancelText="Cancel"
           placeholder="title, author, ISBN etc"
+          style={{ '--height': '42px' }}
           value={searchbarInput}
           onChange={(value) => setSearchbarInput(value)}
+          onClear={() => setSearchResults([])}
           onSearch={() => searchbarSearch()}
-          cancelText="Cancel"
-          ref={searchbar}
         />
       </Box>
 
       {isLoading && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: 50,
-          }}
-        >
-          {/* <ActivityIndicator text="Loading..." /> */}
+        <div>
+          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
+          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
+          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
+          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
         </div>
       )}
 
@@ -274,18 +193,18 @@ function AddBook() {
           ))}
       </div>
 
-      <Flex justify="center">
-        <Button onClick={() => setIsManuallyAddModalOpen(true)}>
-          Manually Add Book
-        </Button>
-      </Flex>
+      {!isLoading && (
+        <Flex justify="center">
+          <Button onClick={() => setIsManuallyAddModalOpen(true)}>Manually Add Book</Button>
+        </Flex>
+      )}
 
       <Popup
         closable
         bodyStyle={{
-          minHeight: "100vh",
-          maxHeight: "100vh",
-          overflow: "scroll",
+          minHeight: '100vh',
+          maxHeight: '100vh',
+          overflow: 'scroll',
           padding: 12,
         }}
         position="bottom"
@@ -293,18 +212,22 @@ function AddBook() {
         visible={isManuallyAddModalOpen}
         onClose={() => setIsManuallyAddModalOpen(false)}
       >
-        <ManuallyAddBookForm
-          values={formValues}
-          bookImage={bookImage}
-          isSaving={isSaving}
-          onImagePick={handleImagePick}
-          onFormChange={handleFormChange}
-          onAddAuthor={handleAddAuthor}
-          onRemoveAuthor={handleRemoveAuthor}
-          onSave={uploadBookImage}
-          onClose={() => setIsManuallyAddModalOpen(false)}
+        <Flex justify="space-between" mb="4">
+          <Heading size="md" fontWeight="normal">
+            Manually add a book
+          </Heading>
+          <CloseOutline fontSize="24px" onClick={() => setIsManuallyAddModalOpen(false)} />
+        </Flex>
+
+        <BookForm
+          book={bookModel}
+          uploadableImageLocal={image?.uploadableImageLocal}
+          handleSubmit={handleSubmit}
+          setUploadableImage={setUploadableImage}
         />
       </Popup>
+
+      <AppTabBar />
     </div>
   );
 }

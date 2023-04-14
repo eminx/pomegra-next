@@ -1,8 +1,8 @@
-import React from "react";
-import { Toast } from "antd-mobile";
-import Resizer from "react-image-file-resizer";
+import React from 'react';
+import { Toast } from 'antd-mobile';
+import Resizer from 'react-image-file-resizer';
 
-function showToast(content, duration = 2000, position = "center", icon) {
+function showToast(content, duration = 2000, position = 'center', icon) {
   Toast.show({
     content,
     duration,
@@ -12,11 +12,11 @@ function showToast(content, duration = 2000, position = "center", icon) {
 }
 
 function errorDialog(content, duration, position) {
-  showToast(content, duration, position, "error");
+  showToast(content, duration, position, 'fail');
 }
 
 function successDialog(content, duration, position) {
-  showToast(content, duration, position, "success");
+  showToast(content, duration, position, 'success');
 }
 
 function notificationsCounter(notifications) {
@@ -31,7 +31,7 @@ function notificationsCounter(notifications) {
 }
 
 function dataURLtoFile(dataurl, filename) {
-  var arr = dataurl.split(","),
+  var arr = dataurl.split(','),
     mime = arr[0].match(/:(.*?);/)[1],
     bstr = atob(arr[1]),
     n = bstr.length,
@@ -48,17 +48,17 @@ const resizeImage = (image, desiredImageWidth) =>
       image,
       desiredImageWidth,
       400,
-      "JPEG",
+      'JPEG',
       95,
       0,
       (uri) => {
         if (!uri) {
-          reject({ reason: "image cannot be resized" });
+          reject({ reason: 'image cannot be resized' });
         }
         const uploadableImage = dataURLtoFile(uri, image.name);
         resolve(uploadableImage);
       },
-      "base64"
+      'base64'
     );
   });
 
@@ -76,8 +76,8 @@ const uploadImage = (image, directory) =>
 const parseUrlForSSL = (imageLink) => {
   let imageUrl = imageLink;
 
-  if (imageUrl && imageUrl.substring(0, 5) === "http:") {
-    imageUrl = imageUrl.slice(0, 4) + "s" + imageUrl.slice(4);
+  if (imageUrl && imageUrl.substring(0, 5) === 'http:') {
+    imageUrl = imageUrl.slice(0, 4) + 's' + imageUrl.slice(4);
   }
 
   return imageUrl;
@@ -109,9 +109,7 @@ const parseAuthors = (authors) => {
     return <span>unknown authors</span>;
   }
   return authors.map((author, index) => (
-    <span key={author}>
-      {author + (authors.length !== index + 1 ? ", " : "")}
-    </span>
+    <span key={author}>{author + (authors.length !== index + 1 ? ', ' : '')}</span>
   ));
 };
 

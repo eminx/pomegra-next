@@ -1,33 +1,34 @@
-import { Meteor } from "meteor/meteor";
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Divider, List, NavBar, Picker, SearchBar, Space } from "antd-mobile";
-import { Button, Title, Subtitle } from "bloomer";
-import { Box, Center, Flex } from "@chakra-ui/react";
+import { Meteor } from 'meteor/meteor';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { List, NavBar, Picker, SearchBar, Space } from 'antd-mobile';
+import { Button, Title, Subtitle } from 'bloomer';
+import { Box, Center, Flex, Image } from '@chakra-ui/react';
 
-import Anchor from "../components/Anchor";
+import Anchor from '../components/Anchor';
+import AppTabBar from '../components/AppTabBar';
 
 const ListItem = List.Item;
 
 const sortByMethods = [
-  "last added",
-  "book title",
-  "book author",
-  "book language",
-  "request condition",
+  'last added',
+  'book title',
+  'book author',
+  'book language',
+  'request condition',
 ];
 
 function MyShelf() {
   const [books, setBooks] = useState([]);
-  const [filterValue, setFilterValue] = useState("");
-  const [sortBy, setSortBy] = useState("last added");
+  const [filterValue, setFilterValue] = useState('');
+  const [sortBy, setSortBy] = useState('last added');
   const [isLoading, setIsLoading] = useState(true);
   const [pickerVisible, setPickerVisible] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    Meteor.call("getMyBooks", (error, respond) => {
+    Meteor.call('getMyBooks', (error, respond) => {
       setBooks(respond);
       setIsLoading(false);
     });
@@ -39,21 +40,18 @@ function MyShelf() {
     }
 
     switch (sortBy) {
-      case "book title":
+      case 'book title':
         return books.sort((a, b) => a.title && a.title.localeCompare(b.title));
-      case "book author":
+      case 'book author':
+        return books.sort(
+          (a, b) => a.authors && b.authors && a.authors[0].localeCompare(b.authors[0])
+        );
+      case 'request condition':
         return books.sort(
           (a, b) =>
-            a.authors && b.authors && a.authors[0].localeCompare(b.authors[0])
+            b.onRequest - a.onRequest || b.onAcceptance - a.onAcceptance || b.onLend - a.onLend
         );
-      case "request condition":
-        return books.sort(
-          (a, b) =>
-            b.onRequest - a.onRequest ||
-            b.onAcceptance - a.onAcceptance ||
-            b.onLend - a.onLend
-        );
-      case "language":
+      case 'language':
         return books.sort((a, b) => a.language.localeCompare(b.language));
       default:
         return books.sort((a, b) => b.dateAdded - a.dateAdded);
@@ -63,17 +61,12 @@ function MyShelf() {
   const getBooksFiltered = (sortedBooks) => {
     return sortedBooks.filter((book) => {
       return (
-        (book.title &&
-          book.title.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1) ||
+        (book.title && book.title.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1) ||
         (book.authors &&
           book.authors.find((author) => {
-            return (
-              author &&
-              author.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1
-            );
+            return author && author.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1;
           })) ||
-        (book.category &&
-          book.category.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1)
+        (book.category && book.category.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1)
       );
     });
   };
@@ -83,11 +76,9 @@ function MyShelf() {
 
   return (
     <div>
-      <NavBar mode="light" onBack={() => navigate("/")}>
-        My Shelf
-      </NavBar>
+      <NavBar backArrow={false}>My Shelf</NavBar>
 
-      <Center pt="4">
+      <Center py="4">
         <Link to="/add">
           <Button isColor="light" isLink isOutlined className="is-rounded">
             Add Book
@@ -95,24 +86,18 @@ function MyShelf() {
         </Link>
       </Center>
 
-      <Divider />
-
       <Box px="4">
         <SearchBar
           placeholder="Filter"
           cancelText="Cancel"
           onChange={(value) => setFilterValue(value)}
-          onClear={() => setFilterValue("")}
-          style={{ touchAction: "none" }}
+          onClear={() => setFilterValue('')}
+          style={{ touchAction: 'none' }}
         />
       </Box>
 
       <Center mb="4">
-        <Anchor
-          label="sorted by"
-          style={{ marginTop: 12 }}
-          onClick={() => setPickerVisible(true)}
-        >
+        <Anchor label="sorted by" style={{ marginTop: 12 }} onClick={() => setPickerVisible(true)}>
           {sortBy}
         </Anchor>
       </Center>
@@ -139,16 +124,19 @@ function MyShelf() {
             <ListItem
               key={book._id}
               align="top"
-              thumb={
-                <img style={{ width: 33, height: 44 }} src={book.imageUrl} />
-              }
+              thumb={<img style={{ width: 33, height: 44 }} src={book.imageUrl} />}
               extra={book.category}
               onClick={() => navigate(`/my-shelf/${book._id}`)}
             >
-              <b>{book.title}</b>
-              {book.authors.map((author) => (
-                <div key={author}>{author}</div>
-              ))}
+              <Flex>
+                <Image mr="4" bg="purple.100" w="48px" src={book.imageUrl} />
+                <Box>
+                  <b>{book.title}</b>
+                  {book.authors.map((author) => (
+                    <div key={author}>{author}</div>
+                  ))}
+                </Box>
+              </Flex>
             </ListItem>
           ))}
         </List>
@@ -166,6 +154,8 @@ function MyShelf() {
           </Subtitle>
         </Space>
       )}
+
+      <AppTabBar />
     </div>
   );
 }

@@ -1,23 +1,24 @@
-import { Meteor } from "meteor/meteor";
-import React, { Component } from "react";
-import { Link, redirect } from "react-router-dom";
-import { Divider, NavBar } from "antd-mobile";
-import { Title, Subtitle, Button } from "bloomer";
-import { Box, Flex } from "@chakra-ui/react";
-import { GiBookshelf } from "react-icons/gi";
-import { IoMdAddCircle, IoIosChatboxes } from "react-icons/io";
-import { FormattedMessage } from "react-intl";
+import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { Divider, NavBar } from 'antd-mobile';
+import { Title, Subtitle, Button } from 'bloomer';
+import { Box, Flex } from '@chakra-ui/react';
+import { GiBookshelf } from 'react-icons/gi';
+import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
+import { FormattedMessage } from 'react-intl';
 
-import { UserContext } from "../Layout";
+import { UserContext } from '../Layout';
 
-import { errorDialog, successDialog } from "../../api/_utils/functions";
+import { errorDialog, successDialog } from '../../api/_utils/functions';
+import AppTabBar from '../components/AppTabBar';
 
 class Home extends Component {
   state = {
     loginScreenOpen: false,
-    username: "",
-    email: "",
-    password: "",
+    username: '',
+    email: '',
+    password: '',
     isLoading: false,
     redirectTo: null,
     splashOver: false,
@@ -26,15 +27,15 @@ class Home extends Component {
   createAccount = (values) => {
     this.setState({ isLoading: true });
 
-    Meteor.call("registerUser", values, (error, respond) => {
+    Meteor.call('registerUser', values, (error, respond) => {
       if (error) {
-        console.log("error!!");
+        console.log('error!!');
         console.log(error);
         errorDialog(error.reason);
         this.setState({ isLoading: false });
         return;
       }
-      successDialog("Your account is successfully created");
+      successDialog('Your account is successfully created');
       this.signIn(values);
       this.setState({
         isLoading: false,
@@ -105,18 +106,13 @@ class Home extends Component {
 
     return (
       <div>
-        <NavBar mode="light" backArrow={false}>
-          Welcome to Librella
-        </NavBar>
-        <Divider />
-        {/* <WhiteSpace size="lg" /> */}
-        {/* <ActivityIndicator animating={isLoading} text="Loading..." /> */}
+        <NavBar backArrow={false}>Welcome to Librella</NavBar>
 
         <HomeWidget
           title="homeWidget1Title"
           message="homeWidget1Message"
           buttonText="homeWidget1ButtonText"
-          redirectPath="/discover"
+          redirectPath="/lend"
         />
 
         <HomeWidget
@@ -135,6 +131,8 @@ class Home extends Component {
 
         {/* <WhiteSpace size="lg" />
         <WhiteSpace size="lg" /> */}
+
+        <AppTabBar />
       </div>
     );
   }
@@ -142,7 +140,7 @@ class Home extends Component {
 
 function HomeWidget({ title, message, redirectPath, buttonText }) {
   return (
-    <Flex flexDirection="column" align="center" mb="12">
+    <Flex flexDirection="column" align="center" my="8">
       <Title isSize={4}>
         <FormattedMessage id={title} />
       </Title>

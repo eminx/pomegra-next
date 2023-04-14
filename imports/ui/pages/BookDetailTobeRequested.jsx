@@ -1,11 +1,11 @@
-import { Meteor } from "meteor/meteor";
-import React, { useContext, useEffect, useState } from "react";
-import { redirect, useParams } from "react-router-dom";
-import { Divider, Icon, NavBar } from "antd-mobile";
+import { Meteor } from 'meteor/meteor';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Icon, NavBar } from 'antd-mobile';
 
-import { BookCard } from "../components/BookCard";
-import { errorDialog, successDialog } from "../../api/_utils/functions";
-import { UserContext } from "../Layout";
+import { BookCard } from '../components/BookCard';
+import { errorDialog, successDialog } from '../../api/_utils/functions';
+import { UserContext } from '../Layout';
 
 function BookDetailTobeRequested() {
   const [book, setBook] = useState(null);
@@ -14,9 +14,10 @@ function BookDetailTobeRequested() {
 
   const { currentUser } = useContext(UserContext);
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    Meteor.call("getSingleBook", id, (error, respond) => {
+    Meteor.call('getSingleBook', id, (error, respond) => {
       setBook(respond);
       setIsLoading(false);
     });
@@ -24,10 +25,10 @@ function BookDetailTobeRequested() {
 
   const makeRequest = () => {
     if (!currentUser) {
-      errorDialog("Please create an account");
+      errorDialog('Please create an account');
     }
 
-    Meteor.call("makeRequest", book._id, (error, respond) => {
+    Meteor.call('makeRequest', book._id, (error, respond) => {
       if (error) {
         console.log(error);
         errorDialog(error.reason);
@@ -35,7 +36,7 @@ function BookDetailTobeRequested() {
         console.log(error);
         errorDialog(respond.error);
       } else {
-        successDialog("Your request is successfully sent!");
+        successDialog('Your request is successfully sent!');
         setRequestSuccess(respond);
       }
     });
@@ -45,40 +46,31 @@ function BookDetailTobeRequested() {
     return redirect(`/request/${requestSuccess}`);
   }
 
-  if (backToDiscover) {
-    return redirect("/discover");
-  }
-
   if (!book || isLoading) {
     return null;
     // return <ActivityIndicator toast text="Loading book details..." />;
   }
 
   return (
-    <div>
+    <>
       <NavBar
         mode="light"
-        leftContent={<Icon type="left" />}
-        onLeftClick={() => redirect("/discover")}
+        onBack={() => navigate('/discover')}
         rightContent={<Icon type="ellipsis" />}
       >
         Details
       </NavBar>
 
-      {book && (
-        <Fragment>
-          <Divider />
-          <Space>
-            <BookCard
-              book={book}
-              onButtonClick={() => makeRequest()}
-              buttonType="primary"
-              buttonText="Ask to Borrow"
-            />
-          </Space>
-        </Fragment>
-      )}
-    </div>
+      <Box px="2">
+        <BookCard book={book} />
+      </Box>
+
+      <Box px="4">
+        <Button color="primary" block onClick={() => makeRequest()}>
+          Ask to Borrow
+        </Button>
+      </Box>
+    </>
   );
 }
 

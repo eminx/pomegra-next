@@ -6,9 +6,11 @@ import { Toast } from "antd-mobile";
 
 import { ResetPassword, SimpleText } from "./index";
 import { call } from "../../../api/_utils/functions";
+import AppTabBar from "../../components/AppTabBar";
+import { UserContext } from "../../Layout";
 
 function ResetPasswordPage({ history, match }) {
-  const currentUser = Meteor.user();
+  const { currentUser } = useContext(UserContext);
   const { token } = match.params;
 
   if (currentUser) {
@@ -17,7 +19,6 @@ function ResetPasswordPage({ history, match }) {
 
   const handleResetPassword = async (password) => {
     try {
-      console.log(token, password);
       await call("resetPassword", token, password);
       Toast.success("Your password is successfully reset. Now you can login");
       history.push("/intro");
@@ -51,6 +52,8 @@ function ResetPasswordPage({ history, match }) {
           </SimpleText>
         </Box> */}
       </Box>
+
+      <AppTabBar />
     </Box>
   );
 }

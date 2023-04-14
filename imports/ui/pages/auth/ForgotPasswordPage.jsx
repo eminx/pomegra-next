@@ -1,22 +1,22 @@
-import { Meteor } from "meteor/meteor";
-import React, { useState } from "react";
-import { Redirect } from "react-router";
+import React, { useContext, useState } from "react";
+import { Navigate } from "react-router";
 import { Anchor, Box, Heading, Text } from "grommet";
 import { Toast } from "antd-mobile";
 
 import { ForgotPassword, SimpleText } from "./index";
 import { call } from "../../../api/_utils/functions";
+import AppTabBar from "../../components/AppTabBar";
+import { UserContext } from "../../Layout";
 
 function ForgotPasswordPage({ history }) {
   const [emailSent, setEmailSent] = useState(false);
-  const currentUser = Meteor.user();
+  const { currentUser } = useContext(UserContext);
 
   if (currentUser) {
-    return <Redirect to="/my-profile" />;
+    return <Navigate to="/my-profile" />;
   }
 
   const handleForgotPassword = async (email) => {
-    console.log(email);
     try {
       await call("forgotPassword", email);
       Toast.success(
@@ -57,6 +57,8 @@ function ForgotPasswordPage({ history }) {
           </SimpleText>
         </Box> */}
       </Box>
+
+      <AppTabBar />
     </Box>
   );
 }

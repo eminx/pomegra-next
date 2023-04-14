@@ -1,29 +1,32 @@
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { TabBar, Badge } from 'antd-mobile';
 import { GoHome, GoBook, GoCommentDiscussion, GoSearch } from 'react-icons/go';
 import { FaRegUser } from 'react-icons/fa';
 
+import { notificationsCounter } from '../../api/_utils/functions';
+import { UserContext } from '../Layout';
+
 const iconSize = 24;
 
-const renderIconRoutes = messageNotificationCount => {
-  const shownBadge =
-    messageNotificationCount !== '0' && messageNotificationCount;
+const renderIconRoutes = (messageNotificationCount) => {
+  const shownBadge = messageNotificationCount !== '0' && messageNotificationCount;
 
   return [
     {
       title: 'Home',
       path: '/',
-      icon: <GoHome size={iconSize} />
+      icon: <GoHome size={iconSize} />,
     },
     {
-      title: 'Discover',
-      path: '/discover',
-      icon: <GoSearch size={iconSize} />
+      title: 'Lend',
+      path: '/lend',
+      icon: <GoSearch size={iconSize} />,
     },
     {
       title: 'My Shelf',
       path: '/my-shelf',
-      icon: <GoBook size={iconSize} />
+      icon: <GoBook size={iconSize} />,
     },
     {
       title: 'Messages',
@@ -32,51 +35,46 @@ const renderIconRoutes = messageNotificationCount => {
         <Badge text={shownBadge}>
           <GoCommentDiscussion size={iconSize} />
         </Badge>
-      )
+      ),
     },
     {
       title: 'My Account',
       path: '/profile',
-      icon: <FaRegUser size={iconSize} />
-    }
+      icon: <FaRegUser size={iconSize} />,
+    },
   ];
 };
 
-class AppTabBar extends Component {
-  render() {
-    const { pathname, messageNotificationCount, changeRoute } = this.props;
+function AppTabBar() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { currentUser } = useContext(UserContext);
 
-    const iconRoutes = renderIconRoutes(messageNotificationCount);
+  const { pathname } = location;
 
-    return (
-      <div
-        style={{
-          position: 'fixed',
-          height: 50,
-          width: '100%',
-          bottom: 0,
-          zIndex: 9
-        }}
-      >
-        <TabBar
-          unselectedTintColor="#949494"
-          tintColor="#4b4b4b"
-          barTintColor="white"
-        >
-          {iconRoutes.map((icon, index) => (
-            <TabBar.Item
-              key={icon.path}
-              title={icon.title}
-              icon={icon.icon}
-              selectedIcon={icon.icon}
-              selected={pathname === icon.path}
-              onPress={() => changeRoute(icon.path)}
-            />
-          ))}
-        </TabBar>
-      </div>
-    );
-  }
+  const messageNotificationCount = currentUser?.notifications
+    ? notificationsCounter(currentUser?.notifications)?.toString()
+    : 0;
+  const iconRoutes = renderIconRoutes(messageNotificationCount);
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        height: 50,
+        width: '100%',
+        bottom: 0,
+        zIndex: 9,
+        backgroundColor: '#fff',
+      }}
+    >
+      <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
+        {iconRoutes.map((icon, index) => (
+          <TabBar.Item key={icon.path} title={icon.title} icon={icon.icon} />
+        ))}
+      </TabBar>
+    </div>
+  );
 }
 
 export default AppTabBar;

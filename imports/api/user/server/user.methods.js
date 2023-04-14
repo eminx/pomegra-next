@@ -1,7 +1,7 @@
-import { Meteor } from "meteor/meteor";
-import { Accounts } from "meteor/accounts-base";
+import { Meteor } from 'meteor/meteor';
+import { Accounts } from 'meteor/accounts-base';
 
-import { RequestsCollection } from "../../collections";
+import { RequestsCollection } from '../../collections';
 
 Meteor.methods({
   registerUser: (user) => {
@@ -12,15 +12,27 @@ Meteor.methods({
     });
   },
 
-  updateProfile: (values, languages) => {
+  updateProfile: (values) => {
     const currentUser = Meteor.user();
-
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
           firstName: values.firstName,
           lastName: values.lastName,
           bio: values.bio,
+        },
+      });
+    } catch (error) {
+      return error;
+    }
+  },
+
+  updateLanguages: (languages) => {
+    const currentUser = Meteor.user();
+
+    try {
+      Meteor.users.update(currentUser._id, {
+        $set: {
           languages: languages,
         },
       });
@@ -32,24 +44,20 @@ Meteor.methods({
   createNotification: (contextName, contextId, unSeenIndex) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
     try {
-      if (contextName !== "request") {
+      if (contextName !== 'request') {
         return;
       }
       const theRequest = RequestsCollection.findOne(contextId);
       const theOthersId =
-        theRequest.requesterId === currentUser._id
-          ? theRequest.ownerId
-          : theRequest.requesterId;
+        theRequest.requesterId === currentUser._id ? theRequest.ownerId : theRequest.requesterId;
       const theOther = Meteor.users.findOne(theOthersId);
 
       const contextIdIndex =
         theOther.notifications &&
-        theOther.notifications.findIndex(
-          (notification) => notification.contextId === contextId
-        );
+        theOther.notifications.findIndex((notification) => notification.contextId === contextId);
 
       if (contextIdIndex !== -1) {
         const notifications = [...theOther.notifications];
@@ -77,7 +85,7 @@ Meteor.methods({
         });
       }
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
@@ -85,7 +93,7 @@ Meteor.methods({
   removeNotification: (contextName, contextId, messageIndex) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
 
     try {
@@ -108,9 +116,7 @@ Meteor.methods({
       }
 
       if (onlyOneCount) {
-        notifications.filter(
-          (notification) => notification.contextId !== contextId
-        );
+        notifications.filter((notification) => notification.contextId !== contextId);
       } else {
         notifications[notificationIndex].count -= 1;
         notifications[notificationIndex].unSeenIndexes.filter(
@@ -124,7 +130,7 @@ Meteor.methods({
         },
       });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
@@ -132,7 +138,7 @@ Meteor.methods({
   setNewCoverImages: (newImageSet) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
 
     try {
@@ -142,45 +148,45 @@ Meteor.methods({
         },
       });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
 
-  setNewAvatar: (newAvatar) => {
+  updateProfileImage: (newImage) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
 
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          avatar: newAvatar,
-          previousAvatar: currentUser.avatar,
+          images: [newImage],
+          previousImages: currentUser.images,
         },
       });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
 
-  setAvatarEmpty: () => {
+  setProfileImageEmpty: () => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
 
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          avatar: null,
-          previousAvatar: currentUser.avatar,
+          images: null,
+          previousImages: currentUser.images,
         },
       });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
@@ -188,7 +194,7 @@ Meteor.methods({
   setGeoLocationCoords: (coords) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
 
     try {
@@ -198,7 +204,7 @@ Meteor.methods({
         },
       });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
@@ -206,7 +212,7 @@ Meteor.methods({
   setIntroDone: () => {
     const currentUser = Meteor.user();
     if (!currentUser) {
-      throw new Meteor.Error("Not allowed!");
+      throw new Meteor.Error('Not allowed!');
     }
 
     try {
@@ -216,7 +222,7 @@ Meteor.methods({
         },
       });
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
