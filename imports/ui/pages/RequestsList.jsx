@@ -1,45 +1,39 @@
-import { Meteor } from "meteor/meteor";
-import React, { Component, Fragment } from "react";
-import { Redirect } from "react-router-dom";
+import { Meteor } from 'meteor/meteor';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
+import { Redirect } from 'react-router-dom';
+import { Badge, Divider, List, NavBar, Result, SearchBar, SegmentedControl } from 'antd-mobile';
+import { Box } from '@chakra-ui/react';
 
-import {
-  NavBar,
-  List,
-  SearchBar,
-  SegmentedControl,
-  Badge,
-  Result,
-} from "antd-mobile";
-
-import { UserContext } from "../Layout";
-import AppTabBar from "../components/AppTabBar";
+import { UserContext } from '../Layout';
+import AppTabBar from '../components/AppTabBar';
 
 const ListItem = List.Item;
 
-const requestTypeValues = ["All", "By Me", "From Me"];
+const requestTypeValues = ['All', 'By Me', 'From Me'];
 
-class RequestsList extends Component {
-  state = {
-    filterValue: "",
-    requestType: "All",
+function RequestsList() {
+  const [state, setState] = useState({
+    filterValue: '',
+    requestType: 'All',
     gotoRequest: null,
     requests: [],
     isLoading: true,
     noRequest: false,
-  };
+  });
+  const { currentUser } = useContext(UserContext);
 
-  componentDidMount() {
-    this.getRequests();
-  }
+  useEffect(() => {
+    getRequests();
+  }, []);
 
-  getRequests = () => {
-    const { currentUser } = this.context;
+  const getRequests = () => {
     if (!currentUser) {
       return;
     }
 
-    Meteor.call("getRequests", (error, respond) => {
-      this.setState({
+    Meteor.call('getRequests', (error, respond) => {
+      setState({
+        ...state,
         requests: respond,
         isLoading: false,
         noRequest: Boolean(respond && respond.length === 0),
@@ -47,147 +41,121 @@ class RequestsList extends Component {
     });
   };
 
-  handleFilter = (value) => {
-    this.setState({ filterValue: value });
+  const handleFilter = (value) => {
+    setState({ ...state, filterValue: value });
   };
 
-  handleTypeChange = (value) => {
-    this.setState({
+  const handleTypeChange = (value) => {
+    setState({
+      ...state,
       requestType: value,
     });
   };
 
-  getTypeOfRequests = () => {
-    const { currentUser } = this.context;
-    const { requests } = this.state;
+  const getTypeOfRequests = () => {
+    const { requests } = state;
     const currentUserId = currentUser._id;
-    switch (this.state.requestType) {
-      case "By Me":
-        return requests.filter(
-          (request) => request.requesterId === currentUserId
-        );
-      case "From Me":
+    switch (state.requestType) {
+      case 'By Me':
+        return requests.filter((request) => request.requesterId === currentUserId);
+      case 'From Me':
         return requests.filter((request) => request.ownerId === currentUserId);
       default:
         return requests;
     }
   };
 
-  viewRequestInDetail = (request) => {
-    this.setState({ gotoRequest: request._id });
+  const viewRequestInDetail = (request) => {
+    setState({ ...state, gotoRequest: request._id });
   };
 
-  getNotificationsCount = (request) => {
-    const { currentUser } = this.context;
+  const getNotificationsCount = (request) => {
     const foundContext =
-      currentUser.notifications &&
-      currentUser.notifications.find((notification) => {
-        return notification.contextId === request._id;
+      currentUser?.notifications &&
+      currentUser?.notifications.find((notification) => {
+        return notification?.contextId === request?._id;
       });
 
-    return foundContext && foundContext.count;
+    return foundContext?.count;
   };
 
-  render() {
-    const { currentUser } = this.context;
-    const { requests, filterValue, requestType, gotoRequest, noRequest } =
-      this.state;
+  const { requests, filterValue, requestType, gotoRequest, noRequest } = state;
 
-    if (gotoRequest) {
-      return <Redirect to={`/request/${gotoRequest}`} />;
-    }
+  if (gotoRequest) {
+    return <Redirect to={`/request/${gotoRequest}`} />;
+  }
 
-    if (noRequest) {
-      return (
-        <Fragment>
-          <NavBar mode="light">Requests</NavBar>
+  if (!requests || !currentUser) {
+    return <div>Loading...</div>;
+  }
 
-          <Result
-            // img={myImg(request.bookImage)}
-            title="No Interactions just yet"
-            message="Please feel free to go to the discover section and request a book from someone. People are all nice here"
-          />
-        </Fragment>
-      );
-    }
+  const typeOfRequests = getTypeOfRequests();
 
-    if (!requests || !currentUser) {
-      return <div>Loading...</div>;
-    }
-
-    const typeOfRequests = this.getTypeOfRequests();
-
-    const filteredRequests = typeOfRequests.filter((request) => {
-      return (
-        request.bookTitle.toLowerCase().indexOf(filterValue.toLowerCase()) !==
-          -1 ||
-        request.ownerUsername
-          .toLowerCase()
-          .indexOf(filterValue.toLowerCase()) !== -1 ||
-        request.requesterUsername
-          .toLowerCase()
-          .indexOf(filterValue.toLowerCase()) !== -1
-      );
-    });
-
+  const filteredRequests = typeOfRequests.filter((request) => {
     return (
-      <div name="requests">
-        <NavBar mode="light">Messages</NavBar>
+      request.bookTitle.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
+      request.ownerUsername.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1 ||
+      request.requesterUsername.toLowerCase().indexOf(filterValue.toLowerCase()) !== -1
+    );
+  });
+
+  return (
+    <div name="requests">
+      <NavBar backArrow={false}>Messages</NavBar>
+      <Box p="2">
         <SearchBar
           placeholder="Filter"
           cancelText="Cancel"
-          onChange={(value) => this.handleFilter(value)}
-          onClear={() => this.setState({ filterValue: "" })}
-          style={{ touchAction: "none" }}
+          onChange={(value) => handleFilter(value)}
+          onClear={() => setState({ ...state, filterValue: '' })}
+          style={{ touchAction: 'none' }}
         />
+      </Box>
 
-        <SegmentedControl
-          selectedIndex={requestTypeValues.findIndex(
-            (value) => value === requestType
-          )}
-          values={requestTypeValues}
-          onValueChange={(value) => this.handleTypeChange(value)}
-        />
+      {/* <SegmentedControl
+        selectedIndex={requestTypeValues.findIndex((value) => value === requestType)}
+        values={requestTypeValues}
+        onValueChange={(value) => handleTypeChange(value)}
+      /> */}
 
-        <Divider />
+      <Divider />
 
-        <List
-          renderHeader={() => "Your Previous Requests"}
-          style={{ marginBottom: 64 }}
-        >
-          {filteredRequests &&
-            filteredRequests.map((request) => (
-              <ListItem
-                key={request._id}
-                multipleLine
-                align="top"
-                thumb={request.bookImage}
-                onClick={() => this.viewRequestInDetail(request)}
-                extra={
-                  request.dateRequested &&
-                  request.dateRequested.toLocaleDateString()
-                }
-              >
-                <div>
-                  <Badge dot={this.getNotificationsCount(request)}>
-                    <b>
-                      {currentUser.username === request.ownerUsername
-                        ? request.requesterUsername
-                        : request.ownerUsername}
-                    </b>
-                  </Badge>
-                  <ListItem.Brief>{request.bookTitle}</ListItem.Brief>
-                </div>
-              </ListItem>
-            ))}
-        </List>
+      {!requests ||
+        (requests.length === 0 && (
+          <Result
+            // img={myImg(request.bookImage)}
+            title="No Interactions just yet"
+            description="Please feel free to go to the discover section and request a book from someone. People are all nice here"
+          />
+        ))}
 
-        <AppTabBar />
-      </div>
-    );
-  }
+      <List renderHeader={() => 'Your Previous Requests'} style={{ marginBottom: 64 }}>
+        {filteredRequests?.map((request) => (
+          <ListItem
+            key={request._id}
+            multipleLine
+            align="top"
+            thumb={request.bookImage}
+            onClick={() => viewRequestInDetail(request)}
+            extra={request?.dateRequested?.toLocaleDateString()}
+          >
+            <div>
+              <Badge dot={getNotificationsCount(request)}>
+                <b>
+                  {currentUser.username === request.ownerUsername
+                    ? request.requesterUsername
+                    : request.ownerUsername}
+                </b>
+              </Badge>
+              <ListItem.Brief>{request.bookTitle}</ListItem.Brief>
+            </div>
+          </ListItem>
+        ))}
+      </List>
+
+      <AppTabBar />
+    </div>
+  );
 }
-
-RequestsList.contextType = UserContext;
 
 export default RequestsList;

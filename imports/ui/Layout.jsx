@@ -13,7 +13,7 @@ function Layout({ currentUser, userLoading, children }) {
     <IntlProvider locale="en" messages={messages}>
       <UserContext.Provider value={{ currentUser, userLoading }}>
         <ChakraProvider>
-          <Box bg="gray.200" minHeight="100vh">
+          <Box pt="1" bg="gray.200" minHeight="100vh">
             {children}
           </Box>
         </ChakraProvider>

@@ -15,12 +15,15 @@ const BookCard = ({ book }) => {
     <Card style={{ boxShadow: 'rgb(255 241 252) 0px 0px 24px 10px' }}>
       {/* <BookTitle book={book} /> */}
       <Flex align="start" justify="start" pt="2">
-        <img
-          src={book.imageUrl}
-          alt={book.title}
-          style={{ maxWidth: '150px', flexGrow: 1, marginRight: 12 }}
-        />
-
+        <Box maxW="150px" h="180px" bg={book.imageUrl ? '#fff' : 'purple.50'} mr="2">
+          {book.imageUrl && (
+            <img
+              src={book.imageUrl}
+              alt={book.title}
+              style={{ maxWidth: '150px', flexGrow: 1, marginRight: 12 }}
+            />
+          )}
+        </Box>
         <Table isNarrow style={{ fontSize: 14, flexGrow: 2 }}>
           <tbody>
             <tr>
@@ -62,7 +65,7 @@ const BookCard = ({ book }) => {
           </tbody>
         </Table>
       </Flex>
-      <Box py="4">
+      <Box py="8">
         <Text fontSize="sm">{book.description}</Text>
       </Box>
     </Card>

@@ -4,8 +4,6 @@ import { Link } from 'react-router-dom';
 import { Divider, NavBar } from 'antd-mobile';
 import { Title, Subtitle, Button } from 'bloomer';
 import { Box, Flex } from '@chakra-ui/react';
-import { GiBookshelf } from 'react-icons/gi';
-import { IoMdAddCircle, IoIosChatboxes } from 'react-icons/io';
 import { FormattedMessage } from 'react-intl';
 
 import { UserContext } from '../Layout';

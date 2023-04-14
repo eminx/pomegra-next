@@ -1,49 +1,36 @@
-import { Meteor } from "meteor/meteor";
-import React, { Component } from "react";
-import { withTracker } from "meteor/react-meteor-data";
-import { Redirect } from "react-router-dom";
-import {
-  NavBar,
-  Button,
-  Result,
-  Icon,
-  Tabs,
-  Badge,
-  Input,
-  Steps,
-  Divider,
-} from "antd-mobile";
-import { Box, Flex } from "@chakra-ui/react";
-import { IoMdSend } from "react-icons/io";
+import { Meteor } from 'meteor/meteor';
+import React, { Component } from 'react';
+import { withTracker } from 'meteor/react-meteor-data';
+import { Redirect } from 'react-router-dom';
+import { NavBar, Button, Result, Icon, Tabs, Badge, Input, Steps, Divider } from 'antd-mobile';
+import { Box, Flex } from '@chakra-ui/react';
 
-import { RequestsCollection } from "../../api/collections";
-import { ChatteryWindow } from "../components/chattery/ChatteryWindow";
-import { successDialog, errorDialog } from "../../api/_utils/functions";
+import { RequestsCollection } from '../../api/collections';
+import { ChatteryWindow } from '../components/chattery/ChatteryWindow';
+import { successDialog, errorDialog } from '../../api/_utils/functions';
 
 const Step = Steps.Step;
 
 const steps = [
   {
-    title: "Accepted",
-    description: "Request is accepted",
+    title: 'Accepted',
+    description: 'Request is accepted',
   },
   {
-    title: "Handed",
-    description: "Borrower received the book to read",
+    title: 'Handed',
+    description: 'Borrower received the book to read',
   },
   {
-    title: "Returned",
-    description: "Borrower has returned the book to the owner",
+    title: 'Returned',
+    description: 'Borrower has returned the book to the owner',
   },
-].map((step, index) => (
-  <Step key={step.title} title={step.title} description={step.description} />
-));
+].map((step, index) => <Step key={step.title} title={step.title} description={step.description} />);
 
 const myImg = (src) => <img src={src} alt="" width={48} height={66} />;
 
 class Request extends Component {
   state = {
-    messageInput: "",
+    messageInput: '',
     typingMessage: null,
     openTab: 0,
   };
@@ -52,11 +39,11 @@ class Request extends Component {
     event && event.preventDefault();
     const { request } = this.props;
     const messageInput = this.state.messageInput;
-    if (messageInput === "") {
+    if (messageInput === '') {
       return;
     }
 
-    Meteor.call("addMessage", request._id, messageInput, (error, respond) => {
+    Meteor.call('addMessage', request._id, messageInput, (error, respond) => {
       if (error) {
         console.log(error);
         return;
@@ -64,7 +51,7 @@ class Request extends Component {
     });
 
     this.setState({
-      messageInput: "",
+      messageInput: '',
     });
   };
 
@@ -91,7 +78,7 @@ class Request extends Component {
   getMessageSender = (message) => {
     const { currentUser, request } = this.props;
     if (currentUser._id === message.from) {
-      return "me";
+      return 'me';
     } else if (request.requesterUsername === currentUser.username) {
       return request.ownerUsername;
     } else {
@@ -105,11 +92,11 @@ class Request extends Component {
       return;
     }
 
-    Meteor.call("acceptRequest", request._id, (error, respond) => {
+    Meteor.call('acceptRequest', request._id, (error, respond) => {
       if (error) {
         errorDialog(error.reason);
       } else {
-        successDialog("Thank you for being a generous human being");
+        successDialog('Thank you for being a generous human being');
       }
     });
   };
@@ -123,13 +110,11 @@ class Request extends Component {
     const self = this;
     const app = self.$f7;
 
-    Meteor.call("denyRequest", request._id, (error, respond) => {
+    Meteor.call('denyRequest', request._id, (error, respond) => {
       if (error) {
         errorDialog(error.reason);
       } else {
-        successDialog(
-          "Request denied. We are sorry to have you deny this request"
-        );
+        successDialog('Request denied. We are sorry to have you deny this request');
       }
     });
   };
@@ -140,11 +125,11 @@ class Request extends Component {
       return;
     }
 
-    Meteor.call("isHanded", request._id, (error, respond) => {
+    Meteor.call('isHanded', request._id, (error, respond) => {
       if (error) {
         errorDialog(error.reason);
       } else {
-        successDialog("Great that you have handed over the book!");
+        successDialog('Great that you have handed over the book!');
       }
     });
   };
@@ -158,11 +143,11 @@ class Request extends Component {
     const self = this;
     const app = self.$f7;
 
-    Meteor.call("isReturned", request._id, (error, respond) => {
+    Meteor.call('isReturned', request._id, (error, respond) => {
       if (error) {
         errorDialog(error.reason);
       } else {
-        successDialog("Your book is back and available at your shelf <3");
+        successDialog('Your book is back and available at your shelf <3');
       }
     });
   };
@@ -266,11 +251,7 @@ class Request extends Component {
                 <Divider />
 
                 <Flex justify="center">
-                  <Button
-                    inline
-                    type="warning"
-                    onClick={() => this.denyRequest()}
-                  >
+                  <Button inline type="warning" onClick={() => this.denyRequest()}>
                     Deny
                   </Button>
                 </Flex>
@@ -285,46 +266,28 @@ class Request extends Component {
 
                 {/* <Flex justify="center">{myImg(request.bookImage)}</Flex> */}
                 <div>
-                  <Steps
-                    current={this.getCurrentStatus()}
-                    direction="horizontal"
-                    size="small"
-                  >
+                  <Steps current={this.getCurrentStatus()} direction="horizontal" size="small">
                     {steps}
                   </Steps>
                 </div>
               </div>
             )}
 
-            {request.is_confirmed &&
-              !request.is_handed &&
-              currentUser._id === request.ownerId && (
-                <Flex justify="center" style={{ padding: 12 }}>
-                  <Button
-                    inline
-                    size="small"
-                    type="primary"
-                    onClick={() => this.isHanded()}
-                  >
-                    I've handed over the book
-                  </Button>
-                </Flex>
-              )}
+            {request.is_confirmed && !request.is_handed && currentUser._id === request.ownerId && (
+              <Flex justify="center" style={{ padding: 12 }}>
+                <Button inline size="small" type="primary" onClick={() => this.isHanded()}>
+                  I've handed over the book
+                </Button>
+              </Flex>
+            )}
 
-            {request.is_handed &&
-              !request.is_returned &&
-              currentUser._id === request.ownerId && (
-                <Flex justify="center" style={{ padding: 12 }}>
-                  <Button
-                    inline
-                    size="small"
-                    type="primary"
-                    onClick={() => this.isReturned()}
-                  >
-                    I've received my book back
-                  </Button>
-                </Flex>
-              )}
+            {request.is_handed && !request.is_returned && currentUser._id === request.ownerId && (
+              <Flex justify="center" style={{ padding: 12 }}>
+                <Button inline size="small" type="primary" onClick={() => this.isReturned()}>
+                  I've received my book back
+                </Button>
+              </Flex>
+            )}
           </div>
 
           <div>
@@ -339,21 +302,19 @@ class Request extends Component {
 
             <div
               style={{
-                position: "fixed",
+                position: 'fixed',
                 height: 44,
-                width: "100%",
+                width: '100%',
                 bottom: 0,
                 zIndex: 9,
               }}
             >
-              <Flex style={{ width: "100%" }} justify="center">
+              <Flex style={{ width: '100%' }} justify="center">
                 <Box>
                   <form onSubmit={(event) => this.sendMessage(event)}>
                     <Input
                       value={messageInput}
-                      onChange={(value) =>
-                        this.setState({ messageInput: value })
-                      }
+                      onChange={(value) => this.setState({ messageInput: value })}
                       placeholder="enter message"
                       onFocus={() => this.setState({ isAccordionOpen: false })}
                       style={{ fontSize: 14 }}
@@ -364,11 +325,11 @@ class Request extends Component {
                   style={{
                     flexGrow: 0,
                     flexBasis: 48,
-                    display: "flex",
-                    justifyContent: "center",
+                    display: 'flex',
+                    justifyContent: 'center',
                   }}
                 >
-                  <IoMdSend size={24} onClick={() => this.sendMessage()} />
+                  <div w={24} onClick={() => this.sendMessage()} />
                 </Box>
               </Flex>
             </div>
@@ -383,10 +344,10 @@ export default RequestContainer = withTracker((props) => {
   const currentUser = Meteor.user();
   const requestId = props.match.params.id;
 
-  const reqSub = Meteor.subscribe("singleRequest", requestId);
+  const reqSub = Meteor.subscribe('singleRequest', requestId);
   const request = currentUser && RequestsCollection.findOne(requestId);
 
-  const msgSub = Meteor.subscribe("myMessages", requestId);
+  const msgSub = Meteor.subscribe('myMessages', requestId);
   const messages = currentUser && MessagesCollection.findOne({ requestId });
 
   const isLoading = !reqSub.ready() || !msgSub.ready();
@@ -398,44 +359,3 @@ export default RequestContainer = withTracker((props) => {
     isLoading,
   };
 })(Request);
-
-// Template.allNotifications.helpers({
-//   unreadMessage: () => {
-//     const currentUserId = Meteor.userId();
-
-//     if (
-//       MessagesCollection.findOne({
-//         is_seen_by_other: 0,
-//         last_msg_by: { $exists: true, $ne: currentUserId }
-//       })
-//     ) {
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   },
-
-//   unseenRequestReply: () => {
-//     const currentUserId = Meteor.userId();
-
-//     if (
-//       RequestsCollection.findOne({
-//         is_replied_and_not_seen: 1,
-//         req_by: currentUserId
-//       })
-//     ) {
-//       return true;
-//     } else {
-//       return false;
-//     }
-//   },
-
-//   openRequest: () => {
-//     const isOpenReq = Books.findOne({
-//       added_by: Meteor.userId(),
-//       on_request: 1
-//     });
-
-//     return isOpenReq;
-//   }
-// });

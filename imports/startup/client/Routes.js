@@ -45,7 +45,7 @@ const router = createBrowserRouter([
     element: <Discover />,
   },
   {
-    path: '/requests',
+    path: '/messages',
     element: <RequestsList />,
   },
   {

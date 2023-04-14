@@ -5,7 +5,7 @@
     "start": "meteor run --settings settings.json",
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
-    "visualize": "meteor --production --extra-packages bundle-visualizer",
+    "visualize": "meteor run --settings settings.json --extra-packages bundle-visualizer --production",
     "lint": "eslint .",
     "pretest": "npm run lint --silent"
   },
@@ -28,7 +28,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
-    "react-icons": "^4.8.0",
     "react-image-file-resizer": "^0.4.8",
     "react-intl": "^6.3.2",
     "react-router": "^6.10.0",

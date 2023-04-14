@@ -129,7 +129,7 @@ function MyShelf() {
               onClick={() => navigate(`/my-shelf/${book._id}`)}
             >
               <Flex>
-                <Image mr="4" bg="purple.100" w="48px" src={book.imageUrl} />
+                <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
                 <Box>
                   <b>{book.title}</b>
                   {book.authors.map((author) => (
