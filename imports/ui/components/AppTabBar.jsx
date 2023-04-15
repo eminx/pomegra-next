@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { TabBar, Badge } from 'antd-mobile';
+import { Badge, Divider, TabBar } from 'antd-mobile';
 
 import { notificationsCounter } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
@@ -55,13 +55,15 @@ function AppTabBar() {
     <div
       style={{
         position: 'fixed',
-        height: 50,
+        height: 64,
         width: '100%',
+        maxWidth: 768,
         bottom: 0,
         zIndex: 9,
         backgroundColor: '#fff',
       }}
     >
+      <Divider style={{ marginBottom: 0 }} />
       <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
         {iconRoutes.map((icon, index) => (
           <TabBar.Item key={icon.path} title={icon.title} />

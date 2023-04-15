@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React from 'react';
 import { IntlProvider } from 'react-intl';
-import { ChakraProvider, Box } from '@chakra-ui/react';
+import { ChakraProvider, Box, Center } from '@chakra-ui/react';
 
 export const UserContext = React.createContext(null);
 
@@ -12,9 +12,13 @@ function Layout({ currentUser, userLoading, children }) {
   return (
     <IntlProvider locale="en" messages={messages}>
       <UserContext.Provider value={{ currentUser, userLoading }}>
-        <ChakraProvider>
-          <Box pt="1" bg="gray.200" minHeight="100vh">
-            {children}
+        <ChakraProvider bg="dark.800">
+          <Box bg="gray.700" w="100%">
+            <Center>
+              <Box bg="white" minHeight="100vh" pt="1" maxWidth="768px" w="100%">
+                {children}
+              </Box>
+            </Center>
           </Box>
         </ChakraProvider>
       </UserContext.Provider>
