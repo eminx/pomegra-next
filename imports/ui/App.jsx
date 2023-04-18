@@ -1,9 +1,5 @@
-import React from "react";
+import React from 'react';
 
-import Routes from "../startup/client/Routes";
+import AppRoutes from '../startup/client/AppRoutes';
 
-export const App = () => (
-  <div>
-    <Routes />
-  </div>
-);
+export const App = () => <AppRoutes />;

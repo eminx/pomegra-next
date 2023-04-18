@@ -1,10 +1,10 @@
-import React from "react";
-import { List, Input, Button } from "antd-mobile";
-import { Flex } from "@chakra-ui/react";
+import React from 'react';
+import { List, Input, Button } from 'antd-mobile';
+import { Flex } from '@chakra-ui/react';
 
 const ListItem = List.Item;
 
-const LoginForm = ({
+function LoginForm({
   username,
   password,
   onUsernameChange,
@@ -12,10 +12,10 @@ const LoginForm = ({
   onButtonClick,
   onSecondaryButtonClick,
   closeLogin,
-}) => {
+}) {
   return (
     <div>
-      <List renderHeader={() => "Please enter your credentials"}>
+      <List renderHeader={() => 'Please enter your credentials'}>
         <ListItem>
           <Input
             label="Username or email"
@@ -60,6 +60,6 @@ const LoginForm = ({
       </Flex>
     </div>
   );
-};
+}
 
 export default LoginForm;

@@ -2,34 +2,34 @@ import { Meteor } from 'meteor/meteor';
 import { BooksCollection, MessagesCollection, RequestsCollection } from '../../collections';
 
 Meteor.methods({
-  getRequests: () => {
+  getMyRequests: () => {
     const currentUserId = Meteor.userId();
     if (!currentUserId) {
-      return;
+      throw new Meteor.Error('Please login');
     }
-
     try {
       return RequestsCollection.find({
         $or: [{ requesterId: currentUserId }, { ownerId: currentUserId }],
       }).fetch();
     } catch (error) {
-      return error;
+      console.log('error', error);
+      throw new Meteor.Error(error);
     }
   },
 
   getSingleRequest: (requestId) => {
     const currentUserId = Meteor.userId();
     if (!currentUserId) {
-      return false;
+      throw new Meteor.Error('Please login');
     }
-
     try {
       return RequestsCollection.findOne({
         _id: requestId,
         $or: [{ requesterId: currentUserId }, { ownerId: currentUserId }],
       });
     } catch (error) {
-      return error;
+      console.log('error', error);
+      throw new Meteor.Error(error);
     }
   },
 
@@ -106,7 +106,7 @@ Meteor.methods({
     }
 
     const request = RequestsCollection.findOne(requestId);
-    if (request.ownerId !== currentUserId) {
+    if (!request || request.ownerId !== currentUserId) {
       throw new Meteor.Error('You are not the owner!');
     }
 
@@ -122,7 +122,7 @@ Meteor.methods({
       );
 
       BooksCollection.update(
-        { _id: bookId },
+        { _id: request.bookId },
         {
           $set: {
             onRequest: false,
@@ -131,6 +131,7 @@ Meteor.methods({
         }
       );
     } catch (error) {
+      console.log(error);
       throw new Meteor.Error(error);
     }
 
@@ -173,7 +174,7 @@ Meteor.methods({
     );
   },
 
-  isHanded: (requestId) => {
+  setIsHanded: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {
@@ -205,7 +206,7 @@ Meteor.methods({
     );
   },
 
-  isReturned: (requestId) => {
+  setIsReturned: (requestId) => {
     const currentUserId = Meteor.userId();
 
     if (!currentUserId) {

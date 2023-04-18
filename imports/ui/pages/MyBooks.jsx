@@ -123,8 +123,6 @@ function MyShelf() {
           {filteredSortedBooks.map((book) => (
             <ListItem
               key={book._id}
-              align="top"
-              thumb={<img style={{ width: 33, height: 44 }} src={book.imageUrl} />}
               extra={book.category}
               onClick={() => navigate(`/my-shelf/${book._id}`)}
             >

@@ -1,12 +1,13 @@
-import React, { useContext, useState } from "react";
-import { Navigate } from "react-router";
-import { Anchor, Box, Heading, Text } from "grommet";
-import { Toast } from "antd-mobile";
+import React, { useContext, useState } from 'react';
+import { Navigate } from 'react-router';
+import { Toast } from 'antd-mobile';
+import { Box, Heading, Text } from '@chakra-ui/react';
 
-import { ForgotPassword, SimpleText } from "./index";
-import { call } from "../../../api/_utils/functions";
-import AppTabBar from "../../components/AppTabBar";
-import { UserContext } from "../../Layout";
+import { ForgotPassword, SimpleText } from './index';
+import { call } from '../../../api/_utils/functions';
+import AppTabBar from '../../components/AppTabBar';
+import { UserContext } from '../../Layout';
+import Anchor from '../../components/Anchor';
 
 function ForgotPasswordPage({ history }) {
   const [emailSent, setEmailSent] = useState(false);
@@ -18,9 +19,9 @@ function ForgotPasswordPage({ history }) {
 
   const handleForgotPassword = async (email) => {
     try {
-      await call("forgotPassword", email);
+      await call('forgotPassword', email);
       Toast.success(
-        "Please check your email and see if you received a link to reset your password"
+        'Please check your email and see if you received a link to reset your password'
       );
       setEmailSent(true);
     } catch (error) {
@@ -29,10 +30,10 @@ function ForgotPasswordPage({ history }) {
   };
 
   return (
-    <Box width="100%" pad={{ vertical: "large", horizontal: "small" }}>
-      <Box width="medium" alignSelf="center">
-        <Heading level={2}>Forgot Password</Heading>
-        <Text size="large" margin={{ bottom: "medium" }}>
+    <Box w="100%" px="4" py="2">
+      <Box w="md" alignSelf="center">
+        <Heading size="md">Forgot Password</Heading>
+        <Text fontSize="lg" mb="4">
           Reset your password via a link sent to your email
         </Text>
         {emailSent ? (

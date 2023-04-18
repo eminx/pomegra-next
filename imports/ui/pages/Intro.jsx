@@ -636,7 +636,7 @@ class Intro extends Component {
           </Field>
         </HeroSlide>
 
-        <HeroSlide subtitle="Awesome! Now let's set some cover images" isColor="dark">
+        {/* <HeroSlide subtitle="Awesome! Now let's set some cover images" isColor="dark">
           <Field>
             <ImageUploader
               value={
@@ -661,11 +661,10 @@ class Intro extends Component {
                 isPulled="right"
               >
                 {currentUser.coverImages ? 'Continue' : savingCover ? 'Saving... ' : 'Save'}
-                {/* <ActivityIndicator animating={savingCover} /> */}
               </Button>
             </Control>
           </Field>
-        </HeroSlide>
+        </HeroSlide> */}
 
         <ProfileView currentUser={currentUser} onButtonClick={this.goNext} />
 

@@ -1,43 +1,36 @@
-.chattery-main-container {
-  max-width: 50em;
-}
-
 .chattery-window-container {
   width: 100%;
   float: none;
-  box-shadow: inset 0 0 1px 0 rgba(50, 50, 50, 0.5);
 }
 
 .chattery-window {
   display: flex;
   flex-direction: column;
   font-size: 14px;
+  min-height: 320px;
+  height: calc(100vh - 141px);
   overflow-y: scroll;
   overflow-x: hidden;
-  height: calc(100vh - 133px);
 }
 
 .chattery-inputform-container {
-  width: 100%;
-  padding: 20px;
+  padding: 12px;
   background-color: #fff;
 }
 
 .chattery-inputform {
   display: flex;
-  align-items: center;
 }
 
 .chattery-input {
-  width: calc(100% - 60px);
-  height: 38px;
+  min-height: 96px;
   padding: 6px 10px;
   background-color: #fff;
-  border: 1px solid #d1d1d1;
-  border-radius: 4px 0 0 4px;
-  border-right: none;
+  border: 1px solid #888;
+  border-radius: 4px;
   box-shadow: none;
   box-sizing: border-box;
+  flex-grow: 1;
 }
 
 .chattery-input:focus {
@@ -48,14 +41,14 @@
 .chattery-submitbutton {
   width: 60px;
   height: 38px;
+  margin-left: 8px;
   border: 1px solid #888;
-  border-radius: 0 4px 4px 0;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-radius: 4px;
   box-sizing: border-box;
   background-color: #fff;
   font-size: 14px;
   font-weight: 500;
+  flex-basis: 60px;
 }
 
 .talk-bubble-container {
@@ -65,35 +58,24 @@
 
 .talk-bubble.right-in {
   float: right;
+  background-color: #1677ff;
+  color: #fff;
 }
 
-.talk-bubble.left-in {
-  float: left;
-}
-
-/* General CSS Setup */
-body {
-  background-color: rgb(231, 233, 233);
-  font-family: 'Lucida sans', 'Ubuntu-Italic', 'Helvetica-Neue', 'Helvetica',
-    'Arial', sans;
+/* container */
+.container {
+  padding: 5% 5%;
 }
 
 /* CSS talk bubble */
 .talk-bubble {
-  margin: 6px 20px;
+  margin: 10px 20px;
   display: inline-block;
   position: relative;
-  width: 240px;
+  width: 80%;
   height: auto;
   background-color: #fff;
-  bottom: 10px;
-  /* transition: all 0.5s ease; */
 }
-
-.talk-bubble:not(.animate-bubble) {
-  transition: all 0.5s ease;
-}
-
 .border {
   border: 8px solid #666;
 }
@@ -101,13 +83,6 @@ body {
   border-radius: 10px;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
-}
-
-.talk-bubble.animate-bubble {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  height: 0;
 }
 
 /* Right triangle placed top left flush. */
@@ -121,7 +96,7 @@ body {
   top: -8px;
   bottom: auto;
   border: 32px solid;
-  border-color: #666 transparent transparent transparent;
+  border-color: #1677ff transparent transparent #1677ff;
 }
 .tri-right.left-top:after {
   content: ' ';
@@ -224,7 +199,7 @@ body {
   right: 30px;
   bottom: -40px;
   border: 20px solid;
-  border-color: #666 #666 transparent transparent;
+  border-color: #1677ff transparent transparent #1677ff;
 }
 .tri-right.btm-right-in:after {
   content: ' ';
@@ -235,7 +210,7 @@ body {
   right: 38px;
   bottom: -20px;
   border: 12px solid;
-  border-color: #fff #fff transparent transparent;
+  border-color: #1677ff transparent transparent #1677ff;
 }
 /*
 	left: -8px;
@@ -298,7 +273,7 @@ body {
   top: 10px;
   bottom: auto;
   border: 12px solid;
-  border-color: #fff transparent transparent #fff;
+  border-color: #1677ff transparent transparent #1677ff;
 }
 
 /* Right triangle placed top right flush. */
@@ -312,7 +287,7 @@ body {
   top: -8px;
   bottom: auto;
   border: 32px solid;
-  border-color: #666 transparent transparent transparent;
+  border-color: #1677ff transparent transparent #1677ff;
 }
 .tri-right.right-top:after {
   content: ' ';
@@ -329,44 +304,56 @@ body {
 
 /* talk bubble contents */
 .talktext {
+  color: #fff;
   padding: 0.5em 1em;
   text-align: left;
-  line-height: 1.5em;
+  line-height: 16px;
 }
 .talktext p {
   /* remove webkit p margins */
   -webkit-margin-before: 0em;
   -webkit-margin-after: 0em;
+  white-space: pre-line;
 }
 
 .talktext-senderinfo {
+  color: #fff;
   font-size: 0.8em;
-  color: darkslategrey;
   font-weight: bold;
 }
 
 .talktext-dateinfo {
+  color: #fff;
   font-size: 0.7em;
-  color: grey;
   text-align: right;
 }
 
+.talk-bubble.left-in {
+  background-color: #fff;
+}
+
+.talk-bubble.left-in .talktext,
+.talk-bubble.left-in .talktext-senderinfo,
+.talk-bubble.left-in .talktext-dateinfo {
+  color: #222;
+}
+
 /* width */
-::-webkit-scrollbar {
+.chattery-window::-webkit-scrollbar {
   width: 10px;
 }
 
 /* Track */
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+.chattery-window::-webkit-scrollbar-track {
+  background: #fff;
 }
 
 /* Handle */
-::-webkit-scrollbar-thumb {
+.chattery-window::-webkit-scrollbar-thumb {
   background: #888;
 }
 
 /* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
+.chattery-window::-webkit-scrollbar-thumb:hover {
   background: #555;
 }

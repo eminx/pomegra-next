@@ -55,24 +55,27 @@ Meteor.methods({
         theRequest.requesterId === currentUser._id ? theRequest.ownerId : theRequest.requesterId;
       const theOther = Meteor.users.findOne(theOthersId);
 
-      const contextIdIndex =
-        theOther.notifications &&
-        theOther.notifications.findIndex((notification) => notification.contextId === contextId);
+      const contextIdIndex = theOther.notifications?.findIndex((notification) => {
+        return notification.contextId === contextId;
+      });
 
-      if (contextIdIndex !== -1) {
-        const notifications = [...theOther.notifications];
-        notifications[contextIdIndex].count += 1;
-        if (!notifications[contextIdIndex].unSeenIndexes) {
-          return;
+      if (contextIdIndex === 0 || contextIdIndex !== -1) {
+        const notifications = theOther.notifications ? [...theOther.notifications] : [];
+        if (notifications[contextIdIndex]) {
+          notifications[contextIdIndex].count += 1;
         }
-        notifications[contextIdIndex].unSeenIndexes.push(unSeenIndex);
-        Meteor.users.update(theOther._id, {
+        if (!notifications[contextIdIndex]?.unSeenIndexes) {
+          notifications[contextIdIndex].unSeenIndexes = [];
+        }
+        notifications[contextIdIndex]?.unSeenIndexes.push(unSeenIndex);
+
+        Meteor.users.update(theOthersId, {
           $set: {
             notifications: notifications,
           },
         });
       } else {
-        Meteor.users.update(theOther._id, {
+        Meteor.users.update(theOthersId, {
           $push: {
             notifications: {
               title: theOther.username,
@@ -90,7 +93,7 @@ Meteor.methods({
     }
   },
 
-  removeNotification: (contextName, contextId, messageIndex) => {
+  removeNotification: (contextId, messageIndex) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
@@ -110,23 +113,24 @@ Meteor.methods({
         return;
       }
 
-      let onlyOneCount = false;
-      if (notifications[notificationIndex].count === 1) {
-        onlyOneCount = true;
-      }
+      notifications[notificationIndex].count -= 1;
 
-      if (onlyOneCount) {
-        notifications.filter((notification) => notification.contextId !== contextId);
+      let newNotifications;
+      if (notifications[notificationIndex]?.count === 0) {
+        newNotifications = notifications.filter(
+          (notification, index) => index !== notificationIndex
+        );
       } else {
-        notifications[notificationIndex].count -= 1;
-        notifications[notificationIndex].unSeenIndexes.filter(
+        const newUnSeenIndexes = notifications[notificationIndex].unSeenIndexes.filter(
           (unSeenIndex) => unSeenIndex !== messageIndex
         );
+        notifications[notificationIndex].unSeenIndexes = newUnSeenIndexes;
+        newNotifications = notifications;
       }
 
       Meteor.users.update(currentUser._id, {
         $set: {
-          notifications: notifications,
+          notifications: newNotifications,
         },
       });
     } catch (error) {

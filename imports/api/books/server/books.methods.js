@@ -86,7 +86,7 @@ Meteor.methods({
       imageUrl,
       ownerId: currentUserId,
       ownerUsername: user.username,
-      ownerImage: user.images[0],
+      ownerImage: user.images && user.images[0],
       xTimes: 0,
       isAvailable: true,
       dateAdded: new Date(),

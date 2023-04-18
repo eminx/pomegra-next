@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Icon, NavBar } from 'antd-mobile';
+import { Button, Icon, NavBar } from 'antd-mobile';
+import { Box } from '@chakra-ui/react';
 
 import { BookCard } from '../components/BookCard';
 import { errorDialog, successDialog } from '../../api/_utils/functions';
@@ -29,21 +30,18 @@ function BookDetailTobeRequested() {
     }
 
     Meteor.call('makeRequest', book._id, (error, respond) => {
-      if (error) {
+      if (error || respond.error) {
         console.log(error);
-        errorDialog(error.reason);
-      } else if (respond.error) {
-        console.log(error);
-        errorDialog(respond.error);
-      } else {
-        successDialog('Your request is successfully sent!');
-        setRequestSuccess(respond);
+        errorDialog(error.reason || error.error);
+        return;
       }
+      successDialog('Your request is successfully sent!');
+      setRequestSuccess(respond);
     });
   };
 
   if (requestSuccess) {
-    return redirect(`/request/${requestSuccess}`);
+    return navigate(`/request/${requestSuccess}`);
   }
 
   if (!book || isLoading) {
@@ -53,19 +51,15 @@ function BookDetailTobeRequested() {
 
   return (
     <>
-      <NavBar
-        mode="light"
-        onBack={() => navigate('/discover')}
-        rightContent={<Icon type="ellipsis" />}
-      >
+      <NavBar mode="light" onBack={() => navigate('/lend')}>
         Details
       </NavBar>
 
-      <Box px="2">
+      <Box px="2" mb="4">
         <BookCard book={book} />
       </Box>
 
-      <Box px="4">
+      <Box px="4" mb="8">
         <Button color="primary" block onClick={() => makeRequest()}>
           Ask to Borrow
         </Button>

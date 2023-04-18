@@ -1,21 +1,9 @@
 import React, { useState } from 'react';
-import {
-  Anchor,
-  Box,
-  Button,
-  Form,
-  FormField,
-  Text,
-  TextInput,
-} from 'grommet';
+import { Box, Button, Center, Input, Text } from '@chakra-ui/react';
 
 function Notice({ isError, children, ...otherProps }) {
   return (
-    <Text
-      color={isError ? 'status-error' : 'dark-3'}
-      size="small"
-      {...otherProps}
-    >
+    <Text color={isError ? 'status-error' : 'dark-3'} fontSize="sm" {...otherProps}>
       {children}
     </Text>
   );
@@ -23,12 +11,7 @@ function Notice({ isError, children, ...otherProps }) {
 
 function SimpleText({ children, ...otherProps }) {
   return (
-    <Text
-      textAlign="center"
-      margin={{ bottom: 'medium' }}
-      size="small"
-      {...otherProps}
-    >
+    <Text textAlign="center" mb="4" fontSize="sm" {...otherProps}>
       {children}
     </Text>
   );
@@ -36,19 +19,13 @@ function SimpleText({ children, ...otherProps }) {
 
 function ForgotPassword({ onForgotPassword }) {
   return (
-    <Box margin={{ bottom: 'medium' }}>
-      <Form onSubmit={({ value }) => onForgotPassword(value)}>
-        <FormField
-          label="Type your email please"
-          margin={{ bottom: 'medium', top: 'medium' }}
-        >
-          <TextInput plain type="email" name="email" placeholder="" />
-        </FormField>
-
-        <Box direction="row" justify="end" pad="small">
-          <Button type="submit" primary label="Send reset link" />
-        </Box>
-      </Form>
+    <Box mb="4">
+      <form onSubmit={({ value }) => onForgotPassword(value)}>
+        <Input plain type="email" name="email" placeholder="" />
+        <Center>
+          <Button type="submit">Send reset link</Button>
+        </Center>
+      </form>
     </Box>
   );
 }
@@ -66,21 +43,21 @@ function ResetPassword({ onResetPassword }) {
   };
 
   return (
-    <Box margin={{ bottom: 'medium' }}>
-      <Form onSubmit={({ value }) => handleSubmit(value)}>
-        <FormField
+    <Box mb="4">
+      <form onSubmit={({ value }) => handleSubmit(value)}>
+        {/* <FormField
           label="Password"
           margin={{ bottom: 'medium', top: 'medium' }}
           help={<Notice>minimum 8 characters</Notice>}
           error={<Notice isError>{passwordError}</Notice>}
-        >
-          <TextInput type="password" name="password" placeholder="" />
-        </FormField>
+        > */}
+        <TextInput type="password" name="password" placeholder="" />
+        {/* </FormField> */}
 
-        <Box direction="row" justify="end" pad="small">
-          <Button type="submit" primary label="Reset Password" />
-        </Box>
-      </Form>
+        <Center>
+          <Button type="submit">Reset Password</Button>
+        </Center>
+      </form>
     </Box>
   );
 }

@@ -41,7 +41,11 @@ const ProfileView = ({ currentUser, onButtonClick }) => {
           alignItems: 'center',
         }}
       >
-        <Avatar name={currentUser.username} src={currentUser.images[0]} size="xl" />
+        <Avatar
+          name={currentUser.username}
+          src={currentUser.images && currentUser.images[0]}
+          size="xl"
+        />
         <Title isSize={3}>{currentUser.username}</Title>
         <Subtitle isSize={5}>{currentUser.firstName + ' ' + currentUser.lastName}</Subtitle>
 

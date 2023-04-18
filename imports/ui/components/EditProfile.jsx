@@ -86,8 +86,7 @@ function EditProfile({ currentUser }) {
   const handleLanguageSelect = (selectedLanguages) => {
     const selectedLanguageValue = selectedLanguages[0];
     const { languages } = user;
-
-    if (languages.some((language) => language.value === selectedLanguageValue)) {
+    if (languages && languages.some((language) => language.value === selectedLanguageValue)) {
       return;
     }
 
@@ -95,7 +94,7 @@ function EditProfile({ currentUser }) {
       (language) => language && language.value === selectedLanguageValue
     );
 
-    const newLanguages = [...languages, selectedLanguage];
+    const newLanguages = languages ? [...languages, selectedLanguage] : [selectedLanguage];
 
     setUser({
       ...user,

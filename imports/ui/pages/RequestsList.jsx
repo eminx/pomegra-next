@@ -1,11 +1,11 @@
-import { Meteor } from 'meteor/meteor';
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Redirect } from 'react-router-dom';
-import { Badge, Divider, List, NavBar, Result, SearchBar, SegmentedControl } from 'antd-mobile';
-import { Box } from '@chakra-ui/react';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Badge, List, NavBar, Result, SearchBar } from 'antd-mobile';
+import { Box, Flex, Image, Text } from '@chakra-ui/react';
 
 import { UserContext } from '../Layout';
 import AppTabBar from '../components/AppTabBar';
+import { call } from '../../api/_utils/functions';
 
 const ListItem = List.Item;
 
@@ -21,24 +21,24 @@ function RequestsList() {
     noRequest: false,
   });
   const { currentUser } = useContext(UserContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getRequests();
   }, []);
 
-  const getRequests = () => {
-    if (!currentUser) {
-      return;
-    }
-
-    Meteor.call('getRequests', (error, respond) => {
+  const getRequests = async () => {
+    try {
+      const respond = await call('getMyRequests');
       setState({
         ...state,
         requests: respond,
         isLoading: false,
         noRequest: Boolean(respond && respond.length === 0),
       });
-    });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleFilter = (value) => {
@@ -65,10 +65,6 @@ function RequestsList() {
     }
   };
 
-  const viewRequestInDetail = (request) => {
-    setState({ ...state, gotoRequest: request._id });
-  };
-
   const getNotificationsCount = (request) => {
     const foundContext =
       currentUser?.notifications &&
@@ -79,11 +75,7 @@ function RequestsList() {
     return foundContext?.count;
   };
 
-  const { requests, filterValue, requestType, gotoRequest, noRequest } = state;
-
-  if (gotoRequest) {
-    return <Redirect to={`/request/${gotoRequest}`} />;
-  }
+  const { requests, filterValue, requestType } = state;
 
   if (!requests || !currentUser) {
     return <div>Loading...</div>;
@@ -118,8 +110,6 @@ function RequestsList() {
         onValueChange={(value) => handleTypeChange(value)}
       /> */}
 
-      <Divider />
-
       {!requests ||
         (requests.length === 0 && (
           <Result
@@ -129,26 +119,28 @@ function RequestsList() {
           />
         ))}
 
-      <List renderHeader={() => 'Your Previous Requests'} style={{ marginBottom: 64 }}>
+      <List style={{ marginBottom: 64 }}>
         {filteredRequests?.map((request) => (
           <ListItem
             key={request._id}
-            multipleLine
-            align="top"
-            thumb={request.bookImage}
-            onClick={() => viewRequestInDetail(request)}
             extra={request?.dateRequested?.toLocaleDateString()}
+            onClick={() => navigate(`/request/${request._id}`)}
           >
-            <div>
-              <Badge dot={getNotificationsCount(request)}>
-                <b>
-                  {currentUser.username === request.ownerUsername
-                    ? request.requesterUsername
-                    : request.ownerUsername}
-                </b>
-              </Badge>
-              <ListItem.Brief>{request.bookTitle}</ListItem.Brief>
-            </div>
+            <Flex>
+              <Image mr="4" bg="purple.50" fit="contain" w="48px" src={request.bookImage} />
+              <Box w="100%">
+                <Badge content={getNotificationsCount(request)}>
+                  <Box>
+                    <b>
+                      {currentUser.username === request.ownerUsername
+                        ? request.requesterUsername
+                        : request.ownerUsername}
+                    </b>
+                    <Text>{request.bookTitle}</Text>
+                  </Box>
+                </Badge>
+              </Box>
+            </Flex>
           </ListItem>
         ))}
       </List>

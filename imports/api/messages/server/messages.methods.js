@@ -1,46 +1,61 @@
-import { Meteor } from "meteor/meteor";
-import { MessagesCollection } from "../../collections";
+import { Meteor } from 'meteor/meteor';
+import { MessagesCollection, RequestsCollection } from '../../collections';
 
 Meteor.methods({
-  addMessage: (requestId, message) => {
+  getRequestMessages: (requestId) => {
     const currentUserId = Meteor.userId();
-    const currentUser = Meteor.user();
     if (!currentUserId) {
-      throw new Meteor.Error("You are not logged in");
+      throw new Meteor.Error('Please login');
+    }
+    try {
+      MessagesCollection.find({
+        requestId,
+        $or: [{ borrowerId: currentUserId }, { lenderId: currentUserId }],
+      });
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
+  },
+
+  addMessage: (requestId, message) => {
+    const currentUser = Meteor.user();
+    const currentUserId = currentUser._id;
+    if (!currentUserId) {
+      throw new Meteor.Error('You are not logged in');
     }
     const theMessage = MessagesCollection.findOne({
       requestId,
     });
-    if (
-      currentUserId !== theMessage.lenderId &&
-      currentUserId !== theMessage.borrowerId
-    ) {
+    if (currentUserId !== theMessage.lenderId && currentUserId !== theMessage.borrowerId) {
       return;
     }
+
+    const unSeenIndex = MessagesCollection.findOne({ requestId })?.messages?.length;
+
     try {
-      const theMessage = MessagesCollection.findOne({ requestId });
       MessagesCollection.update(
         { requestId },
         {
           $push: {
             messages: {
-              text: message,
-              from: currentUserId,
-              date: new Date(),
-              senderName: currentUser.username,
+              content: message,
+              senderUsername: currentUser.username,
+              senderId: currentUserId,
+              createdDate: new Date(),
             },
           },
           $set: {
+            isNotificationOn: true,
             isSeenByOther: false,
             lastMessageBy: currentUserId,
           },
         }
       );
 
-      const unSeenIndex = theMessage.messages.length;
-      Meteor.call("createNotification", "request", requestId, unSeenIndex);
+      Meteor.call('createNotification', 'request', theMessage.requestId, unSeenIndex);
     } catch (error) {
-      console.log("error", error);
+      console.log('error', error);
       throw new Meteor.Error(error);
     }
 
@@ -61,7 +76,7 @@ Meteor.methods({
     // const myName = Meteor.user().username;
     // const subjectEmail = 'You have a new message!';
     // const teREmail = `You received a new message from ${myName}. You can see and reply here: https://app.pomegra.org/request/${requestId}`;
-    // Meteor.cAl('sendEmail', othersId, subjectEmail, textEmail);
+    // Meteor.call('sendEmail', othersId, subjectEmail, textEmail);
     // }
   },
 });

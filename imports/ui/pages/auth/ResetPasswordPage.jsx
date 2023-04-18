@@ -1,13 +1,12 @@
-import { Meteor } from "meteor/meteor";
-import React from "react";
-import { Redirect } from "react-router-dom";
-import { Anchor, Box, Heading, Text } from "grommet";
-import { Toast } from "antd-mobile";
+import React from 'react';
+import { Redirect } from 'react-router-dom';
+import { Box, Heading, Text } from '@chakra-ui/react';
+import { Toast } from 'antd-mobile';
 
-import { ResetPassword, SimpleText } from "./index";
-import { call } from "../../../api/_utils/functions";
-import AppTabBar from "../../components/AppTabBar";
-import { UserContext } from "../../Layout";
+import { ResetPassword } from './index';
+import { call } from '../../../api/_utils/functions';
+import AppTabBar from '../../components/AppTabBar';
+import { UserContext } from '../../Layout';
 
 function ResetPasswordPage({ history, match }) {
   const { currentUser } = useContext(UserContext);
@@ -19,19 +18,19 @@ function ResetPasswordPage({ history, match }) {
 
   const handleResetPassword = async (password) => {
     try {
-      await call("resetPassword", token, password);
-      Toast.success("Your password is successfully reset. Now you can login");
-      history.push("/intro");
+      await call('resetPassword', token, password);
+      Toast.success('Your password is successfully reset. Now you can login');
+      history.push('/intro');
     } catch (error) {
       Toast.fail(error.reason);
     }
   };
 
   return (
-    <Box width="100%" pad={{ vertical: "large", horizontal: "small" }}>
-      <Box width="medium" alignSelf="center">
-        <Heading level={2}>Reset Your Password</Heading>
-        <Text size="large" margin={{ bottom: "medium" }}>
+    <Box width="100%" py="8" px="4">
+      <Box width="md" alignSelf="center">
+        <Heading size="md">Reset Your Password</Heading>
+        <Text size="large" mb="4">
           Type your desired password
         </Text>
         <ResetPassword onResetPassword={handleResetPassword} />

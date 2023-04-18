@@ -35,7 +35,7 @@ function Discover() {
     <div name="books">
       <NavBar backArrow={false}>Lend Books</NavBar>
       {books && books.length > 0 && (
-        <List renderHeader={() => 'Suggested books for you'}>
+        <List>
           {books.map((suggestedBook) => (
             <ListItem
               key={suggestedBook._id}
