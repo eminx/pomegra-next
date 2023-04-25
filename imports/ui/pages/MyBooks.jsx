@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { List, NavBar, Picker, SearchBar, Space } from 'antd-mobile';
+import { List, NavBar, Picker, SearchBar } from 'antd-mobile';
 import { Button, Title, Subtitle } from 'bloomer';
 import { Box, Center, Flex, Image } from '@chakra-ui/react';
 

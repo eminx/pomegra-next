@@ -102,7 +102,6 @@ function AddBook() {
   };
 
   const handleUploadImage = async (values) => {
-    setIsLoading(true);
     const { uploadableImage } = image;
     try {
       const resizedImage = await resizeImage(uploadableImage, 180);

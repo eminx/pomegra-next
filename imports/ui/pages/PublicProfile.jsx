@@ -1,12 +1,13 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { AutoCenter, NavBar, Tag } from 'antd-mobile';
-import { Avatar, Box, Center, Image, Stack, Text } from '@chakra-ui/react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AutoCenter, List, NavBar, Tag } from 'antd-mobile';
+import { Avatar, Box, Center, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
 import { Title, Subtitle } from 'bloomer';
 
-import { UserContext } from '../Layout';
 import AppTabBar from '../components/AppTabBar';
 import { call } from '../../api/_utils/functions';
+
+const ListItem = List.Item;
 
 const imageProps = {
   borderRadius: '8px',
@@ -16,22 +17,25 @@ const imageProps = {
 
 function PublicProfile() {
   const [state, setState] = useState({
+    books: [],
     user: null,
     isLoading: true,
   });
-  const { currentUser } = useContext(UserContext);
   const { username } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getUser();
+    getData();
   }, []);
 
-  const getUser = async () => {
+  const getData = async () => {
     try {
-      const respond = await call('getUserProfile', username);
+      const user = await call('getUserProfile', username);
+      const books = await call('getUserBooks', username);
       setState({
         ...state,
-        user: respond,
+        user,
+        books,
         isLoading: false,
       });
     } catch (error) {
@@ -39,11 +43,13 @@ function PublicProfile() {
     }
   };
 
-  const { user, isLoading } = state;
+  const { books, user, isLoading } = state;
 
   if (isLoading || !user) {
     return null;
   }
+
+  console.log(books);
 
   return (
     <div style={{ height: '100%', marginBottom: 80 }}>
@@ -78,7 +84,7 @@ function PublicProfile() {
         </AutoCenter>
       </Box>
 
-      <Box py="4">
+      <Box py="2">
         <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
           reads in:
         </Subtitle>
@@ -89,6 +95,33 @@ function PublicProfile() {
             </Tag>
           ))}
         </Stack>
+      </Box>
+
+      <Box py="2">
+        <Heading size="md" textAlign="center">
+          Books
+        </Heading>
+        <List style={{ marginBottom: 80 }}>
+          {books.map((book) => (
+            <ListItem
+              key={book._id}
+              extra={book.category}
+              onClick={() => navigate(`/book/${book._id}`)}
+            >
+              <Flex w="100%" fontSize="0.9em">
+                <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
+                <Box>
+                  <Text>
+                    <b>{book.title}</b>
+                  </Text>
+                  <Text>
+                    {book.authors && book.authors.map((author) => <div key={author}>{author}</div>)}
+                  </Text>
+                </Box>
+              </Flex>
+            </ListItem>
+          ))}
+        </List>
       </Box>
 
       <AppTabBar />

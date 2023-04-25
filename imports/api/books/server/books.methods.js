@@ -2,13 +2,26 @@ import { Meteor } from 'meteor/meteor';
 import { BooksCollection } from '../../collections';
 
 Meteor.methods({
+  getUserBooks: (username) => {
+    const user = Meteor.user({ username });
+    if (!user) {
+      return;
+    }
+    try {
+      const books = BooksCollection.find({ ownerUsername: user.username }).fetch();
+      return books;
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
   getMyBooks: () => {
     const currentUserId = Meteor.userId();
     try {
       const myBooks = BooksCollection.find({ ownerId: currentUserId }).fetch();
       return myBooks;
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 
@@ -21,7 +34,7 @@ Meteor.methods({
         ownerId: currentUserId,
       });
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 
@@ -31,7 +44,7 @@ Meteor.methods({
         _id: bookId,
       });
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 
@@ -49,7 +62,7 @@ Meteor.methods({
         return BooksCollection.find({}, { limit: 50 }).fetch();
       }
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 
@@ -155,7 +168,7 @@ Meteor.methods({
         }
       );
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 
@@ -171,7 +184,7 @@ Meteor.methods({
     try {
       BooksCollection.remove({ _id: bookId });
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 });
