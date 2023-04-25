@@ -32,6 +32,7 @@ function PublicProfile() {
     try {
       const user = await call('getUserProfile', username);
       const books = await call('getUserBooks', username);
+      console.log(books);
       setState({
         ...state,
         user,

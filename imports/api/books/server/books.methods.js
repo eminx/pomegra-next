@@ -3,12 +3,8 @@ import { BooksCollection } from '../../collections';
 
 Meteor.methods({
   getUserBooks: (username) => {
-    const user = Meteor.user({ username });
-    if (!user) {
-      return;
-    }
     try {
-      const books = BooksCollection.find({ ownerUsername: user.username }).fetch();
+      const books = BooksCollection.find({ ownerUsername: username }).fetch();
       return books;
     } catch (error) {
       throw new Meteor.Error(error);
