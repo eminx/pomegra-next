@@ -14,6 +14,7 @@ import Profile from '../../ui/pages/Profile';
 import Intro from '../../ui/pages/Intro';
 import ResetPasswordPage from '../../ui/pages/auth/ResetPasswordPage';
 import ForgotPasswordPage from '../../ui/pages/auth/ForgotPasswordPage';
+import PublicProfile from '../../ui/pages/PublicProfile';
 
 const routes = [
   {
@@ -72,6 +73,11 @@ const routes = [
   {
     path: '/reset-password/:token',
     element: <ResetPasswordPage />,
+  },
+  {
+    path: '/:username',
+    element: <PublicProfile />,
+    exact: true,
   },
 ];
 

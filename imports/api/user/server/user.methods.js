@@ -4,6 +4,22 @@ import { Accounts } from 'meteor/accounts-base';
 import { RequestsCollection } from '../../collections';
 
 Meteor.methods({
+  getUserProfile: (username) => {
+    try {
+      const user = Meteor.users.findOne({ username });
+      return {
+        bio: user.bio,
+        firstName: user.firstName,
+        images: user.images,
+        languages: user.languages,
+        lastName: user.lastName,
+        username: user.username,
+      };
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
   registerUser: (user) => {
     Accounts.createUser({
       email: user.email,
@@ -23,7 +39,7 @@ Meteor.methods({
         },
       });
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 
@@ -37,7 +53,7 @@ Meteor.methods({
         },
       });
     } catch (error) {
-      return error;
+      throw new Meteor.Error(error);
     }
   },
 

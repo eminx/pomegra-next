@@ -9,15 +9,6 @@ export const UserContext = createContext(null);
 import messages from '../api/_utils/langs/en';
 
 function Layout({ currentUser, userLoading, children }) {
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    setTimeout(() => {
-      if (currentUser) {
-        setIsLoading(false);
-      }
-    }, 5000);
-  }, []);
-
   return (
     <IntlProvider locale="en" messages={messages}>
       <UserContext.Provider value={{ currentUser, userLoading }}>

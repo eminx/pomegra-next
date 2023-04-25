@@ -1,139 +1,84 @@
-import { Meteor } from 'meteor/meteor';
-import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Divider, NavBar } from 'antd-mobile';
 import { Title, Subtitle, Button } from 'bloomer';
 import { Box, Flex } from '@chakra-ui/react';
 import { FormattedMessage } from 'react-intl';
 
 import { UserContext } from '../Layout';
-
 import { errorDialog, successDialog } from '../../api/_utils/functions';
 import AppTabBar from '../components/AppTabBar';
+import HeroSlide from '../components/HeroSlide';
+import NiceShelf from '../components/NiceShelf';
 
-class Home extends Component {
-  state = {
-    loginScreenOpen: false,
-    username: '',
-    email: '',
-    password: '',
-    isLoading: false,
-    redirectTo: null,
-    splashOver: false,
-  };
+function Home() {
+  const { currentUser } = useContext(UserContext);
+  const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
-  createAccount = (values) => {
-    this.setState({ isLoading: true });
+  // useEffect(() => {
+  //   if (currentUser) {
+  //     setIsLoading(false);
+  //     return;
+  //   }
+  //   setTimeout(() => {
+  //     if (currentUser) {
+  //       setIsLoading(false);
+  //     } else if (isLoading) {
+  //       navigate('/intro');
+  //     }
+  //   }, 3000);
+  // }, [currentUser]);
 
-    Meteor.call('registerUser', values, (error, respond) => {
-      if (error) {
-        console.log('error!!');
-        console.log(error);
-        errorDialog(error.reason);
-        this.setState({ isLoading: false });
-        return;
-      }
-      successDialog('Your account is successfully created');
-      this.signIn(values);
-      this.setState({
-        isLoading: false,
-        loginScreenOpen: false,
-      });
-    });
-  };
+  // if (isLoading) {
+  //   return (
+  //     <HeroSlide>
+  //       <Flex justify="center" style={{ height: '100vh' }}>
+  //         <Flex align="center" direction="column">
+  //           <NiceShelf width={192} height={192} color="#3e3e3e" />
+  //           <img
+  //             src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
+  //             alt="Librella"
+  //             width={210}
+  //             height={45}
+  //           />
+  //         </Flex>
+  //       </Flex>
+  //     </HeroSlide>
+  //   );
+  // }
 
-  signIn = (values) => {
-    if (values) {
-      Meteor.loginWithPassword(values.username, values.password, (error) => {
-        if (error) {
-          errorDialog(error);
-          console.log(error);
-        }
-      });
-    } else {
-      const { username, password } = this.state;
-      if (!username || !password) {
-        return;
-      }
+  return (
+    <div>
+      <NavBar backArrow={false}>Welcome to Librella</NavBar>
 
-      Meteor.loginWithPassword(username, password, (error) => {
-        if (error) {
-          errorDialog(error);
-          console.log(error);
-        }
-      });
-    }
-  };
+      <HomeWidget
+        title="homeWidget1Title"
+        message="homeWidget1Message"
+        buttonText="homeWidget1ButtonText"
+        redirectPath="/discover"
+      />
 
-  signOut = () => {
-    Meteor.logout();
-  };
+      <HomeWidget
+        title="homeWidget2Title"
+        message="homeWidget2Message"
+        buttonText="homeWidget2ButtonText"
+        redirectPath="/add"
+      />
 
-  forgotPassword = () => {};
+      <HomeWidget
+        title="homeWidget3Title"
+        message="homeWidget3Message"
+        buttonText="homeWidget3ButtonText"
+        redirectPath="/messages"
+      />
 
-  openLoginScreen = () => {
-    this.setState({
-      loginScreenOpen: true,
-    });
-  };
-
-  closeScreen = () => {
-    this.setState({
-      loginScreenOpen: false,
-    });
-  };
-
-  redirectTo = (route) => {
-    this.setState({
-      redirectTo: route,
-    });
-  };
-
-  handleSplashFinish = () => {
-    this.setState({
-      splashOver: true,
-    });
-  };
-
-  render() {
-    const { currentUser, userLoading } = this.context;
-
-    if (!currentUser) {
-      // return redirect("/intro");
-    }
-
-    return (
-      <div>
-        <NavBar backArrow={false}>Welcome to Librella</NavBar>
-
-        <HomeWidget
-          title="homeWidget1Title"
-          message="homeWidget1Message"
-          buttonText="homeWidget1ButtonText"
-          redirectPath="/discover"
-        />
-
-        <HomeWidget
-          title="homeWidget2Title"
-          message="homeWidget2Message"
-          buttonText="homeWidget2ButtonText"
-          redirectPath="/add"
-        />
-
-        <HomeWidget
-          title="homeWidget3Title"
-          message="homeWidget3Message"
-          buttonText="homeWidget3ButtonText"
-          redirectPath="/messages"
-        />
-
-        {/* <WhiteSpace size="lg" />
+      {/* <WhiteSpace size="lg" />
         <WhiteSpace size="lg" /> */}
 
-        <AppTabBar />
-      </div>
-    );
-  }
+      <AppTabBar />
+    </div>
+  );
 }
 
 function HomeWidget({ title, message, redirectPath, buttonText }) {
@@ -163,7 +108,5 @@ function HomeWidget({ title, message, redirectPath, buttonText }) {
     </Flex>
   );
 }
-
-Home.contextType = UserContext;
 
 export default Home;

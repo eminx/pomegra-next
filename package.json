@@ -7,7 +7,8 @@
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
     "visualize": "meteor run --settings settings.json --extra-packages bundle-visualizer --production",
     "lint": "eslint .",
-    "pretest": "npm run lint --silent"
+    "pretest": "npm run lint --silent",
+    "deploy": "DEPLOY_HOSTNAME=eu-west-1.galaxy-deploy.meteor.com meteor deploy --settings settings.json librella.app"
   },
   "dependencies": {
     "@babel/runtime": "^7.20.7",

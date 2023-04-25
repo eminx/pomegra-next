@@ -43,14 +43,16 @@ function Profile() {
 
       <Box>
         <AutoCenter>
-          <Subtitle isSize={5} style={{ textAlign: 'center' }}>
-            {(currentUser.firstName && currentUser.firstName) +
-              ' ' +
-              (currentUser.lastName && currentUser.lastName)}
-          </Subtitle>
-          <Text fontSize="md" textAlign="center">
-            {currentUser.bio}
-          </Text>
+          {currentUser.firstName && currentUser.lastName && (
+            <Subtitle isSize={5} style={{ textAlign: 'center' }}>
+              {currentUser.firstName + ' ' + currentUser.lastName}
+            </Subtitle>
+          )}
+          {currentUser.bio && (
+            <Text fontSize="md" textAlign="center">
+              {currentUser.bio}
+            </Text>
+          )}
         </AutoCenter>
       </Box>
 
