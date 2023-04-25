@@ -49,8 +49,6 @@ function PublicProfile() {
     return null;
   }
 
-  console.log(books);
-
   return (
     <div style={{ height: '100%', marginBottom: 80 }}>
       <NavBar backArrow={false}>{user.username}</NavBar>
@@ -101,27 +99,30 @@ function PublicProfile() {
         <Heading size="md" textAlign="center">
           Books
         </Heading>
-        <List style={{ marginBottom: 80 }}>
-          {books.map((book) => (
-            <ListItem
-              key={book._id}
-              extra={book.category}
-              onClick={() => navigate(`/book/${book._id}`)}
-            >
-              <Flex w="100%" fontSize="0.9em">
-                <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
-                <Box>
-                  <Text>
-                    <b>{book.title}</b>
-                  </Text>
-                  <Text>
-                    {book.authors && book.authors.map((author) => <div key={author}>{author}</div>)}
-                  </Text>
-                </Box>
-              </Flex>
-            </ListItem>
-          ))}
-        </List>
+        {books && (
+          <List style={{ marginBottom: 80 }}>
+            {books.map((book) => (
+              <ListItem
+                key={book._id}
+                extra={book.category}
+                onClick={() => navigate(`/book/${book._id}`)}
+              >
+                <Flex w="100%" fontSize="0.9em">
+                  <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
+                  <Box>
+                    <Text>
+                      <b>{book.title}</b>
+                    </Text>
+                    <Text>
+                      {book.authors &&
+                        book.authors.map((author) => <div key={author}>{author}</div>)}
+                    </Text>
+                  </Box>
+                </Flex>
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Box>
 
       <AppTabBar />

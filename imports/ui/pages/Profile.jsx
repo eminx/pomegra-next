@@ -1,4 +1,5 @@
 import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AutoCenter, Button, NavBar, Popup, Tag } from 'antd-mobile';
 import { Avatar, Box, Center, Heading, Image, Flex, Stack, Text } from '@chakra-ui/react';
 import { Title, Subtitle } from 'bloomer';
@@ -26,6 +27,14 @@ function Profile() {
   return (
     <div style={{ height: '100%', marginBottom: 80 }}>
       <NavBar backArrow={false}>My Profile</NavBar>
+
+      <Center>
+        <Link to={`/${currentUser.username}`}>
+          <Button size="small" color="success">
+            See public profile
+          </Button>
+        </Link>
+      </Center>
 
       <Box p="2" mt="4">
         <Center>
