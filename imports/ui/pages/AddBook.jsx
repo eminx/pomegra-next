@@ -148,10 +148,6 @@ function AddBook() {
     // });
   };
 
-  if (!currentUser) {
-    return null;
-  }
-
   return (
     <div>
       <NavBar onBack={() => navigate('/')}>Add book to your shelf</NavBar>

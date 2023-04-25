@@ -157,7 +157,7 @@ Meteor.methods({
     }
   },
 
-  updateProfileImage: (newImage) => {
+  setProfileImage: (newImage) => {
     const currentUser = Meteor.user();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');

@@ -3,16 +3,16 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 import { Field, Control, Button, Subtitle } from 'bloomer';
-import { ImageUploader } from 'antd-mobile';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { FadeInUp } from 'animate-components';
 import { shallowEqualArrays } from 'shallow-equal';
-import { Flex } from '@chakra-ui/react';
+import { Center, Flex } from '@chakra-ui/react';
 
 import HeroSlide from '../components/HeroSlide';
 import LoginForm from '../components/LoginForm';
+import FilePicker from '../components/FilePicker';
 
 import allLanguages from '../../api/_utils/langs/allLanguages';
 
@@ -50,8 +50,11 @@ class Intro extends Component {
     lastName: '',
     bio: '',
     languages: [],
-    images: null,
-    images: [],
+    avatar: null,
+    image: {
+      uploadableImageLocal: null,
+      uploadableImage: null,
+    },
     savingAvatar: false,
     savingCover: false,
     searchValue: '',
@@ -89,8 +92,7 @@ class Intro extends Component {
       lastName: currentUser.lastName || '',
       bio: currentUser.bio || '',
       languages: currentUser.languages || [],
-      avatar: currentUser.avatar || null,
-      coverImages: currentUser.coverImages || [],
+      avatar: currentUser.images && currentUser.images[0],
     });
   };
 
@@ -185,7 +187,8 @@ class Intro extends Component {
         errorDialog(error.reason);
         return;
       } else {
-        this.setState({ isLogin: false });
+        this.setState({ isLogin: false, isLoading: false });
+        successDialog('Successfullt logged in');
         this.slider.slickGoTo(1, true);
       }
     });
@@ -233,7 +236,7 @@ class Intro extends Component {
 
     try {
       await call('updateProfile', values, languages);
-      successDialog('Your profile is successfully updated', 2);
+      successDialog('Your profile is successfully updated');
       this.goNext();
     } catch (error) {
       console.log(error);
@@ -241,23 +244,32 @@ class Intro extends Component {
     }
   };
 
-  handleAvatarPick = (images, type, index) => {
-    if (type === 'remove') {
-      this.setState({
-        avatar: null,
-      });
+  setUploadableImage = (files) => {
+    if (files.length > 1) {
+      message.error('Please select only one file');
       return;
     }
-    this.setState({
-      avatar: images[0],
-    });
+
+    const uploadableImage = files[0];
+    const reader = new FileReader();
+    reader.readAsDataURL(uploadableImage);
+    reader.addEventListener(
+      'load',
+      () => {
+        const image = {
+          uploadableImage,
+          uploadableImageLocal: reader.result,
+        };
+        this.setState({ image });
+      },
+      false
+    );
   };
 
-  saveAvatar = async () => {
-    const { avatar } = this.state;
+  handleUploadImage = async () => {
+    const { avatar, image } = this.state;
 
-    const { currentUser } = this.props;
-    if (currentUser.avatar) {
+    if (avatar && !image.uploadableImage) {
       this.goNext();
       return;
     }
@@ -266,26 +278,20 @@ class Intro extends Component {
       savingAvatar: true,
     });
 
+    const { uploadableImage } = this.state.image;
     try {
-      const resizedAvatar = await resizeImage(avatar.file, 300);
-      const uploadedAvatar = await uploadImage(resizedAvatar, 'profileImageUpload');
-      const avatarToSave = {
-        name: avatar.file.name,
-        url: uploadedAvatar,
-        uploadDate: new Date(),
-      };
-      await call('setNewAvatar', avatarToSave);
-      this.setState({
-        isUploading: false,
-      });
-      this.goNext();
+      const resizedImage = await resizeImage(uploadableImage, 600);
+      const uploadedImage = await uploadImage(resizedImage, 'profileImageUpload');
+      await call('setProfileImage', uploadedImage);
+      successDialog('Your new image is set');
     } catch (error) {
-      console.log(error);
+      console.log('Error uploading:', error);
       errorDialog(error.reason);
     } finally {
       this.setState({
         savingAvatar: false,
       });
+      this.goNext();
     }
   };
 
@@ -324,38 +330,6 @@ class Intro extends Component {
     }));
   };
 
-  saveCoverImages = async () => {
-    const { coverImages } = this.state;
-    const { currentUser } = this.props;
-
-    if (currentUser.coverImages) {
-      this.goNext();
-      return;
-    }
-
-    this.setState({
-      savingCover: true,
-    });
-
-    try {
-      const imagesReadyToSave = await Promise.all(
-        coverImages.map(async (cover, index) => {
-          const resizedImage = await resizeImage(cover.file, 1200);
-          const uploadedImage = await uploadImage(resizedImage, 'coverUpload');
-          return uploadedImage;
-        })
-      );
-      await call('setNewCoverImages', imagesReadyToSave);
-    } catch (error) {
-      console.error('Error uploading:', error);
-      errorDialog(error.reason);
-    } finally {
-      this.setState({
-        savingCover: false,
-      });
-    }
-  };
-
   searchBook = (event) => {
     event && event.preventDefault();
     const { searchValue } = this.state;
@@ -390,7 +364,7 @@ class Intro extends Component {
     const { insertedBooks, searchResults } = this.state;
     try {
       await call('insertBook', book);
-      successDialog('Book is successfully added to your virtual shelf', 1);
+      successDialog('Book is successfully added to your virtual shelf');
       this.setState({
         searchValue: '',
         openBook: null,
@@ -439,16 +413,15 @@ class Intro extends Component {
     const { currentUser } = this.props;
     const {
       email,
+      avatar,
       username,
       password,
       firstName,
       lastName,
       bio,
       languages,
-      avatar,
       savingAvatar,
-      coverImages,
-      savingCover,
+      image,
       searchValue,
       searchResults,
       isSearching,
@@ -588,9 +561,9 @@ class Intro extends Component {
         </HeroSlide>
 
         <InfoForm
+          bio={bio}
           firstName={firstName}
           lastName={lastName}
-          bio={bio}
           onFirstNameChange={(e) => this.setState({ firstName: e.target.value })}
           onLastNameChange={(e) => this.setState({ lastName: e.target.value })}
           onBioChange={(e) => this.setState({ bio: e.target.value })}
@@ -599,38 +572,33 @@ class Intro extends Component {
 
         <LanguageSelector
           languages={languages}
+          profileUnchanged={profileUnchanged}
           onLanguageSelect={this.handleLanguageSelect}
           onDeleteClick={(language) => this.handleRemoveLanguage(language)}
           onButtonClick={this.saveInfo}
-          profileUnchanged={profileUnchanged}
+          onSkip={() => this.goNext()}
         />
 
-        <HeroSlide subtitle="Great! Now let's get an avatar for you" isColor="dark">
+        <HeroSlide isColor="dark" isSkip subtitle="Great! Now let's get an avatar for you">
           <Field>
-            <div style={{ maxWidth: 160, margin: '0 auto' }}>
-              <ImageUploader
-                value={avatar ? [avatar] : []}
-                onChange={this.handleAvatarPick}
-                selectable={!avatar}
-                accept="image/jpeg,image/jpg,image/png"
-                multiple={false}
-                length={1}
+            <Center mb="8">
+              <FilePicker
+                imageUrl={avatar}
+                height="120px"
+                width="120px"
+                uploadableImageLocal={image?.uploadableImageLocal}
+                setUploadableImage={this.setUploadableImage}
               />
-            </div>
+            </Center>
 
             <Control style={{ paddingTop: 24 }}>
               <Button
-                disabled={!avatar || savingAvatar}
-                onClick={this.saveAvatar}
+                disabled={(!image.uploadableImage && !avatar) || savingAvatar}
+                onClick={this.handleUploadImage}
                 className="is-rounded"
                 isPulled="right"
               >
-                {currentUser.avatar
-                  ? 'Continue'
-                  : savingAvatar
-                  ? 'Saving Avatar... '
-                  : 'Save Avatar'}
-                {/* <ActivityIndicator animating={savingAvatar} /> */}
+                {avatar ? 'Continue' : savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
               </Button>
             </Control>
           </Field>

@@ -17,8 +17,8 @@ const renderIconRoutes = (messageNotificationCount) => {
       // icon: <GoHome size={iconSize} />,
     },
     {
-      title: 'Lend',
-      path: '/lend',
+      title: 'Discover',
+      path: '/discover',
       // icon: <GoSearch size={iconSize} />,
     },
     {

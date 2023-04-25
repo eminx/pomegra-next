@@ -75,7 +75,7 @@ function RequestsList() {
     return foundContext?.count;
   };
 
-  const { requests, filterValue, requestType } = state;
+  const { requests, filterValue } = state;
 
   if (!requests || !currentUser) {
     return <div>Loading...</div>;
@@ -127,18 +127,16 @@ function RequestsList() {
             onClick={() => navigate(`/request/${request._id}`)}
           >
             <Flex>
-              <Image mr="4" bg="purple.50" fit="contain" w="48px" src={request.bookImage} />
-              <Box w="100%">
-                <Badge content={getNotificationsCount(request)}>
-                  <Box>
-                    <b>
-                      {currentUser.username === request.ownerUsername
-                        ? request.requesterUsername
-                        : request.ownerUsername}
-                    </b>
-                    <Text>{request.bookTitle}</Text>
-                  </Box>
-                </Badge>
+              <Badge bordered content={getNotificationsCount(request)}>
+                <Image mr="8" bg="purple.50" fit="contain" w="48px" src={request.bookImage} />
+              </Badge>
+              <Box w="100%" fontSize=".8em">
+                <b>
+                  {currentUser.username === request.ownerUsername
+                    ? request.requesterUsername
+                    : request.ownerUsername}
+                </b>
+                <Text>{request.bookTitle}</Text>
               </Box>
             </Flex>
           </ListItem>

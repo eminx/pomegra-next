@@ -1,14 +1,23 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { IntlProvider } from 'react-intl';
 import { ChakraProvider, Box, Center } from '@chakra-ui/react';
 
-export const UserContext = React.createContext(null);
+export const UserContext = createContext(null);
 
 import messages from '../api/_utils/langs/en';
 
 function Layout({ currentUser, userLoading, children }) {
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    setTimeout(() => {
+      if (currentUser) {
+        setIsLoading(false);
+      }
+    }, 5000);
+  }, []);
+
   return (
     <IntlProvider locale="en" messages={messages}>
       <UserContext.Provider value={{ currentUser, userLoading }}>

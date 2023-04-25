@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { NavBar, List } from 'antd-mobile';
+import { Box, Flex, Image, Text } from '@chakra-ui/react';
 import AppTabBar from '../components/AppTabBar';
 
 const ListItem = List.Item;
@@ -9,6 +10,7 @@ const ListItem = List.Item;
 function Discover() {
   const [books, setBooks] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     Meteor.call('getDiscoverBooks', (error, respond) => {
@@ -33,22 +35,27 @@ function Discover() {
 
   return (
     <div name="books">
-      <NavBar backArrow={false}>Lend Books</NavBar>
+      <NavBar backArrow={false}>Discover Books</NavBar>
       {books && books.length > 0 && (
         <List>
           {books.map((suggestedBook) => (
             <ListItem
               key={suggestedBook._id}
-              align="top"
-              thumb={<img style={{ width: 33, height: 44 }} src={suggestedBook.imageUrl} />}
-              multipleLine
               extra={suggestedBook.category}
+              onClick={() => navigate(`/book/${suggestedBook._id}`)}
             >
-              <Link to={`/book/${suggestedBook._id}`}>
-                <b>{suggestedBook.title}</b>
-                {suggestedBook.authors &&
-                  suggestedBook.authors.map((author) => <div key={author}>{author}</div>)}
-              </Link>
+              <Flex w="100%" fontSize="0.9em">
+                <Image mr="4" bg="purple.50" fit="contain" w="48px" src={suggestedBook.imageUrl} />
+                <Box>
+                  <Text>
+                    <b>{suggestedBook.title}</b>
+                  </Text>
+                  <Text>
+                    {suggestedBook.authors &&
+                      suggestedBook.authors.map((author) => <div key={author}>{author}</div>)}
+                  </Text>
+                </Box>
+              </Flex>
             </ListItem>
           ))}
         </List>

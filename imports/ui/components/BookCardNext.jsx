@@ -1,12 +1,12 @@
 import React, { PureComponent } from 'react';
 import { Title, Subtitle, Container, Heading, Button } from 'bloomer';
-import { Flex } from '@chakra-ui/react';
+import { Center, Flex } from '@chakra-ui/react';
 
 import { parseUrlForSSL, parseAuthors } from '../../api/_utils/functions';
 import allLanguages from '../../api/_utils/langs/allLanguages';
 
 const imageContainerStyle = {
-  flexBasis: '20vw',
+  flexBasis: '20%',
   flexGrow: 0,
   flexShrink: 1,
   minWidth: 120,
@@ -16,7 +16,7 @@ const imageContainerStyle = {
 const containerStyle = {
   padding: 12,
   paddingBottom: 24,
-  width: '100vw',
+  width: '100%',
   marginBottom: 24,
   boxShadow: '0 0 12px rgba(120, 120, 120, 0.6)',
   overflowY: 'hidden',
@@ -111,6 +111,19 @@ class BookCardNext extends PureComponent {
             onClick={onClickBook}
             style={{ cursor: 'pointer' }}
           >
+            <div style={imageContainerStyle}>
+              <img
+                src={volumeInfo.imageLinks && parseUrlForSSL(volumeInfo.imageLinks.thumbnail)}
+                width={120}
+                alt={volumeInfo.title}
+                style={{
+                  marginRight: 12,
+                  backgroundColor: 'coral',
+                  maxHeight: 180,
+                }}
+                onLoad={() => this.setMaxHeight()}
+              />
+            </div>
             <Flex direction="column" justify="between" align="start" style={{ flexGrow: 1 }}>
               <div style={{ flexGrow: 1 }}>
                 <Title
@@ -143,20 +156,6 @@ class BookCardNext extends PureComponent {
                 </Heading>
               </div>
             </Flex>
-
-            <div style={imageContainerStyle}>
-              <img
-                src={volumeInfo.imageLinks && parseUrlForSSL(volumeInfo.imageLinks.thumbnail)}
-                width={120}
-                alt={volumeInfo.title}
-                style={{
-                  marginRight: 12,
-                  backgroundColor: 'coral',
-                  maxHeight: 180,
-                }}
-                onLoad={() => this.setMaxHeight()}
-              />
-            </div>
           </Flex>
         </div>
 
@@ -164,20 +163,21 @@ class BookCardNext extends PureComponent {
           <Flex justify="center" direction="column">
             <Subtitle
               isSize={6}
-              hasTextColor={isDark ? 'light' : 'dark'}
+              // hasTextColor={isDark ? 'light' : 'dark'}
               style={{ marginBottom: 5, textAlign: 'center', marginBottom: 12 }}
             >
               Have this book?
             </Subtitle>
-            <Button
-              isColor={isDark ? 'light' : 'dark'}
-              isInverted
-              isSize="small"
-              style={{ marginBottom: 24 }}
-              onClick={onButtonClick}
-            >
-              {buttonText}
-            </Button>
+            <Center px="4">
+              <Button
+                isColor={isDark ? 'light' : 'dark'}
+                // isInverted
+                style={{ marginBottom: 24 }}
+                onClick={onButtonClick}
+              >
+                {buttonText}
+              </Button>
+            </Center>
           </Flex>
 
           <Container hasTextColor={isDark ? 'light' : 'dark'}>

@@ -51,7 +51,7 @@ function BookDetailTobeRequested() {
 
   return (
     <>
-      <NavBar mode="light" onBack={() => navigate('/lend')}>
+      <NavBar mode="light" onBack={() => navigate('/discover')}>
         Details
       </NavBar>
 

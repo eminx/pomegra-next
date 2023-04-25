@@ -128,9 +128,9 @@ function MyShelf() {
             >
               <Flex>
                 <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
-                <Box>
+                <Box fontSize=".9em">
                   <b>{book.title}</b>
-                  {book.authors.map((author) => (
+                  {book.authors?.map((author) => (
                     <div key={author}>{author}</div>
                   ))}
                 </Box>
@@ -143,14 +143,14 @@ function MyShelf() {
       )}
 
       {books && books.length === 0 && (
-        <Space>
+        <Box>
           <Title isSize={4} hasTextAlign="centered">
             No books
           </Title>
           <Subtitle isSize={6} hasTextAlign="centered">
             You don't have any books in your shelf yet. Please add new books
           </Subtitle>
-        </Space>
+        </Box>
       )}
 
       <AppTabBar />

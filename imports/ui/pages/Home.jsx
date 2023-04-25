@@ -110,7 +110,7 @@ class Home extends Component {
           title="homeWidget1Title"
           message="homeWidget1Message"
           buttonText="homeWidget1ButtonText"
-          redirectPath="/lend"
+          redirectPath="/discover"
         />
 
         <HomeWidget

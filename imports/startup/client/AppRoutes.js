@@ -47,7 +47,7 @@ const routes = [
     exact: true,
   },
   {
-    path: '/lend',
+    path: '/discover',
     element: <Discover />,
     exact: true,
   },

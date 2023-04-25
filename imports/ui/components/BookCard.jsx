@@ -62,6 +62,12 @@ const BookCard = ({ book }) => {
               </td>
               <td>{book.publisher}</td>
             </tr>
+            <tr>
+              <td>
+                <LightSpan>publish date</LightSpan>
+              </td>
+              <td>{book.publishedDate}</td>
+            </tr>
           </tbody>
         </Table>
       </Flex>

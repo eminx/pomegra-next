@@ -44,9 +44,9 @@ function Profile() {
       <Box>
         <AutoCenter>
           <Subtitle isSize={5} style={{ textAlign: 'center' }}>
-            {(currentUser.firstName ? currentUser.firstName : null) +
+            {(currentUser.firstName && currentUser.firstName) +
               ' ' +
-              (currentUser.lastName ? currentUser.lastName : null)}
+              (currentUser.lastName && currentUser.lastName)}
           </Subtitle>
           <Text fontSize="md" textAlign="center">
             {currentUser.bio}
@@ -56,7 +56,7 @@ function Profile() {
 
       <Box py="4">
         <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
-          Reads in:
+          reads in:
         </Subtitle>
         <Stack direction="row" justify="center" wrap="wrap">
           {currentUser?.languages?.map((language) => (

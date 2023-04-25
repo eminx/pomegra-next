@@ -54,7 +54,7 @@ function EditProfile({ currentUser }) {
     try {
       const resizedImage = await resizeImage(uploadableImage, 600);
       const uploadedImage = await uploadImage(resizedImage, 'profileImageUpload');
-      await call('updateProfileImage', uploadedImage);
+      await call('setProfileImage', uploadedImage);
       successDialog('Your new image is set');
     } catch (error) {
       console.log('Error uploading:', error);

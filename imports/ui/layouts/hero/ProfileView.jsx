@@ -1,7 +1,7 @@
 import React from 'react';
-import { Divider, Swiper } from 'antd-mobile';
+import { Divider } from 'antd-mobile';
 import { Subtitle, Button } from 'bloomer';
-import { Avatar, Image } from '@chakra-ui/react';
+import { Avatar } from '@chakra-ui/react';
 import HeroSlide from '../../components/HeroSlide';
 import { Title } from 'bloomer/lib/elements/Title';
 
@@ -11,12 +11,13 @@ const ProfileView = ({ currentUser, onButtonClick }) => {
   }
   return (
     <HeroSlide
-      isPaddingless
       isColor="dark"
+      isPaddingless
+      isSkip
       hasTextColor="light"
       className="no-padding-hero align-start"
     >
-      {currentUser.coverImages && currentUser.coverImages.length > 0 && (
+      {/* {currentUser.coverImages && currentUser.coverImages.length > 0 && (
         <Swiper autoplay infinite style={{ width: '100vw' }}>
           {currentUser.coverImages.map((image) => (
             <Image
@@ -32,7 +33,7 @@ const ProfileView = ({ currentUser, onButtonClick }) => {
         </Swiper>
       )}
 
-      <Divider />
+      <Divider /> */}
 
       <div
         style={{
@@ -58,9 +59,11 @@ const ProfileView = ({ currentUser, onButtonClick }) => {
 
         <Divider />
 
-        <Button onClick={onButtonClick} className="is-rounded" isPulled="right" isColor="success">
+        <Button className="is-rounded" isPulled="right" isColor="success" onClick={onButtonClick}>
           Add Books
         </Button>
+
+        <Divider />
       </div>
     </HeroSlide>
   );

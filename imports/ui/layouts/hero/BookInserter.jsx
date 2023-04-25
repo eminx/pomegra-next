@@ -1,22 +1,22 @@
-import React from "react";
-import { Field, Control, Input, Button } from "bloomer";
-import { Divider } from "antd-mobile";
-import { FadeInUp } from "animate-components";
-import { Flex } from "@chakra-ui/react";
+import React from 'react';
+import { Field, Control, Input, Button } from 'bloomer';
+import { Divider } from 'antd-mobile';
+import { FadeInUp } from 'animate-components';
+import { Flex } from '@chakra-ui/react';
 
-import HeroSlide from "../../components/HeroSlide";
-import BookCardNext from "../../components/BookCardNext";
+import HeroSlide from '../../components/HeroSlide';
+import BookCardNext from '../../components/BookCardNext';
 
 const getTextForLastSlide = (insertedBooks) => {
   switch (insertedBooks) {
     case 0:
-      return "Please search for a book to add";
+      return 'Please search for a book to add';
     case 1:
-      return "Great! We need to have two more books from your shelf.";
+      return 'Great! We need to have two more books from your shelf.';
     case 2:
-      return "Amazing! You are almost done! Only one left to start using...";
+      return 'Amazing! You are almost done! Only one left to start using...';
     case 3:
-      return "Well done! You may continue filling up your virtual shelf, or start discovering";
+      return 'Well done! You may continue filling up your virtual shelf, or start discovering';
   }
 };
 
@@ -34,13 +34,13 @@ const BookInserter = ({
 }) => (
   <HeroSlide
     subtitle={getTextForLastSlide(insertedBooks)}
-    isColor={searchResults ? "white" : "dark"}
+    isColor={searchResults ? 'white' : 'dark'}
     hasTextColor="light"
   >
     <div>
       <form onSubmit={onSearch}>
         <Field>
-          <Control style={{ position: "relative" }}>
+          <Control style={{ position: 'relative' }}>
             <Input
               type="test"
               placeholder="book title, author, ISBN etc"
@@ -51,10 +51,10 @@ const BookInserter = ({
             />
             <div
               style={{
-                position: "absolute",
+                position: 'absolute',
                 right: 12,
                 top: 10,
-                display: "inline",
+                display: 'inline',
               }}
             >
               {/* <ActivityIndicator animating={isSearching} /> */}
@@ -84,7 +84,7 @@ const BookInserter = ({
       </form>
     </div>
 
-    <Divider />
+    {/* <Divider /> */}
 
     <div style={{ paddingTop: 24 }}>
       {searchResults &&
@@ -103,7 +103,7 @@ const BookInserter = ({
         ))}
     </div>
 
-    <Divider />
+    {/* <Divider /> */}
 
     <div>
       {insertedBooks === 3 && (
