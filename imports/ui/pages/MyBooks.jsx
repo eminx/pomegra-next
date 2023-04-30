@@ -123,7 +123,11 @@ function MyShelf() {
           {filteredSortedBooks.map((book) => (
             <ListItem
               key={book._id}
-              extra={book.category}
+              extra={
+                <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
+                  {book.category}
+                </Box>
+              }
               onClick={() => navigate(`/my-shelf/${book._id}`)}
             >
               <Flex>

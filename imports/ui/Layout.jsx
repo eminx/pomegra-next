@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
 import { ChakraProvider, Box, Center } from '@chakra-ui/react';
 
@@ -9,6 +10,13 @@ export const UserContext = createContext(null);
 import messages from '../api/_utils/langs/en';
 
 function Layout({ currentUser, userLoading, children }) {
+  const location = useLocation();
+  const { pathname } = location;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
   return (
     <IntlProvider locale="en" messages={messages}>
       <UserContext.Provider value={{ currentUser, userLoading }}>

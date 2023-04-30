@@ -24,6 +24,7 @@
     "framer-motion": "^10.11.2",
     "meteor-node-stubs": "^1.2.5",
     "moment": "^2.29.4",
+    "query-string": "^8.1.0",
     "rc-form": "^2.4.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

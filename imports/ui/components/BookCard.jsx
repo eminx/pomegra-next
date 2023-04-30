@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card } from 'antd-mobile';
+import { Button, Card } from 'antd-mobile';
 import { Table } from 'bloomer';
 import { Box, Center, Flex, Heading, Text } from '@chakra-ui/react';
 
@@ -8,7 +8,7 @@ import allLanguages from '../../api/_utils/langs/allLanguages';
 
 const cardStyle = { boxShadow: 'rgb(255 241 252) 0px 0px 24px 10px' };
 
-function BookCard({ book }) {
+function BookCard({ book, buttonLabel, onButtonClick }) {
   const bookLang = allLanguages.find((l) => {
     return l.value === book.language;
   });
@@ -73,26 +73,37 @@ function BookCard({ book }) {
           </tbody>
         </Table>
       </Flex>
-      <Box py="8">
+
+      <Box py="4">
+        <Button color="primary" block onClick={onButtonClick}>
+          {buttonLabel}
+        </Button>
+      </Box>
+
+      <Box>
         <Text fontSize="sm">{book.description}</Text>
       </Box>
     </Card>
   );
 }
 
-const BookTitle = ({ book }) => (
-  <Center mb="4">
-    <Box>
-      <Heading fontWeight="bold" size="lg" textAlign="center">
-        {book.title}
-      </Heading>
-      <Heading fontWeight="normal" size="md" textAlign="center">
-        {book.authors && parseAuthors(book.authors)}
-      </Heading>
-    </Box>
-  </Center>
-);
+function BookTitle({ book }) {
+  return (
+    <Center mb="4">
+      <Box>
+        <Heading fontWeight="bold" size="lg" textAlign="center">
+          {book.title}
+        </Heading>
+        <Heading fontWeight="normal" size="md" textAlign="center">
+          {book.authors && parseAuthors(book.authors)}
+        </Heading>
+      </Box>
+    </Center>
+  );
+}
 
-const LightSpan = ({ children }) => <span style={{ color: '#888' }}>{children}</span>;
+function LightSpan({ children }) {
+  return <span style={{ color: '#888' }}>{children}</span>;
+}
 
 export { BookCard, BookTitle, LightSpan };

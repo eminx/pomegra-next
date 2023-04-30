@@ -123,20 +123,26 @@ function RequestsList() {
         {filteredRequests?.map((request) => (
           <ListItem
             key={request._id}
-            extra={request?.dateRequested?.toLocaleDateString()}
+            extra={
+              <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
+                {request?.dateRequested?.toLocaleDateString()}
+              </Box>
+            }
             onClick={() => navigate(`/request/${request._id}`)}
           >
             <Flex>
               <Badge bordered content={getNotificationsCount(request)}>
                 <Image mr="8" bg="purple.50" fit="contain" w="48px" src={request.bookImage} />
               </Badge>
-              <Box w="100%" fontSize=".8em">
-                <b>
-                  {currentUser.username === request.ownerUsername
-                    ? request.requesterUsername
-                    : request.ownerUsername}
-                </b>
-                <Text>{request.bookTitle}</Text>
+              <Box w="100%" fontSize=".9em">
+                <Text>
+                  <b>
+                    {currentUser.username === request.ownerUsername
+                      ? request.requesterUsername
+                      : request.ownerUsername}
+                  </b>
+                </Text>
+                <Text fontSize="sm">{request.bookTitle}</Text>
               </Box>
             </Flex>
           </ListItem>

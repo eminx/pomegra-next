@@ -42,7 +42,7 @@ function Discover() {
             <ListItem
               key={suggestedBook._id}
               extra={
-                <Box maxWidth="80px" textAlign="right" fontSize="12px" wordWrap="normal">
+                <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
                   {suggestedBook.category}
                 </Box>
               }

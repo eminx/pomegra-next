@@ -64,13 +64,7 @@ function MyBook() {
       </NavBar>
 
       <Box p="4" pt="0">
-        <BookCard book={book} />
-      </Box>
-
-      <Box px="4">
-        <Button color="primary" block onClick={() => setIsEditDialogOpen(true)}>
-          Edit
-        </Button>
+        <BookCard book={book} buttonLabel="Edit" onButtonClick={() => setIsEditDialogOpen(true)} />
       </Box>
 
       <Popup

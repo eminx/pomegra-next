@@ -1,8 +1,9 @@
 import { Meteor } from 'meteor/meteor';
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Icon, NavBar } from 'antd-mobile';
-import { Box } from '@chakra-ui/react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Button, NavBar } from 'antd-mobile';
+import { Avatar, Box, Center, Text } from '@chakra-ui/react';
+import queryString from 'query-string';
 
 import { BookCard } from '../components/BookCard';
 import { errorDialog, successDialog } from '../../api/_utils/functions';
@@ -13,6 +14,7 @@ function BookDetailTobeRequested() {
   const [requestSuccess, setRequestSuccess] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const location = useLocation();
   const { currentUser } = useContext(UserContext);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -40,6 +42,15 @@ function BookDetailTobeRequested() {
     });
   };
 
+  const handleBack = () => {
+    const { search } = location;
+    const { backToUser } = queryString.parse(search, { parseBooleans: true });
+    if (backToUser) {
+      return navigate(`/${book.ownerUsername}`);
+    }
+    return navigate('/discover');
+  };
+
   if (requestSuccess) {
     return navigate(`/request/${requestSuccess}`);
   }
@@ -51,18 +62,26 @@ function BookDetailTobeRequested() {
 
   return (
     <>
-      <NavBar onBack={() => navigate('/discover')}>
+      <NavBar
+        right={
+          <Link to={`/${book.ownerUsername}`}>
+            <Avatar name={book.ownerUsername} src={book.ownerImage} size="sm" borderRadius="4px" />
+          </Link>
+        }
+        onBack={handleBack}
+      >
         <b>{book.title}</b>
       </NavBar>
-
+      <Center pb="2">
+        <Text>owned by: </Text>
+        <Link to={`/${book.ownerUsername}`}>
+          <Button color="primary" fill="none">
+            {book.ownerUsername}
+          </Button>
+        </Link>
+      </Center>
       <Box p="4" pt="0">
-        <BookCard book={book} />
-      </Box>
-
-      <Box px="4" mb="8">
-        <Button color="primary" block onClick={() => makeRequest()}>
-          Ask to Borrow
-        </Button>
+        <BookCard book={book} buttonLabel="Borrow" onButtonClick={() => makeRequest()} />
       </Box>
     </>
   );

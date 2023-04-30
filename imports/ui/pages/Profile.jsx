@@ -25,6 +25,10 @@ function Profile() {
     return navigate(`/${currentUser?.username}`);
   }, [currentUser]);
 
+  if (!currentUser) {
+    return null;
+  }
+
   return (
     <div style={{ height: '100%', marginBottom: 80 }}>
       <NavBar backArrow={false}>My Profile</NavBar>

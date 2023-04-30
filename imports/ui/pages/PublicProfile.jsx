@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AutoCenter, Button, List, NavBar, Popup, Tag } from 'antd-mobile';
 import { Avatar, Box, Center, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
@@ -7,7 +7,8 @@ import { CloseOutline } from 'antd-mobile-icons';
 
 import EditProfile from '../components/EditProfile';
 import AppTabBar from '../components/AppTabBar';
-import { call } from '../../api/_utils/functions';
+import { call, errorDialog, successDialog } from '../../api/_utils/functions';
+import { UserContext } from '../Layout';
 
 const ListItem = List.Item;
 
@@ -21,12 +22,14 @@ function PublicProfile() {
   const [state, setState] = useState({
     books: [],
     user: null,
+    isBookDialogOpen: false,
     isEditDialogOpen: false,
     isLoading: true,
   });
 
   const { username } = useParams();
   const navigate = useNavigate();
+  const { currentUser } = useContext(UserContext);
 
   useEffect(() => {
     getData();
@@ -47,7 +50,7 @@ function PublicProfile() {
     }
   };
 
-  const { books, user, isEditDialogOpen, isLoading } = state;
+  const { books, user, isBookDialogOpen, isEditDialogOpen, isLoading } = state;
 
   if (isLoading || !user) {
     return null;
@@ -59,16 +62,18 @@ function PublicProfile() {
         <b>{user.username}</b>
       </NavBar>
 
-      <Center>
-        <Button
-          color="primary"
-          fill="outline"
-          size="small"
-          onClick={() => setState({ ...state, isEditDialogOpen: true })}
-        >
-          Edit
-        </Button>
-      </Center>
+      {currentUser && currentUser.username === user.username && (
+        <Center>
+          <Button
+            color="primary"
+            fill="outline"
+            size="small"
+            onClick={() => setState({ ...state, isEditDialogOpen: true })}
+          >
+            Edit
+          </Button>
+        </Center>
+      )}
 
       <Box p="2">
         <Center>
@@ -128,8 +133,12 @@ function PublicProfile() {
             {books.map((book) => (
               <ListItem
                 key={book._id}
-                extra={book.category}
-                onClick={() => navigate(`/book/${book._id}`)}
+                extra={
+                  <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
+                    {book.category}
+                  </Box>
+                }
+                onClick={() => navigate(`/book/${book._id}?backToUser=true`)}
               >
                 <Flex w="100%" fontSize="0.9em">
                   <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
