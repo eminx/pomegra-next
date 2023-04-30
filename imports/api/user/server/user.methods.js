@@ -22,9 +22,15 @@ Meteor.methods({
 
   registerUser: (user) => {
     Accounts.createUser({
+      bio: '',
       email: user.email,
-      username: user.username,
+      firstName: '',
+      images: [],
+      lastName: '',
+      languages: [],
+      notifications: [],
       password: user.password,
+      username: user.username,
     });
   },
 
@@ -80,7 +86,7 @@ Meteor.methods({
         if (notifications[contextIdIndex]) {
           notifications[contextIdIndex].count += 1;
         }
-        if (!notifications[contextIdIndex]?.unSeenIndexes) {
+        if (!`notifications`[contextIdIndex]?.unSeenIndexes) {
           notifications[contextIdIndex].unSeenIndexes = [];
         }
         notifications[contextIdIndex]?.unSeenIndexes.push(unSeenIndex);
@@ -137,7 +143,7 @@ Meteor.methods({
           (notification, index) => index !== notificationIndex
         );
       } else {
-        const newUnSeenIndexes = notifications[notificationIndex].unSeenIndexes.filter(
+        const newUnSeenIndexes = notifications[notificationIndex]?.unSeenIndexes.filter(
           (unSeenIndex) => unSeenIndex !== messageIndex
         );
         notifications[notificationIndex].unSeenIndexes = newUnSeenIndexes;

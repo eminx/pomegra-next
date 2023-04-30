@@ -100,7 +100,7 @@ function RequestsList() {
           cancelText="Cancel"
           onChange={(value) => handleFilter(value)}
           onClear={() => setState({ ...state, filterValue: '' })}
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'none', '--background': '#fff' }}
         />
       </Box>
 

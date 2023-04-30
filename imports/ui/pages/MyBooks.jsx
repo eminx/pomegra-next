@@ -75,7 +75,7 @@ function MyShelf() {
   const filteredSortedBooks = sortedBooks && getBooksFiltered(sortedBooks);
 
   return (
-    <div>
+    <>
       <NavBar backArrow={false}>My Shelf</NavBar>
 
       <Center py="4">
@@ -92,7 +92,7 @@ function MyShelf() {
           cancelText="Cancel"
           onChange={(value) => setFilterValue(value)}
           onClear={() => setFilterValue('')}
-          style={{ touchAction: 'none' }}
+          style={{ '--background': '#fff', touchAction: 'none' }}
         />
       </Box>
 
@@ -154,7 +154,7 @@ function MyShelf() {
       )}
 
       <AppTabBar />
-    </div>
+    </>
   );
 }
 

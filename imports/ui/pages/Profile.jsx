@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { AutoCenter, Button, NavBar, Popup, Tag } from 'antd-mobile';
 import { Avatar, Box, Center, Heading, Image, Flex, Stack, Text } from '@chakra-ui/react';
 import { Title, Subtitle } from 'bloomer';
@@ -19,10 +19,11 @@ const imageProps = {
 function Profile() {
   const { currentUser } = useContext(UserContext);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
-  if (!currentUser) {
-    return null;
-  }
+  useEffect(() => {
+    return navigate(`/${currentUser?.username}`);
+  }, [currentUser]);
 
   return (
     <div style={{ height: '100%', marginBottom: 80 }}>
@@ -70,11 +71,18 @@ function Profile() {
           reads in:
         </Subtitle>
         <Stack direction="row" justify="center" wrap="wrap">
-          {currentUser?.languages?.map((language) => (
-            <Tag key={language.value} color="primary" fill="outline" style={{ fontSize: '12px' }}>
-              {language.label.toUpperCase()}{' '}
-            </Tag>
-          ))}
+          {currentUser.languages &&
+            currentUser.languages.length > 0 &&
+            currentUser.languages.map((language) => (
+              <Tag
+                key={language?.value}
+                color="primary"
+                fill="outline"
+                style={{ fontSize: '12px' }}
+              >
+                {language?.label?.toUpperCase()}{' '}
+              </Tag>
+            ))}
         </Stack>
       </Box>
 

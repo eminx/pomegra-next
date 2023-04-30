@@ -155,7 +155,7 @@ function AddBook() {
         <SearchBar
           cancelText="Cancel"
           placeholder="title, author, ISBN etc"
-          style={{ '--height': '42px' }}
+          style={{ '--height': '42px', '--background': '#fff' }}
           value={searchbarInput}
           onChange={(value) => setSearchbarInput(value)}
           onClear={() => setSearchResults([])}

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AutoCenter, List, NavBar, Tag } from 'antd-mobile';
+import { AutoCenter, Button, List, NavBar, Popup, Tag } from 'antd-mobile';
 import { Avatar, Box, Center, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
-import { Title, Subtitle } from 'bloomer';
+import { Subtitle } from 'bloomer';
+import { CloseOutline } from 'antd-mobile-icons';
 
+import EditProfile from '../components/EditProfile';
 import AppTabBar from '../components/AppTabBar';
 import { call } from '../../api/_utils/functions';
 
@@ -19,8 +21,10 @@ function PublicProfile() {
   const [state, setState] = useState({
     books: [],
     user: null,
+    isEditDialogOpen: false,
     isLoading: true,
   });
+
   const { username } = useParams();
   const navigate = useNavigate();
 
@@ -32,7 +36,6 @@ function PublicProfile() {
     try {
       const user = await call('getUserProfile', username);
       const books = await call('getUserBooks', username);
-      console.log(books);
       setState({
         ...state,
         user,
@@ -44,7 +47,7 @@ function PublicProfile() {
     }
   };
 
-  const { books, user, isLoading } = state;
+  const { books, user, isEditDialogOpen, isLoading } = state;
 
   if (isLoading || !user) {
     return null;
@@ -52,9 +55,22 @@ function PublicProfile() {
 
   return (
     <div style={{ height: '100%', marginBottom: 80 }}>
-      <NavBar backArrow={false}>{user.username}</NavBar>
+      <NavBar backArrow={false}>
+        <b>{user.username}</b>
+      </NavBar>
 
-      <Box p="2" mt="4">
+      <Center>
+        <Button
+          color="primary"
+          fill="outline"
+          size="small"
+          onClick={() => setState({ ...state, isEditDialogOpen: true })}
+        >
+          Edit
+        </Button>
+      </Center>
+
+      <Box p="2">
         <Center>
           {user.images ? (
             <Image height="240px" src={user.images[0]} {...imageProps} />
@@ -63,15 +79,15 @@ function PublicProfile() {
           )}
         </Center>
 
-        <Center pt="2">
+        {/* <Center pt="2">
           <Title isSize={5}>{user.username}</Title>
-        </Center>
+        </Center> */}
       </Box>
 
       <Box>
         <AutoCenter>
           {user.firstName && user.lastName && (
-            <Subtitle isSize={5} style={{ textAlign: 'center' }}>
+            <Subtitle isSize={5} style={{ textAlign: 'center', marginBottom: 0 }}>
               {user.firstName + ' ' + user.lastName}
             </Subtitle>
           )}
@@ -84,21 +100,28 @@ function PublicProfile() {
       </Box>
 
       <Box py="2">
-        <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
+        {/* <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
           reads in:
-        </Subtitle>
+        </Subtitle> */}
         <Stack direction="row" justify="center" wrap="wrap">
-          {user?.languages?.map((language) => (
-            <Tag key={language.value} color="primary" fill="outline" style={{ fontSize: '12px' }}>
-              {language.label.toUpperCase()}{' '}
-            </Tag>
-          ))}
+          {user.languages &&
+            user.languages.length > 0 &&
+            user.languages.map((language) => (
+              <Tag
+                key={language?.value}
+                color="primary"
+                fill="outline"
+                style={{ fontSize: '12px' }}
+              >
+                {language?.label?.toUpperCase()}{' '}
+              </Tag>
+            ))}
         </Stack>
       </Box>
 
       <Box py="2">
-        <Heading size="md" textAlign="center">
-          Books
+        <Heading size="md" textAlign="center" mb="2" fontWeight="light">
+          Shelf
         </Heading>
         {books && (
           <List style={{ marginBottom: 80 }}>
@@ -125,6 +148,31 @@ function PublicProfile() {
           </List>
         )}
       </Box>
+
+      <Popup
+        closable
+        bodyStyle={{
+          minHeight: '100vh',
+          maxHeight: '100vh',
+          overflow: 'scroll',
+          padding: 12,
+        }}
+        position="bottom"
+        title="Edit Your Profile"
+        visible={user && isEditDialogOpen}
+        onClose={() => setState({ ...state, isEditDialogOpen: false })}
+      >
+        <Flex justify="space-between" mb="4">
+          <Heading size="md" fontWeight="normal">
+            Edit profile
+          </Heading>
+          <CloseOutline
+            fontSize="24px"
+            onClick={() => setState({ ...state, isEditDialogOpen: false })}
+          />
+        </Flex>
+        <EditProfile currentUser={user} />
+      </Popup>
 
       <AppTabBar />
     </div>

@@ -15,7 +15,7 @@ function Layout({ currentUser, userLoading, children }) {
         <ChakraProvider>
           <Box bg="gray.200" w="100%">
             <Center>
-              <Box bg="white" minHeight="100vh" maxWidth="768px" w="100%">
+              <Box bg="gray.100" minHeight="100vh" maxWidth="768px" mb="48px" w="100%">
                 {children}
               </Box>
             </Center>

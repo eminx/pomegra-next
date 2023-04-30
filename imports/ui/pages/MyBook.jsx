@@ -63,11 +63,11 @@ function MyBook() {
         <b>{book.title}</b>
       </NavBar>
 
-      <Box p="4">
+      <Box p="4" pt="0">
         <BookCard book={book} />
       </Box>
 
-      <Box p="4">
+      <Box px="4">
         <Button color="primary" block onClick={() => setIsEditDialogOpen(true)}>
           Edit
         </Button>

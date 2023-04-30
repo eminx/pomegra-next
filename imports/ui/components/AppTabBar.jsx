@@ -52,24 +52,26 @@ function AppTabBar() {
   const iconRoutes = renderIconRoutes(messageNotificationCount);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        height: 64,
-        width: '100%',
-        maxWidth: 768,
-        bottom: 0,
-        zIndex: 9,
-        backgroundColor: '#fff',
-      }}
-    >
-      <Divider style={{ marginBottom: 0 }} />
-      <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
-        {iconRoutes.map((icon, index) => (
-          <TabBar.Item key={icon.path} title={icon.title} />
-        ))}
-      </TabBar>
-    </div>
+    <>
+      <div
+        style={{
+          position: 'fixed',
+          height: 48,
+          width: '100%',
+          maxWidth: 768,
+          bottom: 0,
+          zIndex: 9,
+          backgroundColor: '#fff',
+        }}
+      >
+        <Divider style={{ marginBottom: 0, marginTop: 0 }} />
+        <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
+          {iconRoutes.map((icon, index) => (
+            <TabBar.Item key={icon.path} title={icon.title} />
+          ))}
+        </TabBar>
+      </div>
+    </>
   );
 }
 

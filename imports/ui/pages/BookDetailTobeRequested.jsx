@@ -51,11 +51,11 @@ function BookDetailTobeRequested() {
 
   return (
     <>
-      <NavBar mode="light" onBack={() => navigate('/discover')}>
-        Details
+      <NavBar onBack={() => navigate('/discover')}>
+        <b>{book.title}</b>
       </NavBar>
 
-      <Box px="2" mb="4">
+      <Box p="4" pt="0">
         <BookCard book={book} />
       </Box>
 

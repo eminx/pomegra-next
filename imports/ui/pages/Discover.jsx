@@ -34,14 +34,18 @@ function Discover() {
   // }
 
   return (
-    <div name="books">
+    <>
       <NavBar backArrow={false}>Discover Books</NavBar>
       {books && books.length > 0 && (
         <List>
           {books.map((suggestedBook) => (
             <ListItem
               key={suggestedBook._id}
-              extra={suggestedBook.category}
+              extra={
+                <Box maxWidth="80px" textAlign="right" fontSize="12px" wordWrap="normal">
+                  {suggestedBook.category}
+                </Box>
+              }
               onClick={() => navigate(`/book/${suggestedBook._id}`)}
             >
               <Flex w="100%" fontSize="0.9em">
@@ -62,7 +66,7 @@ function Discover() {
       )}
 
       <AppTabBar />
-    </div>
+    </>
   );
 }
 

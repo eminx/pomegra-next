@@ -1,26 +1,28 @@
 import React from 'react';
-import { Button, Card, Divider } from 'antd-mobile';
+import { Card } from 'antd-mobile';
 import { Table } from 'bloomer';
 import { Box, Center, Flex, Heading, Text } from '@chakra-ui/react';
 
 import { parseAuthors } from '../../api/_utils/functions';
 import allLanguages from '../../api/_utils/langs/allLanguages';
 
-const BookCard = ({ book }) => {
+const cardStyle = { boxShadow: 'rgb(255 241 252) 0px 0px 24px 10px' };
+
+function BookCard({ book }) {
   const bookLang = allLanguages.find((l) => {
     return l.value === book.language;
   });
 
   return (
-    <Card style={{ boxShadow: 'rgb(255 241 252) 0px 0px 24px 10px' }}>
+    <Card>
       {/* <BookTitle book={book} /> */}
       <Flex align="start" justify="start" pt="2">
-        <Box maxW="150px" h="180px" bg={book.imageUrl ? '#fff' : 'purple.50'} mr="2">
+        <Box maxW="130px" h="180px" bg={book.imageUrl ? '#fff' : 'purple.50'} mr="2">
           {book.imageUrl && (
             <img
               src={book.imageUrl}
               alt={book.title}
-              style={{ maxWidth: '150px', flexGrow: 1, marginRight: 12 }}
+              style={{ maxWidth: '120px', flexGrow: 1, marginRight: 12 }}
             />
           )}
         </Box>
@@ -76,7 +78,7 @@ const BookCard = ({ book }) => {
       </Box>
     </Card>
   );
-};
+}
 
 const BookTitle = ({ book }) => (
   <Center mb="4">
