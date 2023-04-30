@@ -70,8 +70,7 @@ function MyBook() {
       <Popup
         closable
         bodyStyle={{
-          minHeight: '100vh',
-          maxHeight: '100vh',
+          height: '93vh',
           overflow: 'scroll',
           padding: 12,
         }}
