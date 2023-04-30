@@ -94,7 +94,7 @@ function RequestsList() {
   return (
     <div name="requests">
       <NavBar backArrow={false}>Messages</NavBar>
-      <Box p="2">
+      <Box p="4">
         <SearchBar
           placeholder="Filter"
           cancelText="Cancel"

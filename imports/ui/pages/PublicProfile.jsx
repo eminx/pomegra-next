@@ -72,7 +72,7 @@ function PublicProfile() {
 
       <Box p="2">
         <Center>
-          {user.images ? (
+          {user.images && user.images.length > 0 ? (
             <Image height="240px" src={user.images[0]} {...imageProps} />
           ) : (
             <Avatar size="2xl" name={user.username} {...imageProps} />
