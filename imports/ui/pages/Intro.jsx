@@ -188,7 +188,7 @@ class Intro extends Component {
         return;
       } else {
         this.setState({ isLogin: false, isLoading: false });
-        successDialog('Successfullt logged in');
+        successDialog('Successfully logged in');
         this.slider.slickGoTo(1, true);
       }
     });
