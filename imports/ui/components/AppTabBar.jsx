@@ -4,37 +4,42 @@ import { Badge, Divider, TabBar } from 'antd-mobile';
 
 import { notificationsCounter } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
+import Home from './icons/Home';
+import Discover from './icons/Discover';
+import Shelf from './icons/Shelf';
+import Messages from './icons/Messages';
+import Profile from './icons/Profile';
 
 const iconSize = 24;
 
-const renderIconRoutes = (messageNotificationCount) => {
+const renderIconRoutes = (messageNotificationCount, username) => {
   const shownBadge = messageNotificationCount !== '0' && messageNotificationCount;
 
   return [
     {
       title: 'Home',
       path: '/',
-      // icon: <GoHome size={iconSize} />,
+      icon: <Home />,
     },
     {
       title: 'Discover',
       path: '/discover',
-      // icon: <GoSearch size={iconSize} />,
+      icon: <Discover />,
     },
     {
       title: 'My Shelf',
       path: '/my-shelf',
-      // icon: <GoBook size={iconSize} />,
+      icon: <Shelf />,
     },
     {
       title: 'Messages',
       path: '/messages',
-      icon: <Badge text={shownBadge}>{/* <GoCommentDiscussion size={iconSize} /> */}</Badge>,
+      icon: <Messages />,
     },
     {
       title: 'My Profile',
-      path: '/profile',
-      // icon: <FaRegUser size={iconSize} />,
+      path: `/${username}`,
+      icon: <Profile />,
     },
   ];
 };
@@ -49,7 +54,7 @@ function AppTabBar() {
   const messageNotificationCount = currentUser?.notifications
     ? notificationsCounter(currentUser?.notifications)?.toString()
     : 0;
-  const iconRoutes = renderIconRoutes(messageNotificationCount);
+  const iconRoutes = renderIconRoutes(messageNotificationCount, currentUser?.username);
 
   return (
     <>
@@ -67,7 +72,7 @@ function AppTabBar() {
         <Divider style={{ marginBottom: 0, marginTop: 0 }} />
         <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
           {iconRoutes.map((icon, index) => (
-            <TabBar.Item key={icon.path} title={icon.title} />
+            <TabBar.Item key={icon.path} icon={icon.icon} title={icon.title} />
           ))}
         </TabBar>
       </div>

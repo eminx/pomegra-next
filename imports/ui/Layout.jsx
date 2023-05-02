@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data';
 import React, { createContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { IntlProvider } from 'react-intl';
-import { ChakraProvider, Box, Center, Flex } from '@chakra-ui/react';
+import { ChakraProvider, Box, Center, Flex, Image } from '@chakra-ui/react';
 
 export const UserContext = createContext(null);
 
@@ -32,10 +32,10 @@ function Layout({ currentUser, userLoading, children }) {
 
   if (loading) {
     return (
-      <Center>
+      <Center pt="12">
         <Flex align="center" direction="column">
           <NiceShelf width={192} height={192} color="#3e3e3e" />
-          <img
+          <Image
             src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
             alt="Librella"
             width={210}
@@ -53,6 +53,15 @@ function Layout({ currentUser, userLoading, children }) {
           <Box bg="gray.200" w="100%">
             <Center>
               <Box bg="gray.100" minHeight="100vh" maxWidth="768px" mb="48px" w="100%">
+                <Box w="100%">
+                  <Center p="2">
+                    <Image
+                      src="https://pomegra-profile-images.s3.eu-central-1.amazonaws.com/LibrellaLogo.png"
+                      alt="Librella"
+                      height="24px"
+                    />
+                  </Center>
+                </Box>
                 {children}
               </Box>
             </Center>
