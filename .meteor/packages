@@ -24,3 +24,5 @@ accounts-base
 accounts-password
 force-ssl
 edgee:slingshot
+ostrio:spiderable-middleware
+webapp

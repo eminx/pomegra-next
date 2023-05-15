@@ -1,6 +1,8 @@
 import { Meteor } from 'meteor/meteor';
-
+import Spiderable from 'meteor/ostrio:spiderable-middleware';
 import './api';
+
+const { ostrio } = Meteor.settings;
 
 Meteor.startup(() => {
   const smtp = Meteor.settings.mailCredentials.smtp;
@@ -15,3 +17,13 @@ Meteor.startup(() => {
   //     return `To reset your password, simply click the link below. ${newUrl}`;
   //   };
 });
+
+if (ostrio) {
+  WebApp.connectHandlers.use(
+    new Spiderable({
+      rootURL: Meteor.absoluteUrl(),
+      serviceURL: ostrio.serviceURL,
+      auth: `${ostrio.APIUser}:${ostrio.APIPass}`,
+    })
+  );
+}
