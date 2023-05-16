@@ -1,16 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { AutoCenter, Button, List, NavBar, Popup, Tag } from 'antd-mobile';
-import { Avatar, Box, Center, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
+import { useParams } from 'react-router-dom';
+import { AutoCenter, Button, NavBar, Popup, Tag } from 'antd-mobile';
+import { Avatar, Box, Center, Divider, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
 import { Subtitle } from 'bloomer';
 import { CloseOutline } from 'antd-mobile-icons';
 
 import EditProfile from '../components/EditProfile';
 import AppTabBar from '../components/AppTabBar';
-import { call, errorDialog, successDialog } from '../../api/_utils/functions';
+import { call, errorDialog } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
-
-const ListItem = List.Item;
+import MyBooks from '../components/MyBooks';
 
 const imageProps = {
   borderRadius: '8px',
@@ -27,8 +26,8 @@ function PublicProfile() {
     isLoading: true,
   });
 
-  const { username } = useParams();
-  const navigate = useNavigate();
+  const params = useParams();
+  const { username } = params;
   const { currentUser } = useContext(UserContext);
 
   useEffect(() => {
@@ -50,7 +49,7 @@ function PublicProfile() {
     }
   };
 
-  const { books, user, isBookDialogOpen, isEditDialogOpen, isLoading } = state;
+  const { books, user, isEditDialogOpen, isLoading } = state;
 
   if (isLoading || !user) {
     return null;
@@ -75,87 +74,10 @@ function PublicProfile() {
         </Center>
       )}
 
-      <Box p="2">
-        <Center>
-          {user.images && user.images.length > 0 ? (
-            <Image height="240px" src={user.images[0]} {...imageProps} />
-          ) : (
-            <Avatar size="2xl" name={user.username} {...imageProps} />
-          )}
-        </Center>
-
-        {/* <Center pt="2">
-          <Title isSize={5}>{user.username}</Title>
-        </Center> */}
-      </Box>
-
-      <Box>
-        <AutoCenter>
-          {user.firstName && user.lastName && (
-            <Subtitle isSize={5} style={{ textAlign: 'center', marginBottom: 0 }}>
-              {user.firstName + ' ' + user.lastName}
-            </Subtitle>
-          )}
-          {user.bio && (
-            <Text fontSize="md" textAlign="center">
-              {user.bio}
-            </Text>
-          )}
-        </AutoCenter>
-      </Box>
-
       <Box py="2">
-        {/* <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
-          reads in:
-        </Subtitle> */}
-        <Stack direction="row" justify="center" wrap="wrap">
-          {user.languages &&
-            user.languages.length > 0 &&
-            user.languages.map((language) => (
-              <Tag
-                key={language?.value}
-                color="primary"
-                fill="outline"
-                style={{ fontSize: '12px' }}
-              >
-                {language?.label?.toUpperCase()}{' '}
-              </Tag>
-            ))}
-        </Stack>
-      </Box>
-
-      <Box py="2">
-        <Heading size="md" textAlign="center" mb="2" fontWeight="light">
-          Shelf
-        </Heading>
-        {books && (
-          <List style={{ marginBottom: 80 }}>
-            {books.map((book) => (
-              <ListItem
-                key={book._id}
-                extra={
-                  <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
-                    {book.category}
-                  </Box>
-                }
-                onClick={() => navigate(`/book/${book._id}?backToUser=true`)}
-              >
-                <Flex w="100%" fontSize="0.9em">
-                  <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
-                  <Box>
-                    <Text>
-                      <b>{book.title}</b>
-                    </Text>
-                    <Text>
-                      {book.authors &&
-                        book.authors.map((author) => <div key={author}>{author}</div>)}
-                    </Text>
-                  </Box>
-                </Flex>
-              </ListItem>
-            ))}
-          </List>
-        )}
+        <About user={user} />
+        <Divider my="2" />
+        <MyBooks books={books} />
       </Box>
 
       <Popup
@@ -184,6 +106,56 @@ function PublicProfile() {
 
       <AppTabBar />
     </div>
+  );
+}
+
+function About({ user }) {
+  if (!user) {
+    return null;
+  }
+  return (
+    <Box>
+      <Center p="2">
+        {user.images && user.images.length > 0 ? (
+          <Image height="240px" src={user.images[0]} {...imageProps} />
+        ) : (
+          <Avatar size="2xl" name={user.username} {...imageProps} />
+        )}
+      </Center>
+
+      <AutoCenter>
+        {user.firstName && user.lastName && (
+          <Subtitle isSize={5} style={{ textAlign: 'center', marginBottom: 0 }}>
+            {user.firstName + ' ' + user.lastName}
+          </Subtitle>
+        )}
+        {user.bio && (
+          <Text fontSize="md" textAlign="center">
+            {user.bio}
+          </Text>
+        )}
+      </AutoCenter>
+
+      <Box py="2">
+        {/* <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
+        reads in:
+      </Subtitle> */}
+        <Stack direction="row" justify="center" wrap="wrap">
+          {user.languages &&
+            user.languages.length > 0 &&
+            user.languages.map((language) => (
+              <Tag
+                key={language?.value}
+                color="primary"
+                fill="outline"
+                style={{ fontSize: '12px' }}
+              >
+                {language?.label?.toUpperCase()}{' '}
+              </Tag>
+            ))}
+        </Stack>
+      </Box>
+    </Box>
   );
 }
 

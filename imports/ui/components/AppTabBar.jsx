@@ -26,11 +26,11 @@ const renderIconRoutes = (messageNotificationCount, username) => {
       path: '/discover',
       icon: <Discover />,
     },
-    {
-      title: 'My Shelf',
-      path: '/my-shelf',
-      icon: <Shelf />,
-    },
+    // {
+    //   title: 'My Shelf',
+    //   path: '/my-shelf',
+    //   icon: <Shelf />,
+    // },
     {
       title: 'Messages',
       path: '/messages',
@@ -39,7 +39,7 @@ const renderIconRoutes = (messageNotificationCount, username) => {
     {
       title: 'My Profile',
       path: `/${username}`,
-      icon: <Profile />,
+      icon: <Shelf />,
     },
   ];
 };

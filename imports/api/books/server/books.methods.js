@@ -21,19 +21,6 @@ Meteor.methods({
     }
   },
 
-  getMyBook: (bookId) => {
-    const currentUserId = Meteor.userId();
-
-    try {
-      return BooksCollection.findOne({
-        _id: bookId,
-        ownerId: currentUserId,
-      });
-    } catch (error) {
-      throw new Meteor.Error(error);
-    }
-  },
-
   getSingleBook: (bookId) => {
     try {
       return BooksCollection.findOne({
@@ -51,6 +38,7 @@ Meteor.methods({
         return BooksCollection.find(
           {
             ownerId: { $ne: currentUserId },
+            onRequest: { $ne: true },
           },
           { limit: 50 }
         ).fetch();

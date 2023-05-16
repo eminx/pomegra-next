@@ -1,12 +1,10 @@
-import { Meteor } from 'meteor/meteor';
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { List, NavBar, Picker, SearchBar } from 'antd-mobile';
-import { Button, Title, Subtitle } from 'bloomer';
-import { Box, Center, Flex, Image } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { List, Picker, SearchBar } from 'antd-mobile';
+import { Box, Center, Flex, Heading, Image, Text } from '@chakra-ui/react';
 
-import Anchor from '../components/Anchor';
-import AppTabBar from '../components/AppTabBar';
+import Anchor from './Anchor';
+import AppTabBar from './AppTabBar';
 
 const ListItem = List.Item;
 
@@ -18,21 +16,12 @@ const sortByMethods = [
   'request condition',
 ];
 
-function MyShelf() {
-  const [books, setBooks] = useState([]);
+function MyBooks({ books }) {
   const [filterValue, setFilterValue] = useState('');
   const [sortBy, setSortBy] = useState('last added');
-  const [isLoading, setIsLoading] = useState(true);
   const [pickerVisible, setPickerVisible] = useState(false);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    Meteor.call('getMyBooks', (error, respond) => {
-      setBooks(respond);
-      setIsLoading(false);
-    });
-  }, []);
 
   const getBooksSorted = () => {
     if (!books || books.length === 0) {
@@ -76,16 +65,9 @@ function MyShelf() {
 
   return (
     <>
-      <NavBar backArrow={false}>My Shelf</NavBar>
-
-      <Center py="4">
-        <Link to="/add">
-          <Button isColor="light" isLink isOutlined className="is-rounded">
-            Add Book
-          </Button>
-        </Link>
-      </Center>
-
+      <Heading size="lg" textAlign="center" mb="2" fontWeight="light">
+        My Shelf
+      </Heading>
       <Box px="4">
         <SearchBar
           placeholder="Filter"
@@ -128,7 +110,7 @@ function MyShelf() {
                   {book.category}
                 </Box>
               }
-              onClick={() => navigate(`/my-shelf/${book._id}`)}
+              onClick={() => navigate(`/book/${book._id}?backToUser=true`)}
             >
               <Flex>
                 <Image mr="4" bg="purple.50" fit="contain" w="48px" src={book.imageUrl} />
@@ -143,18 +125,13 @@ function MyShelf() {
           ))}
         </List>
       ) : (
-        isLoading && <div>Loading your books...</div>
+        <div>Loading your books...</div>
       )}
 
       {books && books.length === 0 && (
-        <Box>
-          <Title isSize={4} hasTextAlign="centered">
-            No books
-          </Title>
-          <Subtitle isSize={6} hasTextAlign="centered">
-            You don't have any books in your shelf yet. Please add new books
-          </Subtitle>
-        </Box>
+        <Center>
+          <Text textAlign="center">No books</Text>
+        </Center>
       )}
 
       <AppTabBar />
@@ -162,4 +139,4 @@ function MyShelf() {
   );
 }
 
-export default MyShelf;
+export default MyBooks;

@@ -1,8 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { MessagesCollection } from '../../collections';
 
-Meteor.publish('chat', (requestId) => {
-  const currentUserId = Meteor.userId();
+Meteor.publish('chat', function (requestId) {
+  const currentUserId = this.userId;
   if (!currentUserId) {
     return null;
   }

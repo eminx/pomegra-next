@@ -11,20 +11,20 @@ import NiceShelf from './components/NiceShelf';
 import messages from '../api/_utils/langs/en';
 
 function Layout({ currentUser, userLoading, children }) {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { pathname } = location;
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (!Meteor.user()) {
-        setLoading(false);
-        return navigate('/intro');
-      }
-      setLoading(false);
-    }, 3000);
-  }, []);
+  // useEffect(() => {
+  // setTimeout(() => {
+  // if (!Meteor.user()) {
+  //   setLoading(false);
+  //   return navigate('/intro');
+  // }
+  // setLoading(false);
+  // }, 3000);
+  // }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,7 +52,7 @@ function Layout({ currentUser, userLoading, children }) {
         <ChakraProvider>
           <Box bg="gray.200" w="100%">
             <Center>
-              <Box bg="gray.100" minHeight="100vh" maxWidth="768px" mb="48px" w="100%">
+              <Box bg="gray.100" minHeight="100vh" maxWidth="768px" w="100%">
                 <Box w="100%">
                   <Center p="2">
                     <Image

@@ -1,18 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button, NavBar, Popup } from 'antd-mobile';
-import { Box, Flex, Heading } from '@chakra-ui/react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { NavBar, Popup } from 'antd-mobile';
+import { Avatar, Box, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
+import queryString from 'query-string';
 
 import { BookCard } from '../components/BookCard';
 import EditBook from '../layouts/EditBook';
 import { call, errorDialog, successDialog } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 
-function MyBook() {
+function Book() {
   const [book, setBook] = useState(null);
+  const [requestId, setRequestId] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const location = useLocation();
   const { currentUser } = useContext(UserContext);
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,7 +27,7 @@ function MyBook() {
 
   const getBook = async () => {
     try {
-      const respond = await call('getMyBook', id);
+      const respond = await call('getSingleBook', id);
       setBook(respond);
     } catch (error) {
       errorDialog(error.reason || error.error);
@@ -53,18 +57,71 @@ function MyBook() {
     }
   };
 
+  const makeRequest = async () => {
+    if (!currentUser) {
+      errorDialog('Please create an account');
+    }
+
+    try {
+      await call('makeRequest', book._id);
+      successDialog('Your request is successfully sent!');
+      setRequestId(respond);
+    } catch (error) {
+      errorDialog(error.reason || error.error);
+    }
+  };
+
+  const handleBack = () => {
+    const { search } = location;
+    const { backToUser } = queryString.parse(search, { parseBooleans: true });
+    if (backToUser) {
+      return navigate(`/${book.ownerUsername}`);
+    }
+    return navigate('/discover');
+  };
+
+  const isMyBook = currentUser?._id === book?.ownerId;
+
+  const handleButtonClick = () => {
+    if (isMyBook) {
+      setIsEditDialogOpen(true);
+    } else {
+      makeRequest();
+    }
+  };
+
+  if (requestId) {
+    navigate(`/request/${requestId}`);
+  }
+
+  if (!book || isLoading) {
+    return null;
+    // return <ActivityIndicator toast text="Loading book details..." />;
+  }
+
   if (isLoading || !book) {
     return null;
   }
 
   return (
     <Box>
-      <NavBar onBack={() => navigate('/my-shelf')}>
+      <NavBar
+        right={
+          <Link to={`/${book.ownerUsername}`}>
+            <Avatar name={book.ownerUsername} src={book.ownerImage} size="sm" borderRadius="4px" />
+          </Link>
+        }
+        onBack={handleBack}
+      >
         <b>{book.title}</b>
       </NavBar>
 
       <Box p="4" pt="0">
-        <BookCard book={book} buttonLabel="Edit" onButtonClick={() => setIsEditDialogOpen(true)} />
+        <BookCard
+          book={book}
+          buttonLabel={isMyBook ? 'Edit' : 'Borrow'}
+          onButtonClick={handleButtonClick}
+        />
       </Box>
 
       <Popup
@@ -91,4 +148,4 @@ function MyBook() {
   );
 }
 
-export default MyBook;
+export default Book;

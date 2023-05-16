@@ -64,7 +64,7 @@ function Discover() {
           ))}
         </List>
       )}
-
+      <Box h="48px" />
       <AppTabBar />
     </>
   );

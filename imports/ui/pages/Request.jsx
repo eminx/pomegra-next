@@ -1,3 +1,5 @@
+import { Meteor } from 'meteor/meteor';
+import { withTracker } from 'meteor/react-meteor-data';
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { NavBar, Button, Result, Form, Tabs, Badge, Input, Steps, Divider } from 'antd-mobile';
@@ -8,6 +10,7 @@ import { ChatteryWindow } from '../components/chattery/ChatteryWindow';
 import { call, successDialog, errorDialog } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 import useChattery from '../../api/_utils/useChattery';
+import { RequestsCollection } from '../../api/collections';
 
 const { Step } = Steps;
 const { Tab } = Tabs;
@@ -23,20 +26,19 @@ const steps = [
   },
   {
     title: 'Handed',
-    description: 'Lender received the book to read',
+    description: 'The borrower received the book to read',
   },
   {
     title: 'Returned',
-    description: 'Lender has returned the book to the owner',
+    description: 'The borrower has returned the book to the owner',
   },
 ];
 
 const myImg = (src) => <img src={src} alt="book image" height={64} />;
 
-function Request() {
+function Request({ request }) {
   const { currentUser } = useContext(UserContext);
   const [state, setState] = useState({
-    request: null,
     messageInput: '',
     typingMessage: null,
     openTab: 'status',
@@ -45,9 +47,9 @@ function Request() {
   const navigate = useNavigate();
   const { isChatLoading, discussion } = useChattery(id, currentUser);
 
-  useEffect(() => {
-    getRequest();
-  }, []);
+  // useEffect(() => {
+  //   getRequest();
+  // }, []);
 
   const getRequest = async () => {
     try {
@@ -83,7 +85,6 @@ function Request() {
   };
 
   const acceptRequest = async () => {
-    const { request } = state;
     if (currentUser._id !== request.ownerId) {
       return;
     }
@@ -98,7 +99,6 @@ function Request() {
   };
 
   const denyRequest = async () => {
-    const { request } = state;
     if (currentUser._id !== request.ownerId) {
       return;
     }
@@ -113,7 +113,6 @@ function Request() {
   };
 
   const setIsHanded = async () => {
-    const { request } = state;
     if (currentUser._id !== request.ownerId) {
       return;
     }
@@ -128,7 +127,6 @@ function Request() {
   };
 
   const setIsReturned = async () => {
-    const { request } = state;
     if (currentUser._id !== request.ownerId) {
       return;
     }
@@ -143,8 +141,6 @@ function Request() {
   };
 
   const getCurrentStatus = () => {
-    const { request } = state;
-
     if (request.isReturned) {
       return 3;
     } else if (request.isHanded) {
@@ -157,7 +153,6 @@ function Request() {
   };
 
   const getNotificationsCount = () => {
-    const { request } = state;
     if (!currentUser) {
       return null;
     }
@@ -169,7 +164,6 @@ function Request() {
   };
 
   const removeNotification = async (messageIndex) => {
-    const { request } = state;
     const shouldRun = currentUser?.notifications?.find((notification) => {
       if (!notification.unSeenIndexes) {
         return false;
@@ -188,7 +182,6 @@ function Request() {
   };
 
   const getOthersName = () => {
-    const { request } = state;
     if (request.requesterUsername === currentUser.username) {
       return request.ownerUsername;
     } else {
@@ -196,7 +189,7 @@ function Request() {
     }
   };
 
-  const { messageInput, openTab, request } = state;
+  const { messageInput, openTab } = state;
 
   if (!currentUser) {
     return null;
@@ -223,7 +216,8 @@ function Request() {
           setState({ ...state, openTab: key });
         }}
       >
-        <Tab key="status" title={<Badge content={Badge.dot}>Status</Badge>}>
+        {/* <Tab key="status" title={<Badge content={Badge.dot}>Status</Badge>}> */}
+        <Tab key="status" title="Status">
           {requestedNotResponded && iAmTheOwner ? (
             <div>
               <Result
@@ -286,7 +280,7 @@ function Request() {
         </Tab>
 
         <Tab key="messages" title={<Badge content={getNotificationsCount()}>Messages</Badge>}>
-          <Box bg="gray.700">
+          <Box bg="#d9d9d9">
             <Flex direction="column" justify="space-between">
               <Box h="100%">
                 <ChatteryWindow
@@ -296,32 +290,28 @@ function Request() {
               </Box>
 
               <Box w="100%" zIndex={9}>
-                <Center>
-                  <Box w="100%">
-                    <Form onSubmit={(event) => sendMessage(event)}>
-                      <Flex w="100%">
-                        <Form.Item style={{ flexGrow: 1 }}>
-                          <Input
-                            value={messageInput}
-                            onChange={(value) => setState({ ...state, messageInput: value })}
-                            placeholder="enter message"
-                            style={{ fontSize: 14 }}
-                          />
-                        </Form.Item>
-                        <Button
-                          style={{ borderRadius: 0 }}
-                          color="primary"
-                          fill="solid"
-                          flexGrow={0}
-                          type="submit"
-                          onClick={() => sendMessage()}
-                        >
-                          Send
-                        </Button>
-                      </Flex>
-                    </Form>
-                  </Box>
-                </Center>
+                <Form onSubmit={(event) => sendMessage(event)}>
+                  <Flex w="100%">
+                    <Form.Item style={{ flexGrow: 1 }}>
+                      <Input
+                        value={messageInput}
+                        onChange={(value) => setState({ ...state, messageInput: value })}
+                        placeholder="enter message"
+                        style={{ fontSize: 14 }}
+                      />
+                    </Form.Item>
+                    <Button
+                      style={{ borderRadius: 0 }}
+                      color="primary"
+                      fill="solid"
+                      flexGrow={0}
+                      type="submit"
+                      onClick={() => sendMessage()}
+                    >
+                      Send
+                    </Button>
+                  </Flex>
+                </Form>
               </Box>
             </Flex>
           </Box>
@@ -331,4 +321,13 @@ function Request() {
   );
 }
 
-export default Request;
+export default withTracker((props) => {
+  const reqId = location?.pathname?.split('/')[2];
+  Meteor.subscribe('request', reqId);
+  const request = RequestsCollection ? RequestsCollection.findOne({ _id: reqId }) : null;
+
+  return {
+    ...props,
+    request,
+  };
+})(Request);
