@@ -1,42 +1,74 @@
-import { Meteor } from 'meteor/meteor';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { NavBar, List } from 'antd-mobile';
+import { Link, useNavigate } from 'react-router-dom';
+import { List, NavBar, Skeleton, CapsuleTabs } from 'antd-mobile';
 import { Box, Flex, Image, Text } from '@chakra-ui/react';
+
 import AppTabBar from '../components/AppTabBar';
+import { call, errorDialog } from '../../api/_utils/functions';
+import About from '../components/About';
 
 const ListItem = List.Item;
+const { Tab } = CapsuleTabs;
 
 function Discover() {
-  const [books, setBooks] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [state, setState] = useState({
+    books: null,
+    users: null,
+    isLoading: true,
+    activeTab: 'books',
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    Meteor.call('getDiscoverBooks', (error, respond) => {
-      if (error) {
-        console.log(error);
-        setIsLoading(false);
-        return;
-      }
-      setBooks(respond);
-      setIsLoading(false);
-    });
+    getData();
   }, []);
 
-  if (isLoading) {
-    return null;
-  }
+  const getData = async () => {
+    try {
+      const books = await call('getDiscoverBooks');
+      const users = await call('getUsers');
+      setState({
+        ...state,
+        books,
+        users,
+        isLoading: false,
+      });
+    } catch (error) {
+      errorDialog(error);
+      setState({
+        ...state,
+        isLoading: false,
+      });
+    }
+  };
 
-  // if (!books || books.length === 0) {
-  //   // return <ActivityIndicator toast text="Loading..." />;
-  //   return null;
-  // }
+  const { books, users, activeTab, isLoading } = state;
+
+  if (isLoading || !books) {
+    return (
+      <div>
+        <NavBar backArrow={false}>Discover Books</NavBar>
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+      </div>
+    );
+  }
 
   return (
     <>
       <NavBar backArrow={false}>Discover Books</NavBar>
-      {books && books.length > 0 && (
+
+      <Box mb="4">
+        <CapsuleTabs onChange={(key) => setState({ ...state, activeTab: key })}>
+          <Tab key="books" title="Books" />
+          <Tab key="users" title="Users" />
+        </CapsuleTabs>
+      </Box>
+
+      {activeTab === 'books' && (
         <List>
           {books.map((suggestedBook) => (
             <ListItem
@@ -64,6 +96,21 @@ function Discover() {
           ))}
         </List>
       )}
+
+      {activeTab === 'users' && (
+        <Box>
+          {users?.map((user) => (
+            <Box m="4">
+              <Link to={`/${user.username}`}>
+                <Box py="2" bg="white">
+                  <About user={user} isSmall />
+                </Box>
+              </Link>
+            </Box>
+          ))}
+        </Box>
+      )}
+
       <Box h="48px" />
       <AppTabBar />
     </>

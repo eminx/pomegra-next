@@ -1,21 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AutoCenter, Button, NavBar, Popup, Tag } from 'antd-mobile';
-import { Avatar, Box, Center, Divider, Flex, Heading, Image, Stack, Text } from '@chakra-ui/react';
-import { Subtitle } from 'bloomer';
+import { Button, NavBar, Popup } from 'antd-mobile';
+import { Box, Center, Divider, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
 
 import EditProfile from '../components/EditProfile';
 import AppTabBar from '../components/AppTabBar';
 import { call, errorDialog } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
+import About from '../components/About';
 import MyBooks from '../components/MyBooks';
-
-const imageProps = {
-  borderRadius: '8px',
-  boxShadow: '0 0 24px 12px rgb(255 241 252)',
-  border: '1px solid #fff',
-};
 
 function PublicProfile() {
   const [state, setState] = useState({
@@ -106,56 +100,6 @@ function PublicProfile() {
 
       <AppTabBar />
     </div>
-  );
-}
-
-function About({ user }) {
-  if (!user) {
-    return null;
-  }
-  return (
-    <Box>
-      <Center p="2">
-        {user.images && user.images.length > 0 ? (
-          <Image height="240px" src={user.images[0]} {...imageProps} />
-        ) : (
-          <Avatar size="2xl" name={user.username} {...imageProps} />
-        )}
-      </Center>
-
-      <AutoCenter>
-        {user.firstName && user.lastName && (
-          <Subtitle isSize={5} style={{ textAlign: 'center', marginBottom: 0 }}>
-            {user.firstName + ' ' + user.lastName}
-          </Subtitle>
-        )}
-        {user.bio && (
-          <Text fontSize="md" textAlign="center">
-            {user.bio}
-          </Text>
-        )}
-      </AutoCenter>
-
-      <Box py="2">
-        {/* <Subtitle isSize={6} style={{ color: '#656565', marginBottom: 4, textAlign: 'center' }}>
-        reads in:
-      </Subtitle> */}
-        <Stack direction="row" justify="center" wrap="wrap">
-          {user.languages &&
-            user.languages.length > 0 &&
-            user.languages.map((language) => (
-              <Tag
-                key={language?.value}
-                color="primary"
-                fill="outline"
-                style={{ fontSize: '12px' }}
-              >
-                {language?.label?.toUpperCase()}{' '}
-              </Tag>
-            ))}
-        </Stack>
-      </Box>
-    </Box>
   );
 }
 

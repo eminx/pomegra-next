@@ -66,7 +66,7 @@ function MyBooks({ books }) {
   return (
     <>
       <Heading size="lg" textAlign="center" mb="2" fontWeight="light">
-        My Shelf
+        Shelf
       </Heading>
       <Box px="4">
         <SearchBar

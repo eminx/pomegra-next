@@ -8,9 +8,7 @@ import Home from './icons/Home';
 import Discover from './icons/Discover';
 import Shelf from './icons/Shelf';
 import Messages from './icons/Messages';
-import Profile from './icons/Profile';
-
-const iconSize = 24;
+import Add from './icons/Add';
 
 const renderIconRoutes = (messageNotificationCount, username) => {
   const shownBadge = messageNotificationCount !== '0' && messageNotificationCount;
@@ -25,6 +23,11 @@ const renderIconRoutes = (messageNotificationCount, username) => {
       title: 'Discover',
       path: '/discover',
       icon: <Discover />,
+    },
+    {
+      title: 'Add Book',
+      path: '/add',
+      icon: <Add />,
     },
     // {
     //   title: 'My Shelf',

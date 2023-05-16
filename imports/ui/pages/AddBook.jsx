@@ -177,7 +177,7 @@ function AddBook() {
           searchResults.map((result, index) => (
             <FadeInUp key={result.id} duration=".5s" timingFunction="ease">
               <BookCardNext
-                isDark
+                // isDark
                 volumeInfo={result.volumeInfo}
                 onClickBook={() => handleToggleBook(index)}
                 isOpen={openBook === index}

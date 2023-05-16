@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge, List, NavBar, Result, SearchBar } from 'antd-mobile';
+import { Badge, List, NavBar, Result, SearchBar, Skeleton } from 'antd-mobile';
 import { Box, Flex, Image, Text } from '@chakra-ui/react';
 
 import { UserContext } from '../Layout';
@@ -75,7 +75,7 @@ function RequestsList() {
     return foundContext?.count;
   };
 
-  const { requests, filterValue } = state;
+  const { requests, filterValue, isLoading } = state;
 
   if (!requests || !currentUser) {
     return <div>Loading...</div>;
@@ -119,35 +119,44 @@ function RequestsList() {
           />
         ))}
 
-      <List style={{ marginBottom: 64 }}>
-        {filteredRequests?.map((request) => (
-          <ListItem
-            key={request._id}
-            extra={
-              <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
-                {request?.dateRequested?.toLocaleDateString()}
-              </Box>
-            }
-            onClick={() => navigate(`/request/${request._id}`)}
-          >
-            <Flex>
-              <Badge bordered content={getNotificationsCount(request)}>
-                <Image mr="8" bg="purple.50" fit="contain" w="48px" src={request.bookImage} />
-              </Badge>
-              <Box w="100%" fontSize=".9em">
-                <Text>
-                  <b>
-                    {currentUser.username === request.ownerUsername
-                      ? request.requesterUsername
-                      : request.ownerUsername}
-                  </b>
-                </Text>
-                <Text fontSize="sm">{request.bookTitle}</Text>
-              </Box>
-            </Flex>
-          </ListItem>
-        ))}
-      </List>
+      {isLoading ? (
+        <div>
+          <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+          <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+          <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+          <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        </div>
+      ) : (
+        <List style={{ marginBottom: 64 }}>
+          {filteredRequests?.map((request) => (
+            <ListItem
+              key={request._id}
+              extra={
+                <Box maxWidth="80px" textAlign="right" fontSize="12px" overflowWrap="normal">
+                  {request?.dateRequested?.toLocaleDateString()}
+                </Box>
+              }
+              onClick={() => navigate(`/request/${request._id}`)}
+            >
+              <Flex>
+                <Badge bordered content={getNotificationsCount(request)}>
+                  <Image mr="8" bg="purple.50" fit="contain" w="48px" src={request.bookImage} />
+                </Badge>
+                <Box w="100%" fontSize=".9em">
+                  <Text>
+                    <b>
+                      {currentUser.username === request.ownerUsername
+                        ? request.requesterUsername
+                        : request.ownerUsername}
+                    </b>
+                  </Text>
+                  <Text fontSize="sm">{request.bookTitle}</Text>
+                </Box>
+              </Flex>
+            </ListItem>
+          ))}
+        </List>
+      )}
 
       <AppTabBar />
     </div>

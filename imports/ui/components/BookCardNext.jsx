@@ -10,7 +10,7 @@ const imageContainerStyle = {
   flexGrow: 0,
   flexShrink: 1,
   minWidth: 120,
-  marginLeft: 24,
+  marginRight: 12,
 };
 
 const containerStyle = {
@@ -18,7 +18,7 @@ const containerStyle = {
   paddingBottom: 24,
   width: '100%',
   marginBottom: 24,
-  boxShadow: '0 0 12px rgba(120, 120, 120, 0.6)',
+  boxShadow: '0 0 2px rgba(120, 120, 120, 0.6)',
   overflowY: 'hidden',
   transition: 'max-height .2s ease',
 };
@@ -142,7 +142,7 @@ class BookCardNext extends PureComponent {
                   style={{
                     paddingTop: 12,
                     paddingBottom: 12,
-                    color: '#ababab',
+                    color: '#010101',
                   }}
                 >
                   <b>{volumeInfo.printType}</b> in {} <b>{language && language.label}</b>
@@ -163,7 +163,7 @@ class BookCardNext extends PureComponent {
           <Flex justify="center" direction="column">
             <Subtitle
               isSize={6}
-              // hasTextColor={isDark ? 'light' : 'dark'}
+              hasTextColor={isDark ? 'light' : 'dark'}
               style={{ marginBottom: 5, textAlign: 'center', marginBottom: 12 }}
             >
               Have this book?

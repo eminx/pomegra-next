@@ -20,6 +20,19 @@ Meteor.methods({
     }
   },
 
+  getUsers: () => {
+    const currentUser = Meteor.user();
+    try {
+      return Meteor.users
+        .find({
+          username: { $ne: currentUser.username },
+        })
+        .fetch();
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
   registerUser: (user) => {
     Accounts.createUser({
       bio: '',
