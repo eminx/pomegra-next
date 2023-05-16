@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Button, NavBar, Popup } from 'antd-mobile';
+import { Button, NavBar, Popup, Skeleton } from 'antd-mobile';
 import { Box, Center, Divider, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
 
@@ -46,7 +46,26 @@ function PublicProfile() {
   const { books, user, isEditDialogOpen, isLoading } = state;
 
   if (isLoading || !user) {
-    return null;
+    return (
+      <div>
+        <Center>
+          <Skeleton
+            animated
+            style={{ width: '80px', height: '30px', marginTop: 12, marginBottom: 24 }}
+          />
+        </Center>
+        <Center>
+          <Skeleton animated style={{ width: '75%', height: '240px', marginBottom: 24 }} />
+        </Center>
+        <Center>
+          <Skeleton animated style={{ width: '120px', height: '30px', marginBottom: 24 }} />
+        </Center>
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+      </div>
+    );
   }
 
   return (

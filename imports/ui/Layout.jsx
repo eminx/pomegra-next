@@ -26,9 +26,9 @@ function Layout({ currentUser, userLoading, children }) {
   // }, 3000);
   // }, []);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  // }, [pathname]);
 
   if (loading) {
     return (

@@ -1,9 +1,20 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { NavBar, Button, Result, Form, Tabs, Badge, Input, Steps, Divider } from 'antd-mobile';
-import { Box, Center, Flex } from '@chakra-ui/react';
+import {
+  Badge,
+  Button,
+  Divider,
+  Form,
+  Input,
+  NavBar,
+  Result,
+  Skeleton,
+  Steps,
+  Tabs,
+} from 'antd-mobile';
+import { Box, Flex } from '@chakra-ui/react';
 import { CheckCircleFill } from 'antd-mobile-icons';
 
 import { ChatteryWindow } from '../components/chattery/ChatteryWindow';
@@ -192,7 +203,15 @@ function Request({ request }) {
   const { messageInput, openTab } = state;
 
   if (!currentUser) {
-    return null;
+    return (
+      <div>
+        <NavBar>Request</NavBar>
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+      </div>
+    );
   }
 
   if (!request) {
