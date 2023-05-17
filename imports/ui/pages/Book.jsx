@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { NavBar, Popup } from 'antd-mobile';
-import { Avatar, Box, Flex, Heading } from '@chakra-ui/react';
+import { NavBar, Popup, Skeleton } from 'antd-mobile';
+import { Avatar, Box, Center, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
 import queryString from 'query-string';
 
@@ -95,12 +95,20 @@ function Book() {
   }
 
   if (!book || isLoading) {
-    return null;
-    // return <ActivityIndicator toast text="Loading book details..." />;
-  }
-
-  if (isLoading || !book) {
-    return null;
+    return (
+      <div>
+        <NavBar backArrow={false}>Book Details</NavBar>
+        <Center>
+          <Skeleton animated style={{ width: '70%', height: '180px', marginBottom: 24 }} />
+        </Center>
+        <Center>
+          <Skeleton animated style={{ width: '90%', height: '40px', marginBottom: 24 }} />
+        </Center>
+        <Center>
+          <Skeleton animated style={{ width: '90%', height: '240px', marginBottom: 24 }} />
+        </Center>
+      </div>
+    );
   }
 
   return (
@@ -127,7 +135,7 @@ function Book() {
       <Popup
         closable
         bodyStyle={{
-          height: '93vh',
+          height: '98vh',
           overflow: 'scroll',
           padding: 12,
         }}

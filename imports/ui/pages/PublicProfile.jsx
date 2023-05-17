@@ -96,7 +96,7 @@ function PublicProfile() {
       <Popup
         closable
         bodyStyle={{
-          height: '93vh',
+          height: '98vh',
           overflow: 'scroll',
           padding: 12,
         }}

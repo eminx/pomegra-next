@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, NavBar, Popup, SearchBar, Skeleton } from 'antd-mobile';
-import { FadeInUp } from 'animate-components';
+import { FadeInUp, FadeInDown } from 'animate-components';
 import { Box, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
 
@@ -190,14 +190,24 @@ function AddBook() {
 
       {!isLoading && (
         <Flex justify="center">
-          <Button onClick={() => setIsManuallyAddModalOpen(true)}>Manually Add Book</Button>
+          {searchbarInput === '' ? (
+            <FadeInDown duration=".3s">
+              <Button onClick={() => setIsManuallyAddModalOpen(true)}>Manually Add Book</Button>
+            </FadeInDown>
+          ) : (
+            <FadeInDown duration=".3s">
+              <Button color="primary" onClick={() => searchbarSearch()}>
+                Search
+              </Button>
+            </FadeInDown>
+          )}
         </Flex>
       )}
 
       <Popup
         closable
         bodyStyle={{
-          height: '93vh',
+          height: '98vh',
           overflow: 'scroll',
           padding: 12,
         }}

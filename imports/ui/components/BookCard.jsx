@@ -32,54 +32,52 @@ function BookCard({ book, buttonLabel, onButtonClick }) {
             />
           )}
         </Box>
-        <Box flexShrink="1" flexBasis="280px">
-          <Table isNarrow style={{ fontSize: 14, flexGrow: 2 }}>
-            <tbody>
-              <tr>
-                <td>
-                  <LightSpan>title</LightSpan>
-                </td>
-                <td>{book.title}</td>
-              </tr>
-              <tr>
-                <td>
-                  <LightSpan>authors</LightSpan>
-                </td>
-                <td>{book.authors && parseAuthors(book.authors)}</td>
-              </tr>
-              <tr>
-                <td>
-                  <LightSpan>category</LightSpan>
-                </td>
-                <td>{book.category}</td>
-              </tr>
-              <tr>
-                <td>
-                  <LightSpan>languauge</LightSpan>
-                </td>
-                <td>{bookLang?.label}</td>
-              </tr>
-              <tr>
-                <td>
-                  <LightSpan>ISBN</LightSpan>
-                </td>
-                <td>{book.ISBN}</td>
-              </tr>
-              <tr>
-                <td>
-                  <LightSpan>publisher</LightSpan>
-                </td>
-                <td>{book.publisher}</td>
-              </tr>
-              <tr>
-                <td>
-                  <LightSpan>publish date</LightSpan>
-                </td>
-                <td>{book.publishedDate}</td>
-              </tr>
-            </tbody>
-          </Table>
-        </Box>
+        <Table isNarrow style={{ fontSize: 14, flexGrow: 2 }}>
+          <tbody>
+            <tr>
+              <td>
+                <LightSpan>title</LightSpan>
+              </td>
+              <td>{book.title}</td>
+            </tr>
+            <tr>
+              <td>
+                <LightSpan>authors</LightSpan>
+              </td>
+              <td>{book.authors && parseAuthors(book.authors)}</td>
+            </tr>
+            <tr>
+              <td>
+                <LightSpan>category</LightSpan>
+              </td>
+              <td>{book.category}</td>
+            </tr>
+            <tr>
+              <td>
+                <LightSpan>languauge</LightSpan>
+              </td>
+              <td>{bookLang?.label}</td>
+            </tr>
+            <tr>
+              <td>
+                <LightSpan>ISBN</LightSpan>
+              </td>
+              <td>{book.ISBN}</td>
+            </tr>
+            <tr>
+              <td>
+                <LightSpan>publisher</LightSpan>
+              </td>
+              <td>{book.publisher}</td>
+            </tr>
+            <tr>
+              <td>
+                <LightSpan>publish date</LightSpan>
+              </td>
+              <td>{book.publishedDate}</td>
+            </tr>
+          </tbody>
+        </Table>
       </Flex>
 
       <Box py="4">
