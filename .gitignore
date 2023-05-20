@@ -1,6 +1,5 @@
 node_modules/
 settings.json
-mobile-config.js
 **/settings.json
 .DS_Store
 **/.DS_Store
