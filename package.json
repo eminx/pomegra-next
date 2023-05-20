@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "start": "meteor run --settings settings.json",
+    "ios": "meteor run ios-device --settings settings.json",
     "test": "meteor test --once --driver-package meteortesting:mocha",
     "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
     "visualize": "meteor run --settings settings.json --extra-packages bundle-visualizer --production",
