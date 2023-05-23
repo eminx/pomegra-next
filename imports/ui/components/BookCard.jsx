@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card } from 'antd-mobile';
 import { Table } from 'bloomer';
-import { Box, Center, Flex, Heading, Image, Text } from '@chakra-ui/react';
+import { Box, Center, Flex, Heading, Image, Text, useMediaQuery } from '@chakra-ui/react';
 
 import { parseAuthors } from '../../api/_utils/functions';
 import allLanguages from '../../api/_utils/langs/allLanguages';
@@ -9,6 +9,8 @@ import allLanguages from '../../api/_utils/langs/allLanguages';
 const cardStyle = { boxShadow: 'rgb(255 241 252) 0px 0px 24px 10px' };
 
 function BookCard({ book, buttonLabel, onButtonClick }) {
+  const [isLargerThan600] = useMediaQuery('(min-width: 600px)');
+
   const bookLang = allLanguages.find((l) => {
     return l.value === book.language;
   });
@@ -16,13 +18,15 @@ function BookCard({ book, buttonLabel, onButtonClick }) {
   return (
     <Card>
       {/* <BookTitle book={book} /> */}
-      <Flex align="start" justify="start" pt="2">
-        <Box
-          maxW="130px"
-          maxH="180px"
+      <Flex align="start" flexDirection={isLargerThan600 ? 'row' : 'column'} justify="start" pt="2">
+        <Center
           bg={book.imageUrl ? '#fff' : 'purple.50'}
-          mr="2"
           flexShrink="2"
+          justifyContent="center"
+          maxH="180px"
+          mr="2"
+          mb="4"
+          w={isLargerThan600 ? 'auto' : '100%'}
         >
           {book.imageUrl && (
             <Image
@@ -31,7 +35,7 @@ function BookCard({ book, buttonLabel, onButtonClick }) {
               style={{ maxWidth: '120px', flexGrow: 1, marginRight: 12 }}
             />
           )}
-        </Box>
+        </Center>
         <Table isNarrow style={{ fontSize: 14, flexGrow: 2 }}>
           <tbody>
             <tr>

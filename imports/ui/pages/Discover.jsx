@@ -48,7 +48,7 @@ function Discover() {
   if (isLoading || !books) {
     return (
       <div>
-        <NavBar backArrow={false}>Discover Books</NavBar>
+        <NavBar backArrow={false}>Discover</NavBar>
         <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
         <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
         <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
@@ -59,7 +59,7 @@ function Discover() {
 
   return (
     <>
-      <NavBar backArrow={false}>Discover Books</NavBar>
+      <NavBar backArrow={false}>Discover</NavBar>
 
       <Box mb="4">
         <CapsuleTabs onChange={(key) => setState({ ...state, activeTab: key })}>

@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, NavBar, Popup, Skeleton } from 'antd-mobile';
@@ -83,6 +84,10 @@ function PublicProfile() {
             onClick={() => setState({ ...state, isEditDialogOpen: true })}
           >
             Edit
+          </Button>
+
+          <Button color="primary" fill="none" size="small" onClick={() => Meteor.logout()}>
+            Log out
           </Button>
         </Center>
       )}
