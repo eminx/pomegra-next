@@ -66,6 +66,11 @@ function AddBook() {
   };
 
   const insertBook = async (book) => {
+    if (!currentUser) {
+      errorDialog('You need an account. Please login or register');
+      return;
+    }
+
     if (alreadyOwnsBook(book)) {
       errorDialog('You already own this book');
       return;
@@ -74,7 +79,7 @@ function AddBook() {
     try {
       await call('insertBook', book);
       successDialog('Book is successfully added to your virtual shelf');
-      setOpenBook(null);
+      setOpenBook(bookModel);
     } catch (error) {
       console.log(error);
       errorDialog(error.reason || error.error);
@@ -122,6 +127,7 @@ function AddBook() {
         values.imageUrl = uploadedImage;
       }
       await call('insertBookManually', values);
+      setImage(imageModel);
       successDialog('Your book is successfully added');
       setIsManuallyAddModalOpen(false);
     } catch (error) {
