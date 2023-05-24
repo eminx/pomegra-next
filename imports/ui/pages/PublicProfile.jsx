@@ -10,7 +10,7 @@ import AppTabBar from '../components/AppTabBar';
 import { call, errorDialog } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 import About from '../components/About';
-import MyBooks from '../components/MyBooks';
+import Books from '../components/MyBooks';
 
 function PublicProfile() {
   const [state, setState] = useState({
@@ -95,7 +95,7 @@ function PublicProfile() {
       <Box py="2">
         <About user={user} />
         <Divider my="2" />
-        <MyBooks books={books} />
+        <Books books={books} />
       </Box>
 
       <Popup

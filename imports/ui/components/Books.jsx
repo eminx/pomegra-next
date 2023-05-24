@@ -16,7 +16,7 @@ const sortByMethods = [
   'request condition',
 ];
 
-function MyBooks({ books }) {
+function Books({ books }) {
   const [filterValue, setFilterValue] = useState('');
   const [sortBy, setSortBy] = useState('last added');
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -100,7 +100,7 @@ function MyBooks({ books }) {
         onClose={() => setPickerVisible(false)}
       />
 
-      {filteredSortedBooks ? (
+      {filteredSortedBooks && (
         <List style={{ marginBottom: 80 }}>
           {filteredSortedBooks.map((book) => (
             <ListItem
@@ -124,8 +124,6 @@ function MyBooks({ books }) {
             </ListItem>
           ))}
         </List>
-      ) : (
-        <div>Loading your books...</div>
       )}
 
       {books && books.length === 0 && (
@@ -139,4 +137,4 @@ function MyBooks({ books }) {
   );
 }
 
-export default MyBooks;
+export default Books;
