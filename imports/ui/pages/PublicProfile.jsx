@@ -10,7 +10,7 @@ import AppTabBar from '../components/AppTabBar';
 import { call, errorDialog } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 import About from '../components/About';
-import Books from '../components/MyBooks';
+import Books from '../components/Books';
 
 function PublicProfile() {
   const [state, setState] = useState({
