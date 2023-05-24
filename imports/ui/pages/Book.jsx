@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { NavBar, Popup, Skeleton } from 'antd-mobile';
+import { Button, Dialog, NavBar, Popup, Skeleton } from 'antd-mobile';
 import { Avatar, Box, Center, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
 import queryString from 'query-string';
@@ -90,6 +90,16 @@ function Book() {
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      await call('removeBook', id);
+      successDialog('Your book is successfully deleted');
+      navigate(`/${currentUser?.username}`);
+    } catch (error) {
+      errorDialog(error);
+    }
+  };
+
   if (requestId) {
     navigate(`/request/${requestId}`);
   }
@@ -130,6 +140,28 @@ function Book() {
           buttonLabel={isMyBook ? 'Edit' : 'Borrow'}
           onButtonClick={handleButtonClick}
         />
+
+        {isMyBook && (
+          <Center mt="2">
+            <Button
+              color="danger"
+              fill="none"
+              size="small"
+              onClick={() =>
+                Dialog.confirm({
+                  cancelText: 'Cancel',
+                  confirmText: 'Delete',
+                  content: 'Are you sure you want to delete this book?',
+                  onConfirm: () => {
+                    handleDelete();
+                  },
+                })
+              }
+            >
+              Delete
+            </Button>
+          </Center>
+        )}
       </Box>
 
       <Popup

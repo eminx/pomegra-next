@@ -5,6 +5,7 @@ import { Center } from '@chakra-ui/react';
 
 import allLanguages from '../../api/_utils/langs/allLanguages';
 import FilePicker from './FilePicker';
+import { errorDialog } from '../../api/_utils/functions';
 
 const FormItem = Form.Item;
 
@@ -32,12 +33,24 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
   const handleFormSubmit = () => {
     setIsSaving(true);
     const values = form.getFieldsValue();
+
     const valuesArray = Object.keys(values);
     const authorsArray = valuesArray
       .filter((key) => key.substring(0, 6) === 'author')
       .map((key) => {
         return values[key];
       });
+
+    if (
+      !values.title ||
+      values.title.length < 2 ||
+      !authorsArray[0] ||
+      authorsArray[0].length < 2
+    ) {
+      errorDialog('Title and at least one author is required');
+      setIsSaving(false);
+      return;
+    }
 
     const parsedValues = {
       title: values.title,
@@ -82,7 +95,7 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
       <FormItem
         name="title"
         label="Title"
-        rules={[{ required: true, message: 'First name is required' }]}
+        rules={[{ required: true, message: 'Title is required' }]}
       >
         <Input />
       </FormItem>
@@ -110,11 +123,7 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
         </FormItem>
       ))}
 
-      <FormItem
-        name="category"
-        label="Category"
-        rules={[{ required: true, message: 'Category is required' }]}
-      >
+      <FormItem name="category" label="Category">
         <Input />
       </FormItem>
 
@@ -153,7 +162,7 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
         <TextArea rows={5} />
       </FormItem>
 
-      <FormItem label="Image">
+      <FormItem label="Image" rules={[{ required: false }]}>
         <Center>
           <FilePicker
             imageUrl={book.imageUrl}

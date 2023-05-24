@@ -162,7 +162,7 @@ Meteor.methods({
     }
     const theBook = BooksCollection.findOne(bookId);
     if (theBook.ownerId !== Meteor.userId()) {
-      return;
+      throw new Meteor.Error('You are not allowed');
     }
 
     try {
