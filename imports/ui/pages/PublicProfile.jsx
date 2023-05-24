@@ -119,7 +119,7 @@ function PublicProfile() {
             onClick={() => setState({ ...state, isEditDialogOpen: false })}
           />
         </Flex>
-        <EditProfile currentUser={user} />
+        <EditProfile currentUser={user} updateUser={() => getData()} />
       </Popup>
 
       <AppTabBar />

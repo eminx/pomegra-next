@@ -25,14 +25,18 @@ function About({ user, isSmall = false }) {
 
       <AutoCenter>
         {user.firstName && user.lastName && (
-          <Subtitle isSize={5} style={{ textAlign: 'center', marginBottom: 0 }}>
-            {user.firstName + ' ' + user.lastName}
-          </Subtitle>
+          <Box p="2">
+            <Subtitle isSize={5} style={{ textAlign: 'center', marginBottom: 0 }}>
+              {user.firstName + ' ' + user.lastName}
+            </Subtitle>
+          </Box>
         )}
         {user.bio && (
-          <Text fontSize="md" textAlign="center">
-            {user.bio}
-          </Text>
+          <Box px="4" py="2">
+            <Text fontSize="md" textAlign="center">
+              {user.bio}
+            </Text>
+          </Box>
         )}
       </AutoCenter>
 

@@ -21,7 +21,7 @@ const imageModel = {
   uploadableImageLocal: null,
 };
 
-function EditProfile({ currentUser }) {
+function EditProfile({ currentUser, updateUser }) {
   const [image, setImage] = useState(imageModel);
   const [user, setUser] = useState(currentUser);
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -55,6 +55,7 @@ function EditProfile({ currentUser }) {
       const resizedImage = await resizeImage(uploadableImage, 600);
       const uploadedImage = await uploadImage(resizedImage, 'profileImageUpload');
       await call('setProfileImage', uploadedImage);
+      updateUser();
       successDialog('Your new image is set');
     } catch (error) {
       console.log('Error uploading:', error);
@@ -70,6 +71,7 @@ function EditProfile({ currentUser }) {
 
     try {
       call('updateProfile', values);
+      updateUser();
       successDialog('Your profile is successfully updated');
       setUser({
         ...user,
@@ -116,6 +118,7 @@ function EditProfile({ currentUser }) {
     const { languages } = user;
     try {
       call('updateLanguages', languages);
+      updateUser();
       successDialog('Your languages successfully updated');
     } catch (error) {
       console.log(error);
@@ -192,9 +195,9 @@ function EditProfile({ currentUser }) {
           >
             {/* <Form.Header></Form.Header> */}
 
-            <Box p="2">
+            <Form.Item label="Username">
               <Input value={user.username} disabled />
-            </Box>
+            </Form.Item>
 
             <Form.Item
               name="firstName"
