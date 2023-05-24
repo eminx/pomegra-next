@@ -27,7 +27,7 @@ function PublicProfile() {
 
   useEffect(() => {
     getData();
-  }, []);
+  }, [username]);
 
   const getData = async () => {
     try {
