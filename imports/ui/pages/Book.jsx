@@ -77,7 +77,7 @@ function Book() {
     if (backToUser) {
       return navigate(`/${book.ownerUsername}`);
     }
-    return navigate('/discover');
+    return navigate('/');
   };
 
   const isMyBook = currentUser?._id === book?.ownerId;
