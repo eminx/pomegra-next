@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Badge, Divider, TabBar } from 'antd-mobile';
+import { Badge, Button, Divider, TabBar } from 'antd-mobile';
+import { Box, Center } from '@chakra-ui/react';
 
 import { notificationsCounter } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
@@ -14,14 +15,14 @@ const renderIconRoutes = (messageNotificationCount, username) => {
   const shownBadge = messageNotificationCount !== '0' && messageNotificationCount;
 
   return [
-    {
-      title: 'Home',
-      path: '/',
-      icon: <Home />,
-    },
+    // {
+    //   title: 'Home',
+    //   path: '/',
+    //   icon: <Home />,
+    // },
     {
       title: 'Discover',
-      path: '/discover',
+      path: '/',
       icon: <Discover />,
     },
     {
@@ -73,11 +74,21 @@ function AppTabBar() {
         }}
       >
         <Divider style={{ marginBottom: 0, marginTop: 0 }} />
-        <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
-          {iconRoutes.map((icon, index) => (
-            <TabBar.Item key={icon.path} icon={icon.icon} title={icon.title} />
-          ))}
-        </TabBar>
+        {!currentUser ? (
+          <Center py="2" bg="gray.50" h="100%">
+            <Button color="primary" fill="none" onClick={() => navigate('/intro')}>
+              Register or Login
+            </Button>
+          </Center>
+        ) : (
+          <Box bg="gray.50">
+            <TabBar activeKey={pathname} onChange={(elem) => navigate(elem)}>
+              {iconRoutes.map((icon, index) => (
+                <TabBar.Item key={icon.path} icon={icon.icon} title={icon.title} />
+              ))}
+            </TabBar>
+          </Box>
+        )}
       </div>
     </>
   );

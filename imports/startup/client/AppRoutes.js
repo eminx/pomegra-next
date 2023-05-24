@@ -14,9 +14,14 @@ import ForgotPasswordPage from '../../ui/pages/auth/ForgotPasswordPage';
 import PublicProfile from '../../ui/pages/PublicProfile';
 
 const routes = [
+  // {
+  //   path: '/',
+  //   element: <Home />,
+  //   exact: true,
+  // },
   {
     path: '/',
-    element: <Home />,
+    element: <Discover />,
     exact: true,
   },
   {
@@ -32,11 +37,6 @@ const routes = [
   {
     path: '/request/:id',
     element: <Request />,
-    exact: true,
-  },
-  {
-    path: '/discover',
-    element: <Discover />,
     exact: true,
   },
   {

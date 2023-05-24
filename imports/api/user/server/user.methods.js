@@ -23,11 +23,15 @@ Meteor.methods({
   getUsers: () => {
     const currentUser = Meteor.user();
     try {
-      return Meteor.users
-        .find({
-          username: { $ne: currentUser.username },
-        })
-        .fetch();
+      if (currentUser) {
+        return Meteor.users
+          .find({
+            username: { $ne: currentUser.username },
+          })
+          .fetch();
+      } else {
+        return Meteor.users.find().fetch();
+      }
     } catch (error) {
       throw new Meteor.Error(error);
     }
