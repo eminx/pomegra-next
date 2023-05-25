@@ -211,12 +211,13 @@ function AddBook() {
       )}
 
       <Popup
-        closable
         bodyStyle={{
           height: '98vh',
           overflow: 'scroll',
           padding: 12,
         }}
+        closable
+        destroyOnClose
         position="bottom"
         title="Manually Add Book"
         visible={isManuallyAddModalOpen}
