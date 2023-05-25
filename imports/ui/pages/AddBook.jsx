@@ -196,7 +196,7 @@ function AddBook() {
 
       {!isLoading && (
         <Flex justify="center">
-          {searchbarInput === '' ? (
+          {(searchResults && searchResults.length > 0) || searchbarInput === '' ? (
             <FadeInDown duration=".3s">
               <Button onClick={() => setIsManuallyAddModalOpen(true)}>Manually Add Book</Button>
             </FadeInDown>
