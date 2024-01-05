@@ -109,7 +109,9 @@ const parseAuthors = (authors) => {
     return <span>unknown authors</span>;
   }
   return authors.map((author, index) => (
-    <span key={author}>{author + (authors.length !== index + 1 ? ', ' : '')}</span>
+    <span key={author}>
+      {author + (authors.length !== index + 1 ? ', ' : '')}
+    </span>
   ));
 };
 

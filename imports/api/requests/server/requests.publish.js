@@ -17,3 +17,20 @@ Meteor.publish('request', function (requestId) {
     });
   }
 });
+
+Meteor.publish('myRequests', function () {
+  const userId = this.userId;
+  if (userId) {
+    const myRequests = RequestsCollection.find({
+      $or: [
+        {
+          requesterId: userId,
+        },
+        {
+          ownerId: userId,
+        },
+      ],
+    });
+    return myRequests;
+  }
+});

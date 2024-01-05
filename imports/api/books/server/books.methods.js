@@ -39,6 +39,7 @@ Meteor.methods({
           {
             ownerId: { $ne: currentUserId },
             onRequest: { $ne: true },
+            isAvailable: true,
           },
           { limit: 50 }
         ).fetch();
@@ -65,7 +66,9 @@ Meteor.methods({
       throw new Meteor.Error('You have already added a book with same title');
     }
 
-    let imageUrl = book.imageLinks && (book.imageLinks.thumbnail || book.imageLinks.smallThumbnail);
+    let imageUrl =
+      book.imageLinks &&
+      (book.imageLinks.thumbnail || book.imageLinks.smallThumbnail);
 
     if (imageUrl && imageUrl.substring(0, 5) === 'http:') {
       imageUrl = imageUrl.slice(0, 4) + 's' + imageUrl.slice(4);
@@ -140,7 +143,7 @@ Meteor.methods({
     }
     const theBook = BooksCollection.findOne(bookId);
     if (theBook.ownerId !== Meteor.userId()) {
-      return;
+      throw new Meteor.Error('You are not the owner!');
     }
     try {
       BooksCollection.update(
@@ -148,6 +151,7 @@ Meteor.methods({
         {
           $set: {
             ...values,
+            dateUpdatedLast: new Date(),
           },
         }
       );

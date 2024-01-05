@@ -1,9 +1,13 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
-import { RequestsCollection } from '../../collections';
+import { BooksCollection, RequestsCollection } from '../../collections';
 
 Meteor.methods({
+  getCurrentUser: () => {
+    return Meteor.user();
+  },
+
   getUserProfile: (username) => {
     try {
       const user = Meteor.users.findOne({ username });
@@ -53,12 +57,11 @@ Meteor.methods({
 
   updateProfile: (values) => {
     const currentUser = Meteor.user();
+
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
-          firstName: values.firstName,
-          lastName: values.lastName,
-          bio: values.bio,
+          ...values,
         },
       });
     } catch (error) {
@@ -91,19 +94,25 @@ Meteor.methods({
       }
       const theRequest = RequestsCollection.findOne(contextId);
       const theOthersId =
-        theRequest.requesterId === currentUser._id ? theRequest.ownerId : theRequest.requesterId;
+        theRequest.requesterId === currentUser._id
+          ? theRequest.ownerId
+          : theRequest.requesterId;
       const theOther = Meteor.users.findOne(theOthersId);
 
-      const contextIdIndex = theOther.notifications?.findIndex((notification) => {
-        return notification.contextId === contextId;
-      });
+      const contextIdIndex = theOther.notifications?.findIndex(
+        (notification) => {
+          return notification.contextId === contextId;
+        }
+      );
 
-      if (contextIdIndex === 0 || contextIdIndex !== -1) {
-        const notifications = theOther.notifications ? [...theOther.notifications] : [];
+      if (contextIdIndex !== -1) {
+        const notifications = theOther.notifications
+          ? [...theOther.notifications]
+          : [];
         if (notifications[contextIdIndex]) {
           notifications[contextIdIndex].count += 1;
         }
-        if (!`notifications`[contextIdIndex]?.unSeenIndexes) {
+        if (!notifications[contextIdIndex]?.unSeenIndexes) {
           notifications[contextIdIndex].unSeenIndexes = [];
         }
         notifications[contextIdIndex]?.unSeenIndexes.push(unSeenIndex);
@@ -126,6 +135,43 @@ Meteor.methods({
           },
         });
       }
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
+  },
+
+  removeAllNotifications: (contextId) => {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    try {
+      const notifications = [...currentUser.notifications];
+      if (!notifications) {
+        return;
+      }
+
+      const notificationIndex = notifications.findIndex(
+        (notification) => notification.contextId === contextId
+      );
+
+      if (notificationIndex < 0) {
+        return;
+      }
+
+      notifications[notificationIndex].count -= 1;
+
+      const newNotifications = notifications.filter(
+        (notification, index) => index !== notificationIndex
+      );
+
+      Meteor.users.update(currentUser._id, {
+        $set: {
+          notifications: newNotifications,
+        },
+      });
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);
@@ -160,9 +206,9 @@ Meteor.methods({
           (notification, index) => index !== notificationIndex
         );
       } else {
-        const newUnSeenIndexes = notifications[notificationIndex]?.unSeenIndexes.filter(
-          (unSeenIndex) => unSeenIndex !== messageIndex
-        );
+        const newUnSeenIndexes = notifications[
+          notificationIndex
+        ]?.unSeenIndexes.filter((unSeenIndex) => unSeenIndex !== messageIndex);
         notifications[notificationIndex].unSeenIndexes = newUnSeenIndexes;
         newNotifications = notifications;
       }
@@ -184,6 +230,8 @@ Meteor.methods({
       throw new Meteor.Error('Not allowed!');
     }
 
+    const currentUserId = currentUser._id;
+
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
@@ -202,6 +250,8 @@ Meteor.methods({
       throw new Meteor.Error('Not allowed!');
     }
 
+    const currentUserId = currentUser._id;
+
     try {
       Meteor.users.update(currentUser._id, {
         $set: {
@@ -209,6 +259,45 @@ Meteor.methods({
           previousImages: currentUser.images,
         },
       });
+      BooksCollection.update(
+        {
+          ownerId: currentUserId,
+        },
+        {
+          $set: {
+            ownerImage: newImage,
+          },
+        },
+        {
+          multi: true,
+        }
+      );
+      RequestsCollection.update(
+        {
+          ownerId: currentUserId,
+        },
+        {
+          $set: {
+            ownerImage: newImage,
+          },
+        },
+        {
+          multi: true,
+        }
+      );
+      RequestsCollection.update(
+        {
+          requesterId: currentUserId,
+        },
+        {
+          $set: {
+            requesterImage: newImage,
+          },
+        },
+        {
+          multi: true,
+        }
+      );
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);
@@ -221,13 +310,23 @@ Meteor.methods({
       throw new Meteor.Error('Not allowed!');
     }
 
+    const currentUserId = currentUser._id;
+
     try {
-      Meteor.users.update(currentUser._id, {
+      Meteor.users.update(currentUserId, {
         $set: {
           images: null,
           previousImages: currentUser.images,
         },
       });
+      Books.update(
+        { ownerId: currentUserId },
+        {
+          $set: {
+            ownerImage: null,
+          },
+        }
+      );
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);

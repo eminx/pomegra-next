@@ -27,11 +27,15 @@ Meteor.methods({
     const theMessage = MessagesCollection.findOne({
       requestId,
     });
-    if (currentUserId !== theMessage.lenderId && currentUserId !== theMessage.borrowerId) {
+    if (
+      currentUserId !== theMessage.lenderId &&
+      currentUserId !== theMessage.borrowerId
+    ) {
       return;
     }
 
-    const unSeenIndex = MessagesCollection.findOne({ requestId })?.messages?.length;
+    const unSeenIndex = MessagesCollection.findOne({ requestId })?.messages
+      ?.length;
 
     try {
       MessagesCollection.update(
@@ -53,7 +57,24 @@ Meteor.methods({
         }
       );
 
-      Meteor.call('createNotification', 'request', theMessage.requestId, unSeenIndex);
+      RequestsCollection.update(
+        {
+          _id: requestId,
+        },
+        {
+          $set: {
+            lastMessageBy: currentUserId,
+            lastMessageDate: new Date(),
+          },
+        }
+      );
+
+      Meteor.call(
+        'createNotification',
+        'request',
+        theMessage.requestId,
+        unSeenIndex
+      );
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);

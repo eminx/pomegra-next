@@ -1,29 +1,41 @@
 import { Meteor } from 'meteor/meteor';
-import Spiderable from 'meteor/ostrio:spiderable-middleware';
-import './api';
+import { Accounts } from 'meteor/accounts-base';
+// import {
+//   BooksCollection,
+//   MessagesCollection,
+//   RequestsCollection,
+// } from '../../api/collections';
 
-const { ostrio } = Meteor.settings;
+import './api';
 
 Meteor.startup(() => {
   const smtp = Meteor.settings.mailCredentials.smtp;
 
-  process.env.MAIL_URL = `smtps://${encodeURIComponent(smtp.userName)}:${smtp.password}@${
-    smtp.host
-  }:${smtp.port}`;
+  process.env.MAIL_URL = `smtps://${encodeURIComponent(smtp.userName)}:${
+    smtp.password
+  }@${smtp.host}:${smtp.port}`;
   Accounts.emailTemplates.resetPassword.from = () => smtp.fromEmail;
   Accounts.emailTemplates.from = () => smtp.fromEmail;
   Accounts.emailTemplates.resetPassword.text = function (user, url) {
     const newUrl = url.replace('#/', '');
     return `To reset your password, simply click the link below. ${newUrl}`;
   };
-});
 
-if (ostrio) {
-  WebApp.connectHandlers.use(
-    new Spiderable({
-      rootURL: Meteor.absoluteUrl(),
-      serviceURL: ostrio.serviceURL,
-      auth: `${ostrio.APIUser}:${ostrio.APIPass}`,
-    })
-  );
-}
+  // MessagesCollection.find().forEach((m) => {
+  //   const lastMessageDate =
+  //     m.messages &&
+  //     m.messages.length > 0 &&
+  //     m.messages[m.messages.length - 1]?.createdDate;
+  //   if (!lastMessageDate) {
+  //     return;
+  //   }
+  //   RequestsCollection.update(
+  //     { _id: m.requestId },
+  //     {
+  //       $set: {
+  //         lastMessageDate: lastMessageDate,
+  //       },
+  //     }
+  //   );
+  // });
+});

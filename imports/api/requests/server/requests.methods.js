@@ -1,5 +1,9 @@
 import { Meteor } from 'meteor/meteor';
-import { BooksCollection, MessagesCollection, RequestsCollection } from '../../collections';
+import {
+  BooksCollection,
+  MessagesCollection,
+  RequestsCollection,
+} from '../../collections';
 
 Meteor.methods({
   getMyRequests: () => {
@@ -34,31 +38,30 @@ Meteor.methods({
   },
 
   makeRequest: (bookId) => {
-    const currentUserId = Meteor.userId();
-    if (!currentUserId) {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
       return false;
     }
 
     try {
       const theBook = BooksCollection.findOne(bookId);
-      const currentUser = Meteor.user();
       const owner = Meteor.users.findOne(theBook.ownerId);
 
       if (
         RequestsCollection.findOne({
           bookId: bookId,
-          requesterId: currentUserId,
+          requesterId: currentUser._id,
         })
       ) {
         throw new Meteor.Error('You have already requested this item');
       }
       const requestId = RequestsCollection.insert({
         bookId: bookId,
-        requesterId: currentUserId,
+        requesterId: currentUser._id,
         ownerId: theBook.ownerId,
         ownerUsername: theBook.ownerUsername,
         requesterUsername: currentUser.username,
-        ownerImage: theBook.ownerImage,
+        ownerImage: owner?.images && owner.images[0],
         requesterImage: currentUser.images && currentUser.images[0],
         bookTitle: theBook.title,
         bookAuthors: theBook.authors,
@@ -70,7 +73,7 @@ Meteor.methods({
 
       MessagesCollection.insert({
         requestId: requestId,
-        borrowerId: currentUserId,
+        borrowerId: currentUser._id,
         lenderId: theBook.ownerId,
         isSeenByOther: false,
         messages: new Array(),

@@ -16,6 +16,7 @@
     "@chakra-ui/react": "^2.5.5",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@gluestack-ui/themed": "^0.1.10",
     "animate-components": "^1.4.8",
     "antd-mobile": "^5.29.1",
     "antd-mobile-icons": "^0.3.0",
