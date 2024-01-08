@@ -10,7 +10,7 @@ RequestsCollection.schema = new SimpleSchema({
   'bookAuthors.$': { type: String, optional: true },
   bookCategories: { type: Array, optional: true },
   'bookCategories.$': { type: String, optional: true },
-  bookID: Schemas.Id,
+  bookId: Schemas.Id,
   bookImage: { type: String, optional: true },
   bookLanguage: { type: String, optional: true },
   bookTitle: { type: String },

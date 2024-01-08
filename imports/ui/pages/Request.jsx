@@ -21,7 +21,7 @@ import { ChatteryWindow } from '../components/chattery/ChatteryWindow';
 import { call } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 import useChattery from '../../api/_utils/useChattery';
-import { RequestsCollection } from '../../api/collections';
+import RequestsCollection from '../../api/requests/request';
 import { errorDialog, successDialog } from '../components/Toast';
 
 const { Step } = Steps;

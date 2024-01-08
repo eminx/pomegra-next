@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
-import { MessagesCollection, RequestsCollection } from '../../collections';
+import MessagesCollection from '../message';
+import RequestsCollection from '../../requests/request';
 
 Meteor.methods({
   getRequestMessages: (requestId) => {

@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { BooksCollection } from '../../books/book';
+import BooksCollection from '../../books/book';
 
 Meteor.publish('myBooks', function () {
   const userId = this.userId;

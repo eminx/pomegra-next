@@ -10,7 +10,6 @@ MessagesCollection.schema = new SimpleSchema({
   isNotificationOn: { type: Boolean, optional: true },
   isSeenByOther: { type: Boolean, optional: true },
   lastMessageBy: { type: String, optional: true },
-  lenderId: Schemas.Id,
   messages: { type: Array },
   'messages.$': {
     type: new SimpleSchema({

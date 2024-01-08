@@ -62,7 +62,6 @@ function Book() {
     if (!currentUser) {
       errorDialog('Please create an account');
     }
-
     try {
       await call('makeRequest', book._id);
       successDialog('Your request is successfully sent!');

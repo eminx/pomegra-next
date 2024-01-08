@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { RequestsCollection } from '../../collections';
+import RequestsCollection from '../request';
 
 Meteor.publish('request', function (requestId) {
   const userId = this.userId;

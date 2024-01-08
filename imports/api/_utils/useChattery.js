@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { useTracker } from 'meteor/react-meteor-data';
 
-import { MessagesCollection } from '../collections';
+import MessagesCollection from '../../api/messages/message';
 
 const useChattery = (requestId, currentUser) =>
   useTracker(() => {

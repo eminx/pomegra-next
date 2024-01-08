@@ -26,3 +26,4 @@ force-ssl@1.1.0
 edgee:slingshot
 ostrio:spiderable-middleware
 webapp@1.13.6
+aldeed:collection2

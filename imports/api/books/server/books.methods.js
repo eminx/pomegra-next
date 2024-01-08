@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { BooksCollection } from '../../books/book';
+import BooksCollection from '../../books/book';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({
@@ -48,6 +48,7 @@ Meteor.methods({
         return BooksCollection.find({}, { limit: 50 }).fetch();
       }
     } catch (error) {
+      console.log(error);
       throw new Meteor.Error(error);
     }
   },

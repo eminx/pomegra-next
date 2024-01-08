@@ -55,7 +55,7 @@ Meteor.methods({
         throw new Meteor.Error('You have already requested this item');
       }
       const requestId = RequestsCollection.insert({
-        bookId: bookId,
+        bookId,
         requesterId: currentUser._id,
         ownerId: theBook.ownerId,
         ownerUsername: theBook.ownerUsername,
@@ -73,7 +73,7 @@ Meteor.methods({
       MessagesCollection.insert({
         requestId: requestId,
         borrowerId: currentUser._id,
-        lenderId: theBook.ownerId,
+        ownerId: theBook.ownerId,
         isSeenByOther: false,
         messages: new Array(),
       });
@@ -96,6 +96,7 @@ Meteor.methods({
       //   ' has requested to borrow a book from you. Please go ahead and reply at: https://app.pomegra.org/my-requests/';
       // Meteor.call('sendEmail', ownerId, subjectEmail, textEmail);
     } catch (error) {
+      console.log(error);
       throw new Meteor.Error(error);
     }
   },

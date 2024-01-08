@@ -23,9 +23,14 @@ BooksCollection.schema = new SimpleSchema({
   isAvailable: { type: Boolean },
   ISBN: { type: String, optional: true },
   industryIdentifiers: { type: Array, optional: true },
-  'industryIdentifiers.$.type': { type: String, optional: true },
-  'industryIdentifiers.$.identifier': { type: String, optional: true },
+  'industryIdentifiers.$': {
+    type: new SimpleSchema({
+      type: { type: String, optional: true },
+      identifier: { type: String, optional: true },
+    }),
+  },
   language: { type: String, optional: true },
+  onRequest: { type: Boolean, optional: true },
   ownerId: Schemas.Id,
   ownerImage: { type: String, optional: true },
   ownerLocation: {

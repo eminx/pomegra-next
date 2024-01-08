@@ -1,21 +1,36 @@
 import React from 'react';
-import { Toast } from 'antd-mobile';
+import { createRoot } from 'react-dom/client';
+import { createStandaloneToast } from '@chakra-ui/react';
 
-function showToast(content, duration = 2000, position = 'center', icon) {
-  Toast.show({
-    content,
-    duration,
-    icon,
-    position,
+const { ToastContainer, toast } = createStandaloneToast();
+
+const toastContainer = document.getElementById('toast-root');
+createRoot(toastContainer).render(
+  <>
+    <ToastContainer />
+  </>
+);
+
+const timeOutTime = 3;
+
+const renderToast = (status, text, duration) => {
+  toast({
+    description: text,
+    duration: (duration || timeOutTime) * 1000,
+    isClosable: true,
+    position: 'top',
+    status,
   });
+};
+
+function errorDialog(content, duration) {
+  renderToast('error', content, duration);
+  // console.log('error');
 }
 
-function errorDialog(content, duration, position) {
-  showToast(content, duration, position, 'fail');
-}
-
-function successDialog(content, duration, position) {
-  showToast(content, duration, position, 'success');
+function successDialog(content, duration) {
+  renderToast('success', content, duration);
+  // console.log('success');
 }
 
 export { errorDialog, successDialog };
