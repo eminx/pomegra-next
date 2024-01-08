@@ -1,5 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { BooksCollection } from '../../collections';
+import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({
   getUserBooks: (username) => {
@@ -87,6 +88,7 @@ Meteor.methods({
       ownerId: currentUserId,
       ownerUsername: user.username,
       ownerImage: user.images && user.images[0],
+      ownerLocation: user.location,
       xTimes: 0,
       isAvailable: true,
       dateAdded: new Date(),
@@ -174,5 +176,34 @@ Meteor.methods({
     } catch (error) {
       throw new Meteor.Error(error);
     }
+  },
+
+  getBooksNearBy: () => {
+    const user = Meteor.user();
+    if (!user || !user.location) {
+      return;
+    }
+
+    const radius = 100; //km
+
+    const allBooks = BooksCollection.find({
+      ownerId: { $ne: user._id },
+      isAvailable: true,
+    })
+      .fetch()
+      .map((b) => ({
+        ...b,
+        latitude: b.ownerLocation?.coords.latitude,
+        longitude: b.ownerLocation?.coords.longitude,
+      }));
+
+    const userLocationCoords = user.location.coords;
+
+    return getNearbyUsersOrBooks(
+      userLocationCoords.latitude,
+      userLocationCoords.longitude,
+      radius,
+      allBooks
+    );
   },
 });

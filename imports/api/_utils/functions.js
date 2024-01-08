@@ -104,17 +104,17 @@ const call = (method, ...parameters) =>
     });
   });
 
-function getNearbyUsersOrBooks(latitude, longitude, distanceInKm, users) {
+function getNearbyUsersOrBooks(latitude, longitude, distanceInKm, items) {
   var R = 6373;
 
   var latRad = (latitude * Math.PI) / 180;
   var lngRad = (longitude * Math.PI) / 180;
 
-  var returnUsers = [];
+  var returnItems = [];
 
-  for (var i = 0; i < users.length; i++) {
-    var lat2Rad = (users[i].latitude * Math.PI) / 180;
-    var lng2Rad = (users[i].longitude * Math.PI) / 180;
+  for (var i = 0; i < items.length; i++) {
+    var lat2Rad = (items[i].latitude * Math.PI) / 180;
+    var lng2Rad = (items[i].longitude * Math.PI) / 180;
     var dlat = lat2Rad - latRad;
     var dlng = lng2Rad - lngRad;
     var a =
@@ -123,10 +123,9 @@ function getNearbyUsersOrBooks(latitude, longitude, distanceInKm, users) {
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // great circle distance in radians
     var d = c * R; // Distance from user in km
 
-    if (d < distanceInKm) returnUsers.push({ ...users[i], distance: d });
+    if (d < distanceInKm) returnItems.push({ ...items[i], distance: d });
   }
-  console.log();
-  return returnUsers;
+  return returnItems;
 }
 
 export {

@@ -57,14 +57,27 @@ Meteor.methods({
   },
 
   updateProfile: (values) => {
-    const currentUser = Meteor.user();
+    const currentUserId = Meteor.userId();
 
     try {
-      Meteor.users.update(currentUser._id, {
+      Meteor.users.update(currentUserId, {
         $set: {
           ...values,
         },
       });
+      if (values.location) {
+        BooksCollection.update(
+          { ownerId: currentUserId },
+          {
+            $set: {
+              ownerLocation: values.location,
+            },
+          },
+          {
+            multi: true,
+          }
+        );
+      }
     } catch (error) {
       throw new Meteor.Error(error);
     }
@@ -386,10 +399,10 @@ Meteor.methods({
       return;
     }
 
-    const radius = 1000; //km
+    const radius = 100; //km
 
     const allUsers = Meteor.users
-      .find()
+      .find({ _id: { $ne: user._id } })
       .fetch()
       .map((u) => ({
         userId: u._id,
