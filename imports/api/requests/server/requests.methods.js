@@ -1,9 +1,8 @@
 import { Meteor } from 'meteor/meteor';
-import {
-  BooksCollection,
-  MessagesCollection,
-  RequestsCollection,
-} from '../../collections';
+
+import BooksCollection from '../../books/book';
+import MessagesCollection from '../../messages/message';
+import RequestsCollection from '../request';
 
 Meteor.methods({
   getMyRequests: () => {

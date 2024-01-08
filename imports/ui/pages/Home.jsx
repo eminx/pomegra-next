@@ -6,10 +6,7 @@ import { Box, Flex } from '@chakra-ui/react';
 import { FormattedMessage } from 'react-intl';
 
 import { UserContext } from '../Layout';
-import { errorDialog, successDialog } from '../../api/_utils/functions';
 import AppTabBar from '../components/AppTabBar';
-import HeroSlide from '../components/HeroSlide';
-import NiceShelf from '../components/NiceShelf';
 
 function Home() {
   const { currentUser } = useContext(UserContext);

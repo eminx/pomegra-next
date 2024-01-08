@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { BooksCollection } from '../../collections';
+import { BooksCollection } from '../../books/book';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({

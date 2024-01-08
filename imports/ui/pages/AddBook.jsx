@@ -6,16 +6,11 @@ import { Box, Flex, Heading } from '@chakra-ui/react';
 import { CloseOutline } from 'antd-mobile-icons';
 
 import { UserContext } from '../Layout';
-import {
-  errorDialog,
-  resizeImage,
-  successDialog,
-  uploadImage,
-  call,
-} from '../../api/_utils/functions';
+import { resizeImage, uploadImage, call } from '../../api/_utils/functions';
 import BookCardNext from '../components/BookCardNext';
 import AppTabBar from '../components/AppTabBar';
 import BookForm from '../components/BookForm';
+import { errorDialog, successDialog } from '../components/Toast';
 
 const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
 
@@ -171,10 +166,22 @@ function AddBook() {
 
       {isLoading && (
         <div>
-          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
-          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
-          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
-          <Skeleton animated style={{ width: '100%', height: '180px', marginBottom: 24 }} />
+          <Skeleton
+            animated
+            style={{ width: '100%', height: '180px', marginBottom: 24 }}
+          />
+          <Skeleton
+            animated
+            style={{ width: '100%', height: '180px', marginBottom: 24 }}
+          />
+          <Skeleton
+            animated
+            style={{ width: '100%', height: '180px', marginBottom: 24 }}
+          />
+          <Skeleton
+            animated
+            style={{ width: '100%', height: '180px', marginBottom: 24 }}
+          />
         </div>
       )}
 
@@ -196,9 +203,12 @@ function AddBook() {
 
       {!isLoading && (
         <Flex justify="center">
-          {(searchResults && searchResults.length > 0) || searchbarInput === '' ? (
+          {(searchResults && searchResults.length > 0) ||
+          searchbarInput === '' ? (
             <FadeInDown duration=".3s">
-              <Button onClick={() => setIsManuallyAddModalOpen(true)}>Manually Add Book</Button>
+              <Button onClick={() => setIsManuallyAddModalOpen(true)}>
+                Manually Add Book
+              </Button>
             </FadeInDown>
           ) : (
             <FadeInDown duration=".3s">
@@ -227,7 +237,10 @@ function AddBook() {
           <Heading size="md" fontWeight="normal">
             Manually add a book
           </Heading>
-          <CloseOutline fontSize="24px" onClick={() => setIsManuallyAddModalOpen(false)} />
+          <CloseOutline
+            fontSize="24px"
+            onClick={() => setIsManuallyAddModalOpen(false)}
+          />
         </Flex>
 
         <BookForm

@@ -7,10 +7,11 @@ import { CloseOutline } from 'antd-mobile-icons';
 
 import EditProfile from '../components/EditProfile';
 import AppTabBar from '../components/AppTabBar';
-import { call, errorDialog } from '../../api/_utils/functions';
+import { call } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 import About from '../components/About';
 import Books from '../components/Books';
+import { errorDialog } from '../components/Toast';
 
 function PublicProfile() {
   const [state, setState] = useState({
@@ -52,19 +53,42 @@ function PublicProfile() {
         <Center>
           <Skeleton
             animated
-            style={{ width: '80px', height: '30px', marginTop: 12, marginBottom: 24 }}
+            style={{
+              width: '80px',
+              height: '30px',
+              marginTop: 12,
+              marginBottom: 24,
+            }}
           />
         </Center>
         <Center>
-          <Skeleton animated style={{ width: '75%', height: '240px', marginBottom: 24 }} />
+          <Skeleton
+            animated
+            style={{ width: '75%', height: '240px', marginBottom: 24 }}
+          />
         </Center>
         <Center>
-          <Skeleton animated style={{ width: '120px', height: '30px', marginBottom: 24 }} />
+          <Skeleton
+            animated
+            style={{ width: '120px', height: '30px', marginBottom: 24 }}
+          />
         </Center>
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
       </div>
     );
   }
@@ -86,7 +110,12 @@ function PublicProfile() {
             Edit
           </Button>
 
-          <Button color="primary" fill="none" size="small" onClick={() => Meteor.logout()}>
+          <Button
+            color="primary"
+            fill="none"
+            size="small"
+            onClick={() => Meteor.logout()}
+          >
             Log out
           </Button>
         </Center>

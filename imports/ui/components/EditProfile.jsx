@@ -1,18 +1,20 @@
 import React, { useState, Fragment } from 'react';
-import { Button, Form, Input, ImageUploader, Picker, Tabs, TextArea } from 'antd-mobile';
-import { Box, Center, Flex, Stack, Tag, TagCloseButton, Text } from '@chakra-ui/react';
+import { Button, Form, Input, Picker, Tabs, TextArea } from 'antd-mobile';
+import {
+  Box,
+  Center,
+  Stack,
+  Tag,
+  TagCloseButton,
+  Text,
+} from '@chakra-ui/react';
 import { Subtitle } from 'bloomer';
 import { shallowEqualArrays } from 'shallow-equal';
 
 import allLanguages from '../../api/_utils/langs/allLanguages';
-import {
-  errorDialog,
-  successDialog,
-  resizeImage,
-  uploadImage,
-  call,
-} from '../../api/_utils/functions';
+import { resizeImage, uploadImage, call } from '../../api/_utils/functions';
 import FilePicker from './FilePicker';
+import { errorDialog, successDialog } from './Toast';
 
 const { Tab } = Tabs;
 
@@ -53,7 +55,10 @@ function EditProfile({ currentUser, updateUser }) {
     const { uploadableImage } = image;
     try {
       const resizedImage = await resizeImage(uploadableImage, 600);
-      const uploadedImage = await uploadImage(resizedImage, 'profileImageUpload');
+      const uploadedImage = await uploadImage(
+        resizedImage,
+        'profileImageUpload'
+      );
       await call('setProfileImage', uploadedImage);
       updateUser();
       successDialog('Your new image is set');
@@ -88,7 +93,10 @@ function EditProfile({ currentUser, updateUser }) {
   const handleLanguageSelect = (selectedLanguages) => {
     const selectedLanguageValue = selectedLanguages[0];
     const { languages } = user;
-    if (languages && languages.some((language) => language.value === selectedLanguageValue)) {
+    if (
+      languages &&
+      languages.some((language) => language.value === selectedLanguageValue)
+    ) {
       return;
     }
 
@@ -96,7 +104,9 @@ function EditProfile({ currentUser, updateUser }) {
       (language) => language && language.value === selectedLanguageValue
     );
 
-    const newLanguages = languages ? [...languages, selectedLanguage] : [selectedLanguage];
+    const newLanguages = languages
+      ? [...languages, selectedLanguage]
+      : [selectedLanguage];
 
     setUser({
       ...user,
@@ -106,7 +116,9 @@ function EditProfile({ currentUser, updateUser }) {
 
   const handleRemoveLanguage = (languageValue) => {
     const { languages } = user;
-    const newLanguages = languages.filter((language) => languageValue !== language.value);
+    const newLanguages = languages.filter(
+      (language) => languageValue !== language.value
+    );
     setUser({
       ...user,
       languages: newLanguages,
@@ -188,7 +200,12 @@ function EditProfile({ currentUser, updateUser }) {
             form={form}
             layout="horizontal"
             footer={
-              <Button block color="primary" type="submit" onClick={handleUpdateProfile}>
+              <Button
+                block
+                color="primary"
+                type="submit"
+                onClick={handleUpdateProfile}
+              >
                 Save
               </Button>
             }
@@ -242,9 +259,14 @@ function EditProfile({ currentUser, updateUser }) {
 
           <Stack direction="row" justify="center" py="2" wrap="wrap">
             {languages?.map((language) => (
-              <Tag key={language.value} onClose={() => handleRemoveLanguage(language.value)}>
+              <Tag
+                key={language.value}
+                onClose={() => handleRemoveLanguage(language.value)}
+              >
                 {language.label}
-                <TagCloseButton onClick={() => handleRemoveLanguage(language.value)} />
+                <TagCloseButton
+                  onClick={() => handleRemoveLanguage(language.value)}
+                />
               </Tag>
             ))}
           </Stack>
@@ -253,7 +275,10 @@ function EditProfile({ currentUser, updateUser }) {
             <Button
               block
               color="primary"
-              disabled={shallowEqualArrays(currentUser.languages, user.languages)}
+              disabled={shallowEqualArrays(
+                currentUser.languages,
+                user.languages
+              )}
               onClick={() => handleUpdateLanguages()}
             >
               Save
@@ -263,8 +288,8 @@ function EditProfile({ currentUser, updateUser }) {
 
         <Tab title="Location" key="location">
           <Text mt="2" mb="6">
-            We will use your location in order to find books that are located close to you so you
-            can go pick them up.
+            We will use your location in order to find books that are located
+            close to you so you can go pick them up.
           </Text>
           {currentUser.geoLocationCoords ? (
             <Fragment>

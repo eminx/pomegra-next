@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
 import BookForm from '../components/BookForm';
-import { errorDialog, resizeImage, uploadImage } from '../../api/_utils/functions';
+import { resizeImage, uploadImage } from '../../api/_utils/functions';
+import { errorDialog } from '../components/Toast';
 
 const imageModel = {
   uploadableImage: null,

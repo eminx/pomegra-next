@@ -7,8 +7,9 @@ import queryString from 'query-string';
 
 import { BookCard } from '../components/BookCard';
 import EditBook from '../layouts/EditBook';
-import { call, errorDialog, successDialog } from '../../api/_utils/functions';
+import { call } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
+import { errorDialog, successDialog } from '../components/Toast';
 
 function Book() {
   const [book, setBook] = useState(null);
@@ -109,13 +110,22 @@ function Book() {
       <div>
         <NavBar backArrow={false}>Book Details</NavBar>
         <Center>
-          <Skeleton animated style={{ width: '70%', height: '180px', marginBottom: 24 }} />
+          <Skeleton
+            animated
+            style={{ width: '70%', height: '180px', marginBottom: 24 }}
+          />
         </Center>
         <Center>
-          <Skeleton animated style={{ width: '90%', height: '40px', marginBottom: 24 }} />
+          <Skeleton
+            animated
+            style={{ width: '90%', height: '40px', marginBottom: 24 }}
+          />
         </Center>
         <Center>
-          <Skeleton animated style={{ width: '90%', height: '240px', marginBottom: 24 }} />
+          <Skeleton
+            animated
+            style={{ width: '90%', height: '240px', marginBottom: 24 }}
+          />
         </Center>
       </div>
     );
@@ -126,7 +136,12 @@ function Book() {
       <NavBar
         right={
           <Link to={`/${book.ownerUsername}`}>
-            <Avatar name={book.ownerUsername} src={book.ownerImage} size="sm" borderRadius="4px" />
+            <Avatar
+              name={book.ownerUsername}
+              src={book.ownerImage}
+              size="sm"
+              borderRadius="4px"
+            />
           </Link>
         }
         onBack={handleBack}
@@ -180,7 +195,10 @@ function Book() {
           <Heading size="md" fontWeight="normal">
             Edit book
           </Heading>
-          <CloseOutline fontSize="24px" onClick={() => setIsEditDialogOpen(false)} />
+          <CloseOutline
+            fontSize="24px"
+            onClick={() => setIsEditDialogOpen(false)}
+          />
         </Flex>
         <EditBook book={book} updateBook={updateBook} />
       </Popup>

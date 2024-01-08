@@ -1,7 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
-import { BooksCollection, RequestsCollection } from '../../collections';
+import BooksCollection from '../../books/book';
+import RequestsCollection from '../../requests/request';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({

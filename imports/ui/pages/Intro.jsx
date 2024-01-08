@@ -19,11 +19,10 @@ import allLanguages from '../../api/_utils/langs/allLanguages';
 import {
   resizeImage,
   uploadImage,
-  errorDialog,
-  successDialog,
   validateEmail,
   call,
 } from '../../api/_utils/functions';
+import { errorDialog, successDialog } from '../components/Toast';
 
 import {
   InfoForm,
@@ -107,7 +106,11 @@ class Intro extends Component {
     const { carouselIndex } = this.state;
     // if ([].includes(carouselIndex)) return true;
     if ([0, 1, 2, 3, 7, 8, 9].includes(carouselIndex)) return false;
-    return this.isEmailInvalid() || this.isUsernameInvalid() || this.isPasswordInvalid();
+    return (
+      this.isEmailInvalid() ||
+      this.isUsernameInvalid() ||
+      this.isPasswordInvalid()
+    );
   };
 
   goNext = () => {
@@ -203,7 +206,9 @@ class Intro extends Component {
   handleLanguageSelect = (event) => {
     const { languages } = this.state;
     const selectedLanguageValue = event.target.value;
-    if (languages.some((language) => language.value === selectedLanguageValue)) {
+    if (
+      languages.some((language) => language.value === selectedLanguageValue)
+    ) {
       return;
     }
 
@@ -220,7 +225,9 @@ class Intro extends Component {
     const { languages } = this.state;
     const languageValue = language.value;
 
-    const newLanguages = languages.filter((language) => languageValue !== language.value);
+    const newLanguages = languages.filter(
+      (language) => languageValue !== language.value
+    );
     this.setState({
       languages: newLanguages,
     });
@@ -281,7 +288,10 @@ class Intro extends Component {
     const { uploadableImage } = this.state.image;
     try {
       const resizedImage = await resizeImage(uploadableImage, 600);
-      const uploadedImage = await uploadImage(resizedImage, 'profileImageUpload');
+      const uploadedImage = await uploadImage(
+        resizedImage,
+        'profileImageUpload'
+      );
       await call('setProfileImage', uploadedImage);
       successDialog('Your new image is set');
     } catch (error) {
@@ -463,7 +473,8 @@ class Intro extends Component {
       );
     }
 
-    const profileUnchanged = areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
+    const profileUnchanged =
+      areProfileFieldsUnChanged && isLanguageUnChangedForExistingUser;
 
     const sliderProps = {
       ref: (component) => (this.slider = component),
@@ -517,8 +528,12 @@ class Intro extends Component {
                 <LoginForm
                   username={username}
                   password={password}
-                  onUsernameChange={(value) => this.setState({ username: value })}
-                  onPasswordChange={(value) => this.setState({ password: value })}
+                  onUsernameChange={(value) =>
+                    this.setState({ username: value })
+                  }
+                  onPasswordChange={(value) =>
+                    this.setState({ password: value })
+                  }
                   onButtonClick={() => this.signIn()}
                   onSecondaryButtonClick={this.forgotPassword}
                   closeLogin={() => this.setState({ isLogin: false })}
@@ -529,14 +544,18 @@ class Intro extends Component {
 
           <UsernameSlide
             username={username}
-            onChange={(event) => this.setState({ username: event.target.value })}
+            onChange={(event) =>
+              this.setState({ username: event.target.value })
+            }
             isUsernameInvalid={isUsernameInvalid}
             onButtonClick={this.handleUsernameButtonClick}
           />
 
           <PasswordSlide
             password={password}
-            onChange={(event) => this.setState({ password: event.target.value })}
+            onChange={(event) =>
+              this.setState({ password: event.target.value })
+            }
             isPasswordInvalid={isPasswordInvalid}
             onButtonClick={this.handleCreateAccount}
           />
@@ -564,7 +583,9 @@ class Intro extends Component {
           bio={bio}
           firstName={firstName}
           lastName={lastName}
-          onFirstNameChange={(e) => this.setState({ firstName: e.target.value })}
+          onFirstNameChange={(e) =>
+            this.setState({ firstName: e.target.value })
+          }
           onLastNameChange={(e) => this.setState({ lastName: e.target.value })}
           onBioChange={(e) => this.setState({ bio: e.target.value })}
           onSubmitInfoForm={this.goNext}
@@ -579,7 +600,11 @@ class Intro extends Component {
           onSkip={() => this.goNext()}
         />
 
-        <HeroSlide isColor="dark" isSkip subtitle="Great! Now let's get an avatar for you">
+        <HeroSlide
+          isColor="dark"
+          isSkip
+          subtitle="Great! Now let's get an avatar for you"
+        >
           <Field>
             <Center mb="8">
               <FilePicker
@@ -598,7 +623,11 @@ class Intro extends Component {
                 className="is-rounded"
                 isPulled="right"
               >
-                {avatar ? 'Continue' : savingAvatar ? 'Saving Avatar... ' : 'Save Avatar'}
+                {avatar
+                  ? 'Continue'
+                  : savingAvatar
+                  ? 'Saving Avatar... '
+                  : 'Save Avatar'}
               </Button>
             </Control>
           </Field>
@@ -646,7 +675,9 @@ class Intro extends Component {
           openBook={openBook}
           onButtonClick={() => this.finishIntro()}
           onAddButtonClick={this.insertBook}
-          onSearchValueChange={(event) => this.setState({ searchValue: event.target.value })}
+          onSearchValueChange={(event) =>
+            this.setState({ searchValue: event.target.value })
+          }
         />
 
         <HeroSlide
@@ -667,12 +698,15 @@ class Intro extends Component {
           </Button>
 
           <Subtitle isSize={6}>
-            After clicking, you will be prompted by your device to ask for permission
+            After clicking, you will be prompted by your device to ask for
+            permission
           </Subtitle>
         </HeroSlide>
 
         <HeroSlide subtitle="Congratulations!" isColor="success">
-          <Subtitle isSize={4}>Now you are ready to start lending and borrowing books</Subtitle>
+          <Subtitle isSize={4}>
+            Now you are ready to start lending and borrowing books
+          </Subtitle>
 
           <Button
             isColor="light"

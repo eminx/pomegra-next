@@ -18,10 +18,11 @@ import { Box, Flex } from '@chakra-ui/react';
 import { CheckCircleFill } from 'antd-mobile-icons';
 
 import { ChatteryWindow } from '../components/chattery/ChatteryWindow';
-import { call, successDialog, errorDialog } from '../../api/_utils/functions';
+import { call } from '../../api/_utils/functions';
 import { UserContext } from '../Layout';
 import useChattery from '../../api/_utils/useChattery';
 import { RequestsCollection } from '../../api/collections';
+import { errorDialog, successDialog } from '../components/Toast';
 
 const { Step } = Steps;
 const { Tab } = Tabs;
@@ -116,7 +117,9 @@ function Request({ request }) {
     try {
       await call('denyRequest', id);
       await getRequest();
-      successDialog('Request denied. We are sorry to have you deny this request');
+      successDialog(
+        'Request denied. We are sorry to have you deny this request'
+      );
     } catch (error) {
       console.log(error);
       errorDialog(error.reason);
@@ -179,7 +182,9 @@ function Request({ request }) {
       if (!notification.unSeenIndexes) {
         return false;
       }
-      return notification?.unSeenIndexes?.some((unSeenIndex) => unSeenIndex === messageIndex);
+      return notification?.unSeenIndexes?.some(
+        (unSeenIndex) => unSeenIndex === messageIndex
+      );
     });
     if (!shouldRun) {
       return;
@@ -206,10 +211,22 @@ function Request({ request }) {
     return (
       <div>
         <NavBar>Request</NavBar>
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
-        <Skeleton animated style={{ width: '100%', height: '80px', marginBottom: 24 }} />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
+        <Skeleton
+          animated
+          style={{ width: '100%', height: '80px', marginBottom: 24 }}
+        />
       </div>
     );
   }
@@ -245,7 +262,11 @@ function Request({ request }) {
                 title={request.bookTitle}
               />
               <Divider style={{ borderStyle: 'dashed' }}>
-                <Button color="primary" style={{ marginRight: 4 }} onClick={() => acceptRequest()}>
+                <Button
+                  color="primary"
+                  style={{ marginRight: 4 }}
+                  onClick={() => acceptRequest()}
+                >
                   Accept
                 </Button>
                 <Button style={{ marginLeft: 4 }} onClick={() => denyRequest()}>
@@ -265,7 +286,10 @@ function Request({ request }) {
                   current={currentStatus}
                   direction="horizontal"
                   size="small"
-                  style={{ '--title-font-size': '14px', '--description-font-size': '11px' }}
+                  style={{
+                    '--title-font-size': '14px',
+                    '--description-font-size': '11px',
+                  }}
                 >
                   {steps.map((step, index) => (
                     <Step
@@ -281,24 +305,41 @@ function Request({ request }) {
             </div>
           )}
 
-          {request.isConfirmed && !request.isHanded && currentUser._id === request.ownerId && (
-            <Flex justify="center" style={{ padding: 12 }}>
-              <Button inline size="small" color="primary" onClick={() => setIsHanded()}>
-                I've handed over the book
-              </Button>
-            </Flex>
-          )}
+          {request.isConfirmed &&
+            !request.isHanded &&
+            currentUser._id === request.ownerId && (
+              <Flex justify="center" style={{ padding: 12 }}>
+                <Button
+                  inline
+                  size="small"
+                  color="primary"
+                  onClick={() => setIsHanded()}
+                >
+                  I've handed over the book
+                </Button>
+              </Flex>
+            )}
 
-          {request.isHanded && !request.isReturned && currentUser._id === request.ownerId && (
-            <Flex justify="center" style={{ padding: 12 }}>
-              <Button inline size="small" color="primary" onClick={() => setIsReturned()}>
-                I've received my book back
-              </Button>
-            </Flex>
-          )}
+          {request.isHanded &&
+            !request.isReturned &&
+            currentUser._id === request.ownerId && (
+              <Flex justify="center" style={{ padding: 12 }}>
+                <Button
+                  inline
+                  size="small"
+                  color="primary"
+                  onClick={() => setIsReturned()}
+                >
+                  I've received my book back
+                </Button>
+              </Flex>
+            )}
         </Tab>
 
-        <Tab key="messages" title={<Badge content={getNotificationsCount()}>Messages</Badge>}>
+        <Tab
+          key="messages"
+          title={<Badge content={getNotificationsCount()}>Messages</Badge>}
+        >
           <Box bg="#d9d9d9">
             <Flex direction="column" justify="space-between">
               <Box h="100%">
@@ -314,7 +355,9 @@ function Request({ request }) {
                     <Form.Item style={{ flexGrow: 1 }}>
                       <Input
                         value={messageInput}
-                        onChange={(value) => setState({ ...state, messageInput: value })}
+                        onChange={(value) =>
+                          setState({ ...state, messageInput: value })
+                        }
                         placeholder="enter message"
                         style={{ fontSize: 14 }}
                       />
@@ -343,7 +386,9 @@ function Request({ request }) {
 export default withTracker((props) => {
   const reqId = location?.pathname?.split('/')[2];
   Meteor.subscribe('request', reqId);
-  const request = RequestsCollection ? RequestsCollection.findOne({ _id: reqId }) : null;
+  const request = RequestsCollection
+    ? RequestsCollection.findOne({ _id: reqId })
+    : null;
 
   return {
     ...props,

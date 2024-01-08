@@ -5,14 +5,21 @@ import { Center } from '@chakra-ui/react';
 
 import allLanguages from '../../api/_utils/langs/allLanguages';
 import FilePicker from './FilePicker';
-import { errorDialog } from '../../api/_utils/functions';
+import { errorDialog } from './Toast';
 
 const FormItem = Form.Item;
 
 const authorsKeys = ['elma', 'armut', 'kiraz', 'kayisi', 'seftali'];
 
-function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage }) {
-  const [authors, setAuthors] = useState(book.authors ? book.authors.map((item) => item) : ['']);
+function BookForm({
+  book,
+  uploadableImageLocal,
+  handleSubmit,
+  setUploadableImage,
+}) {
+  const [authors, setAuthors] = useState(
+    book.authors ? book.authors.map((item) => item) : ['']
+  );
   const [pickerVisible, setPickerVisible] = useState(false);
   const [language, setLanguage] = useState(book.language);
   const [form] = Form.useForm();
@@ -77,7 +84,8 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
     book[`author${i + 1}`] = book.authors[i];
   });
 
-  book.ISBN = book.industryIdentifiers && book.industryIdentifiers[1]?.identifier;
+  book.ISBN =
+    book.industryIdentifiers && book.industryIdentifiers[1]?.identifier;
 
   return (
     <Form
@@ -86,7 +94,13 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
       layout="horizontal"
       requiredMarkStyle="asterisk"
       footer={
-        <Button block color="primary" loading={isSaving} type="submit" onClick={handleFormSubmit}>
+        <Button
+          block
+          color="primary"
+          loading={isSaving}
+          type="submit"
+          onClick={handleFormSubmit}
+        >
           Submit
         </Button>
       }
@@ -150,15 +164,27 @@ function BookForm({ book, uploadableImageLocal, handleSubmit, setUploadableImage
         <Input pattern="[0-9]*" />
       </FormItem>
 
-      <FormItem name="publisher" label="Publisher" rules={[{ required: false }]}>
+      <FormItem
+        name="publisher"
+        label="Publisher"
+        rules={[{ required: false }]}
+      >
         <Input />
       </FormItem>
 
-      <FormItem name="publishedDate" label="Publication date" rules={[{ required: false }]}>
+      <FormItem
+        name="publishedDate"
+        label="Publication date"
+        rules={[{ required: false }]}
+      >
         <Input placeholder="YYYY or YYYY-MM-DD" />
       </FormItem>
 
-      <FormItem name="description" label="Description" rules={[{ required: false }]}>
+      <FormItem
+        name="description"
+        label="Description"
+        rules={[{ required: false }]}
+      >
         <TextArea rows={5} />
       </FormItem>
 
