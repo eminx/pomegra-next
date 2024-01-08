@@ -1,14 +1,14 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { Meteor } from "meteor/meteor";
-import { App } from "/imports/ui/App";
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { Meteor } from 'meteor/meteor';
+import { App } from '/imports/ui/App';
 
 // import "antd-mobile/bundle/style.css";
-import "bulma/css/bulma.css";
-import "./main.css";
+import 'bulma/css/bulma.css';
+import './main.css';
 
 Meteor.startup(() => {
-  const container = document.getElementById("react-target");
+  const container = document.getElementById('react-target');
   const root = createRoot(container);
   root.render(<App />);
 });

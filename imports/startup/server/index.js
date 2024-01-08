@@ -1,10 +1,5 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
-// import {
-//   BooksCollection,
-//   MessagesCollection,
-//   RequestsCollection,
-// } from '../../api/collections';
 
 import './api';
 
@@ -20,22 +15,4 @@ Meteor.startup(() => {
     const newUrl = url.replace('#/', '');
     return `To reset your password, simply click the link below. ${newUrl}`;
   };
-
-  // MessagesCollection.find().forEach((m) => {
-  //   const lastMessageDate =
-  //     m.messages &&
-  //     m.messages.length > 0 &&
-  //     m.messages[m.messages.length - 1]?.createdDate;
-  //   if (!lastMessageDate) {
-  //     return;
-  //   }
-  //   RequestsCollection.update(
-  //     { _id: m.requestId },
-  //     {
-  //       $set: {
-  //         lastMessageDate: lastMessageDate,
-  //       },
-  //     }
-  //   );
-  // });
 });
