@@ -13,7 +13,7 @@ function notificationsCounter(notifications) {
 
 function dataURLtoFile(dataurl, filename) {
   var arr = dataurl.split(','),
-    mime = arr[0].match(/:(.*?);/)[1],
+    mime = arr[0]?.match(/:(.*?);/)[1],
     bstr = atob(arr[1]),
     n = bstr.length,
     u8arr = new Uint8Array(n);
