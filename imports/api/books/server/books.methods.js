@@ -76,22 +76,32 @@ Meteor.methods({
     }
 
     const newBook = {
-      ...book,
-      category: book.categories ? book.categories[0] : '',
-      titleLowerCase: book.title && book.title.toLowerCase(),
+      authors: book.authors,
       authorsLowerCase:
         book.authors &&
         book.authors.length > 0 &&
         book.authors.map((author) => author.toLowerCase()),
-      ISBN: book.industryIdentifiers && book.industryIdentifiers[1]?.identifier,
+      canonicalVolumeLink: book.canonicalVolumeLink,
+      categories: book.categories,
+      category: book.categories ? book.categories[0] : '',
+      dateAdded: new Date(),
+      description: book.description,
+      imageLinks: book.imageLinks,
       imageUrl,
+      isAvailable: true,
+      ISBN: book.industryIdentifiers && book.industryIdentifiers[1]?.identifier,
+      language: book.language,
+      publisher: book.publisher,
       ownerId: currentUserId,
       ownerUsername: user.username,
       ownerImage: user.images && user.images[0],
       ownerLocation: user.location,
+      publishedDate: book.publishedDate,
+      pageCount: book.pageCount,
+      printType: book.printType,
+      title: book.title,
+      titleLowerCase: book.title && book.title.toLowerCase(),
       xTimes: 0,
-      isAvailable: true,
-      dateAdded: new Date(),
     };
 
     const bookId = BooksCollection.insert(newBook, function (error, result) {
