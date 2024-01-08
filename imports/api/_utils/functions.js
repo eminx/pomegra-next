@@ -1,23 +1,4 @@
-import React from 'react';
-import { Toast } from 'antd-mobile';
 import Resizer from 'react-image-file-resizer';
-
-function showToast(content, duration = 2000, position = 'center', icon) {
-  Toast.show({
-    content,
-    duration,
-    icon,
-    position,
-  });
-}
-
-function errorDialog(content, duration, position) {
-  showToast(content, duration, position, 'fail');
-}
-
-function successDialog(content, duration, position) {
-  showToast(content, duration, position, 'success');
-}
 
 function notificationsCounter(notifications) {
   let notificationsCount = 0;
@@ -123,9 +104,32 @@ const call = (method, ...parameters) =>
     });
   });
 
+function getNearbyUsersOrBooks(latitude, longitude, distanceInKm, users) {
+  var R = 6373;
+
+  var latRad = (latitude * Math.PI) / 180;
+  var lngRad = (longitude * Math.PI) / 180;
+
+  var returnUsers = [];
+
+  for (var i = 0; i < users.length; i++) {
+    var lat2Rad = (users[i].latitude * Math.PI) / 180;
+    var lng2Rad = (users[i].longitude * Math.PI) / 180;
+    var dlat = lat2Rad - latRad;
+    var dlng = lng2Rad - lngRad;
+    var a =
+      Math.pow(Math.sin(dlat / 2), 2) +
+      Math.cos(latRad) * Math.cos(lat2Rad) * Math.pow(Math.sin(dlng / 2), 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // great circle distance in radians
+    var d = c * R; // Distance from user in km
+
+    if (d < distanceInKm) returnUsers.push({ ...users[i], distance: d });
+  }
+  console.log();
+  return returnUsers;
+}
+
 export {
-  errorDialog,
-  successDialog,
   notificationsCounter,
   dataURLtoFile,
   resizeImage,
@@ -137,4 +141,5 @@ export {
   emailIsValid,
   includesSpecialCharacters,
   call,
+  getNearbyUsersOrBooks,
 };

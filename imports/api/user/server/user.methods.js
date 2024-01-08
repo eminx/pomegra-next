@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 
 import { BooksCollection, RequestsCollection } from '../../collections';
+import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({
   getCurrentUser: () => {
@@ -233,7 +234,7 @@ Meteor.methods({
     const currentUserId = currentUser._id;
 
     try {
-      Meteor.users.update(currentUser._id, {
+      Meteor.users.update(currentUserId, {
         $set: {
           coverImages: newImageSet,
         },
@@ -253,7 +254,7 @@ Meteor.methods({
     const currentUserId = currentUser._id;
 
     try {
-      Meteor.users.update(currentUser._id, {
+      Meteor.users.update(currentUserId, {
         $set: {
           images: [newImage],
           previousImages: currentUser.images,
@@ -377,5 +378,34 @@ Meteor.methods({
   isEmailRegistered: (email) => {
     const user = Accounts.findUserByEmail(email);
     return Boolean(user);
+  },
+
+  getUsersNearBy: () => {
+    const user = Meteor.user();
+    if (!user || !user.location) {
+      return;
+    }
+
+    const radius = 1000; //km
+
+    const allUsers = Meteor.users
+      .find()
+      .fetch()
+      .map((u) => ({
+        userId: u._id,
+        username: u.username,
+        userImage: u.images && u.images[0],
+        latitude: u.location?.coords.latitude,
+        longitude: u.location?.coords.longitude,
+      }));
+
+    const userLocationCoords = user.location.coords;
+
+    return getNearbyUsersOrBooks(
+      userLocationCoords.latitude,
+      userLocationCoords.longitude,
+      radius,
+      allUsers
+    );
   },
 });
