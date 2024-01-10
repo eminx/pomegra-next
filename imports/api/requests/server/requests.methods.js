@@ -55,33 +55,34 @@ Meteor.methods({
         throw new Meteor.Error('You have already requested this item');
       }
       const requestId = RequestsCollection.insert({
+        bookAuthors: theBook.authors,
+        bookCategories: theBook.categories,
+        bookImage: theBook.imageUrl,
         bookId,
-        requesterId: currentUser._id,
+        bookLanguage: theBook.language,
+        bookTitle: theBook.title,
+        dateRequested: new Date(),
+        lastMessageDate: new Date(),
+        ownerImage: owner?.images && owner.images[0],
         ownerId: theBook.ownerId,
         ownerUsername: theBook.ownerUsername,
-        requesterUsername: currentUser.username,
-        ownerImage: owner?.images && owner.images[0],
+        requesterId: currentUser._id,
         requesterImage: currentUser.images && currentUser.images[0],
-        bookTitle: theBook.title,
-        bookAuthors: theBook.authors,
-        bookImage: theBook.imageUrl,
-        bookLanguage: theBook.language,
-        bookCategories: theBook.categories,
-        dateRequested: new Date(),
+        requesterUsername: currentUser.username,
       });
 
       MessagesCollection.insert({
-        requestId: requestId,
         borrowerId: currentUser._id,
-        ownerId: theBook.ownerId,
         isSeenByOther: false,
         messages: new Array(),
+        ownerId: theBook.ownerId,
+        requestId: requestId,
       });
 
       BooksCollection.update(bookId, {
         $set: {
-          onRequest: true,
           isAvailable: false,
+          onRequest: true,
         },
       });
 
