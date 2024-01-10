@@ -15,8 +15,3 @@ Meteor.startup(() => {
     return `To reset your password, simply click the link below. ${newUrl}`;
   };
 });
-
-Meteor.onConnection((connection) => {
-  console.debug('client connected', connection);
-  connection.onClose(() => console.debug('disconnected', connection));
-});
