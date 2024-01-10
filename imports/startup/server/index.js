@@ -1,5 +1,8 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
+import { WebApp } from 'meteor/webapp';
+import querystring from 'node:querystring';
+
 import './api';
 
 Meteor.startup(() => {
@@ -14,4 +17,11 @@ Meteor.startup(() => {
     const newUrl = url.replace('#/', '');
     return `To reset your password, simply click the link below. ${newUrl}`;
   };
+});
+
+WebApp.rawConnectHandlers.use('/errorlog', async (req, res) => {
+  let data = '';
+  req.on('data', (chunk) => (data += chunk));
+  req.on('end', () => console.debug(querystring.parse(data)));
+  res.end(); // send ok to client
 });
