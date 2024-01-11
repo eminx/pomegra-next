@@ -25,3 +25,15 @@ WebApp.rawConnectHandlers.use('/errorlog', async (req, res) => {
   req.on('end', () => console.debug(querystring.parse(data)));
   res.end(); // send ok to client
 });
+
+Accounts.onLogin((error, response) => {
+  console.log('login success');
+  console.log('error', error);
+  console.log('response', response);
+});
+
+Accounts.onLoginFailure((error, response) => {
+  console.log('login failure');
+  console.log('error', error);
+  console.log('response', response);
+});
