@@ -1,7 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 
 import BooksCollection from '../../books/book';
-import MessagesCollection from '../../messages/message';
 import RequestsCollection from '../request';
 
 Meteor.methods({
@@ -62,21 +61,15 @@ Meteor.methods({
         bookLanguage: theBook.language,
         bookTitle: theBook.title,
         dateRequested: new Date(),
+        isSeenByOther: false,
         lastMessageDate: new Date(),
+        messages: new Array(),
         ownerImage: owner?.images && owner.images[0],
         ownerId: theBook.ownerId,
         ownerUsername: theBook.ownerUsername,
         requesterId: currentUser._id,
         requesterImage: currentUser.images && currentUser.images[0],
         requesterUsername: currentUser.username,
-      });
-
-      MessagesCollection.insert({
-        borrowerId: currentUser._id,
-        isSeenByOther: false,
-        messages: new Array(),
-        ownerId: theBook.ownerId,
-        requestId: requestId,
       });
 
       BooksCollection.update(bookId, {
@@ -275,5 +268,54 @@ Meteor.methods({
         },
       }
     );
+  },
+
+  addMessage: (requestId, message) => {
+    const currentUser = Meteor.user();
+    const currentUserId = currentUser._id;
+    if (!currentUserId) {
+      throw new Meteor.Error('You are not logged in');
+    }
+    const theMessage = RequestsCollection.findOne({
+      _id: requestId,
+    });
+    if (
+      currentUserId !== theMessage.ownerId &&
+      currentUserId !== theMessage.requesterId
+    ) {
+      return;
+    }
+
+    const unSeenIndex = RequestsCollection.findOne({ _id: requestId })?.messages
+      ?.length;
+
+    try {
+      RequestsCollection.update(
+        {
+          _id: requestId,
+        },
+        {
+          $push: {
+            messages: {
+              content: message,
+              senderUsername: currentUser.username,
+              senderId: currentUserId,
+              createdDate: new Date(),
+            },
+          },
+          $set: {
+            isNotificationOn: true,
+            isSeenByOther: false,
+            lastMessageBy: currentUserId,
+            lastMessageDate: new Date(),
+          },
+        }
+      );
+
+      Meteor.call('createNotification', 'request', requestId, unSeenIndex);
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
   },
 });
