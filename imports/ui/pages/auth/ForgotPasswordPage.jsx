@@ -1,47 +1,59 @@
 import React, { useContext, useState } from 'react';
-import { Navigate } from 'react-router';
-import { Toast } from 'antd-mobile';
-import { Box, Heading, Text } from '@chakra-ui/react';
+import { Navigate } from 'react-router-dom';
+import { Box, Center, Heading, Text, useToast } from '@chakra-ui/react';
 
-import { ForgotPassword, SimpleText } from './index';
+import { ForgotPassword } from './index';
 import { call } from '../../../api/_utils/functions';
 import AppTabBar from '../../components/AppTabBar';
 import { UserContext } from '../../Layout';
-import Anchor from '../../components/Anchor';
 
 function ForgotPasswordPage({ history }) {
   const [emailSent, setEmailSent] = useState(false);
   const { currentUser } = useContext(UserContext);
+  const toast = useToast();
 
   if (currentUser) {
-    return <Navigate to="/my-profile" />;
+    return <Navigate to={`/${currentUser.username}`} />;
   }
 
   const handleForgotPassword = async (email) => {
     try {
-      await call('forgotPassword', email);
-      Toast.success(
-        'Please check your email and see if you received a link to reset your password'
-      );
+      await call('resetUserPassword', email);
+      toast({
+        title: 'Email sent',
+        description:
+          'Please check your email and see if you received a link to reset your password',
+        status: 'success',
+        duration: 6000,
+        isClosable: true,
+      });
       setEmailSent(true);
     } catch (error) {
-      Toast.fail(error.reason);
+      toast({
+        title: 'An error occurred',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
   return (
-    <Box w="100%" px="4" py="2">
-      <Box w="md" alignSelf="center">
-        <Heading size="md">Forgot Password</Heading>
-        <Text fontSize="lg" mb="4">
-          Reset your password via a link sent to your email
-        </Text>
-        {emailSent ? (
-          <Text>Reset link is sent to your email.</Text>
-        ) : (
-          <ForgotPassword onForgotPassword={handleForgotPassword} />
-        )}
-        {/* <Box
+    <Box>
+      <Center p="4">
+        <Box alignSelf="center">
+          <Heading size="md" my="4" textAlign="center">
+            Forgot Password
+          </Heading>
+          <Text fontSize="lg" mb="8" textAlign="center">
+            Reset your password via a link sent to your email
+          </Text>
+          {emailSent ? (
+            <Text>Reset link is sent to your email.</Text>
+          ) : (
+            <ForgotPassword onForgotPassword={handleForgotPassword} />
+          )}
+          {/* <Box
           direction="row"
           justify="around"
           margin={{ top: 'small', left: 'large', right: 'large' }}
@@ -57,7 +69,8 @@ function ForgotPasswordPage({ history }) {
             </Anchor>
           </SimpleText>
         </Box> */}
-      </Box>
+        </Box>
+      </Center>
 
       <AppTabBar />
     </Box>

@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { withTracker } from 'meteor/react-meteor-data';
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { Field, Control, Button, Subtitle } from 'bloomer';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
@@ -444,13 +444,13 @@ class Intro extends Component {
     } = this.state;
 
     if (introFinished) {
-      return <Redirect to="/" />;
+      return <Navigate to="/" />;
     } else if (forgotPassword) {
-      return <Redirect to="/forgot-password" />;
+      return <Navigate to="/forgot-password" />;
     }
 
     if (currentUser && currentUser.isIntroDone) {
-      return <Redirect to="/" />;
+      return <Navigate to="/" />;
     }
 
     const isEmailInvalid = this.isEmailInvalid();

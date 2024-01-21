@@ -1,40 +1,58 @@
-import React from 'react';
-import { Redirect } from 'react-router-dom';
-import { Box, Heading, Text } from '@chakra-ui/react';
-import { Toast } from 'antd-mobile';
+import React, { useContext, useState } from 'react';
+import { Navigate, useParams } from 'react-router-dom';
+import { Box, Center, Heading, Text, useToast } from '@chakra-ui/react';
 
 import { ResetPassword } from './index';
 import { call } from '../../../api/_utils/functions';
 import AppTabBar from '../../components/AppTabBar';
 import { UserContext } from '../../Layout';
 
-function ResetPasswordPage({ history, match }) {
+function ResetPasswordPage({ history }) {
+  const [isSuccess, setIsSuccess] = useState(false);
   const { currentUser } = useContext(UserContext);
-  const { token } = match.params;
+  const { token } = useParams();
+  const toast = useToast();
 
   if (currentUser) {
-    return <Redirect to="/my-profile" />;
+    return <Navigate to="/my-profile" />;
+  }
+
+  if (isSuccess) {
+    return <Navigate to="/intro" />;
   }
 
   const handleResetPassword = async (password) => {
     try {
       await call('resetPassword', token, password);
-      Toast.success('Your password is successfully reset. Now you can login');
-      history.push('/intro');
+      toast({
+        title: 'Success',
+        description: 'Your password is successfully reset. Now you can login',
+        status: 'success',
+        duration: 6000,
+        isClosable: true,
+      });
+      setIsSuccess(true);
     } catch (error) {
-      Toast.fail(error.reason);
+      console.log(error);
+      toast({
+        description: error.reason,
+        status: 'error',
+      });
     }
   };
 
   return (
-    <Box width="100%" py="8" px="4">
-      <Box width="md" alignSelf="center">
-        <Heading size="md">Reset Your Password</Heading>
-        <Text size="large" mb="4">
-          Type your desired password
-        </Text>
-        <ResetPassword onResetPassword={handleResetPassword} />
-        {/* <Box
+    <Box>
+      <Center p="4">
+        <Box>
+          <Heading my="4" size="md" textAlign="center">
+            Reset Your Password
+          </Heading>
+          <Text fontSize="lg" mb="8" textAlign="center">
+            Type your desired password
+          </Text>
+          <ResetPassword onResetPassword={handleResetPassword} />
+          {/* <Box
           direction="row"
           justify="around"
           margin={{ top: 'small', left: 'large', right: 'large' }}
@@ -50,7 +68,8 @@ function ResetPasswordPage({ history, match }) {
             </Anchor>
           </SimpleText>
         </Box> */}
-      </Box>
+        </Box>
+      </Center>
 
       <AppTabBar />
     </Box>

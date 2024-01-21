@@ -422,4 +422,17 @@ Meteor.methods({
       allUsers
     );
   },
+
+  resetUserPassword: (email) => {
+    const url = Meteor.absoluteUrl();
+    Accounts.urls.resetPassword = function (token) {
+      return `${url}reset-password/${token}`;
+    };
+    Meteor.call('forgotPassword', { email }, (respond, error) => {
+      console.log(respond);
+      if (error) {
+        console.log(error);
+      }
+    });
+  },
 });
