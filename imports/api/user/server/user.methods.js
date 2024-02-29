@@ -435,4 +435,18 @@ Meteor.methods({
       }
     });
   },
+
+  deleteAccount: () => {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+    try {
+      BooksCollection.remove({ ownerId: currentUser._id });
+      Meteor.users.remove(currentUser._id);
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
+  },
 });

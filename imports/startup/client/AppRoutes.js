@@ -12,6 +12,7 @@ import Intro from '../../ui/pages/Intro';
 import ResetPasswordPage from '../../ui/pages/auth/ResetPasswordPage';
 import ForgotPasswordPage from '../../ui/pages/auth/ForgotPasswordPage';
 import PublicProfile from '../../ui/pages/PublicProfile';
+import PrivacyPolicy from '../../ui/pages/PrivacyPolicy';
 
 const routes = [
   // {
@@ -61,6 +62,21 @@ const routes = [
     element: <PublicProfile />,
     // exact: true,
   },
+  {
+    path: '/privacy-policy-en',
+    element: <PrivacyPolicy lang="en" />,
+    exact: true,
+  },
+  {
+    path: '/privacy-policy-sv',
+    element: <PrivacyPolicy lang="sv" />,
+    exact: true,
+  },
+  {
+    path: '/privacy-policy-tr',
+    element: <PrivacyPolicy lang="tr" />,
+    exact: true,
+  },
 ];
 
 function AppRoutes() {
@@ -69,7 +85,12 @@ function AppRoutes() {
       <Layout>
         <Routes>
           {routes.map((r) => (
-            <Route key={r.path} element={r.element} exact={r.exact} path={r.path} />
+            <Route
+              key={r.path}
+              element={r.element}
+              exact={r.exact}
+              path={r.path}
+            />
           ))}
         </Routes>
       </Layout>
