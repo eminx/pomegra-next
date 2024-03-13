@@ -318,4 +318,34 @@ Meteor.methods({
       throw new Meteor.Error(error);
     }
   },
+
+  reportContent: (contentId, context) => {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+
+    if (context === 'request') {
+      RequestsCollection.update(contentId, {
+        $set: {
+          isReported: true,
+        },
+      });
+    } else if (context === 'book') {
+      BooksCollection.update(contentId, {
+        $set: {
+          isReported: true,
+        },
+      });
+    } else if (context === 'user') {
+      Meteor.users.update(
+        { username: contentId },
+        {
+          $set: {
+            isReported: true,
+          },
+        }
+      );
+    }
+  },
 });

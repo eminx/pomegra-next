@@ -21,7 +21,6 @@ BooksCollection.schema = new SimpleSchema({
   'imageLinks.thumbnail': { type: String, optional: true },
   imageUrl: { type: String, optional: true },
   isAvailable: { type: Boolean },
-  ISBN: { type: String, optional: true },
   industryIdentifiers: { type: Array, optional: true },
   'industryIdentifiers.$': {
     type: new SimpleSchema({
@@ -29,6 +28,8 @@ BooksCollection.schema = new SimpleSchema({
       identifier: { type: String, optional: true },
     }),
   },
+  ISBN: { type: String, optional: true },
+  isReported: { type: Boolean, optional: true },
   language: { type: String, optional: true },
   onRequest: { type: Boolean, optional: true },
   ownerId: Schemas.Id,

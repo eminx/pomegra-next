@@ -19,6 +19,7 @@ RequestsCollection.schema = new SimpleSchema({
   isHanded: { type: Date, optional: true },
   isNotificationOn: { type: Boolean, optional: true },
   isRepliedAndNotSeen: { type: Boolean, optional: true },
+  isReported: { type: Boolean, optional: true },
   isReturned: { type: Date, optional: true },
   isSeenByOther: { type: Boolean, optional: true },
   lastMessageBy: { type: String, optional: true },

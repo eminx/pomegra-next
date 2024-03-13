@@ -449,4 +449,29 @@ Meteor.methods({
       throw new Meteor.Error(error);
     }
   },
+
+  blockUser: (userId) => {
+    const currentUser = Meteor.user();
+    if (!currentUser) {
+      throw new Meteor.Error('Not allowed!');
+    }
+    try {
+      if (!currentUser.blockedUsers) {
+        Meteor.users.update(currentUser._id, {
+          $set: {
+            blockedUsers: [userId],
+          },
+        });
+      } else {
+        Meteor.users.update(currentUser._id, {
+          $addToSet: {
+            blockedUsers: userId,
+          },
+        });
+      }
+    } catch (error) {
+      console.log('error', error);
+      throw new Meteor.Error(error);
+    }
+  },
 });
