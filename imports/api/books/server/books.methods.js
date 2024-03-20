@@ -189,6 +189,14 @@ Meteor.methods({
     }
   },
 
+  getAllBooks: () => {
+    const books = BooksCollection.find({
+      isAvailable: true,
+    }).fetch();
+
+    return books;
+  },
+
   getBooksNearBy: () => {
     const user = Meteor.user();
     if (!user || !user.location) {

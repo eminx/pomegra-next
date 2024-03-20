@@ -394,6 +394,15 @@ Meteor.methods({
     return Boolean(user);
   },
 
+  getAllUsers: () => {
+    const users = Meteor.users.find().fetch();
+    return users.map((u) => ({
+      userId: u._id,
+      username: u.username,
+      userImage: u.images && u.images[0],
+    }));
+  },
+
   getUsersNearBy: () => {
     const user = Meteor.user();
     if (!user || !user.location) {
