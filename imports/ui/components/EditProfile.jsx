@@ -70,12 +70,12 @@ function EditProfile({ currentUser, updateUser }) {
     }
   };
 
-  const handleUpdateProfile = () => {
+  const handleUpdateProfile = async () => {
     setIsSaving(true);
     const values = form.getFieldsValue();
 
     try {
-      call('updateProfile', values);
+      await call('updateProfile', values);
       updateUser();
       successDialog('Your profile is successfully updated');
       setUser({
@@ -125,11 +125,11 @@ function EditProfile({ currentUser, updateUser }) {
     });
   };
 
-  const handleUpdateLanguages = () => {
+  const handleUpdateLanguages = async () => {
     setIsSaving(true);
     const { languages } = user;
     try {
-      call('updateLanguages', languages);
+      await call('updateLanguages', languages);
       updateUser();
       successDialog('Your languages successfully updated');
     } catch (error) {
@@ -148,7 +148,7 @@ function EditProfile({ currentUser, updateUser }) {
       });
   };
 
-  const setGeoLocationCoords = (coords) => {
+  const setGeoLocationCoords = async (coords) => {
     setIsSaving(true);
     const theCoords = {
       latitude: coords.latitude.toString(),
@@ -157,7 +157,7 @@ function EditProfile({ currentUser, updateUser }) {
     };
 
     try {
-      call('setGeoLocationCoords', theCoords);
+      await call('setGeoLocationCoords', theCoords);
       successDialog('Your location is successfully set');
     } catch (error) {
       console.log(error);

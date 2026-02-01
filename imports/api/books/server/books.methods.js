@@ -3,28 +3,33 @@ import BooksCollection from '../../books/book';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({
-  getUserBooks: (username) => {
+  getUserBooks: async (username) => {
     try {
-      const books = BooksCollection.find({ ownerUsername: username }).fetch();
+      const books = await BooksCollection.find({
+        ownerUsername: username,
+      }).fetchAsync();
       return books;
     } catch (error) {
       throw new Meteor.Error(error);
     }
   },
 
-  getMyBooks: () => {
-    const currentUserId = Meteor.userId();
+  getMyBooks: async () => {
+    const currentUser = await Meteor.userAsync();
+    const currentUserId = currentUser._id;
+
     try {
-      const myBooks = BooksCollection.find({ ownerId: currentUserId }).fetch();
-      return myBooks;
+      return await BooksCollection.find({
+        ownerId: currentUserId,
+      }).fetchAsync();
     } catch (error) {
       throw new Meteor.Error(error);
     }
   },
 
-  getSingleBook: (bookId) => {
+  getSingleBook: async (bookId) => {
     try {
-      return BooksCollection.findOne({
+      return await BooksCollection.findOneAsync({
         _id: bookId,
       });
     } catch (error) {
@@ -32,34 +37,35 @@ Meteor.methods({
     }
   },
 
-  getDiscoverBooks: () => {
-    const currentUserId = Meteor.userId();
+  getDiscoverBooks: async () => {
+    const currentUser = await Meteor.userAsync();
+    const currentUserId = currentUser?._id;
+
     try {
       if (currentUserId) {
-        return BooksCollection.find(
+        return await BooksCollection.find(
           {
             ownerId: { $ne: currentUserId },
             onRequest: { $ne: true },
             isAvailable: true,
           },
           { limit: 50 }
-        ).fetch();
+        ).fetchAsync();
       } else {
-        return BooksCollection.find({}, { limit: 50 }).fetch();
+        return await BooksCollection.find({}, { limit: 50 }).fetchAsync();
       }
     } catch (error) {
-      console.log(error);
       throw new Meteor.Error(error);
     }
   },
 
-  insertBook: (book) => {
-    const user = Meteor.user();
+  insertBook: async (book) => {
+    const user = await Meteor.userAsync();
     if (!user) {
       return false;
     }
     const currentUserId = user._id;
-    const bookExists = BooksCollection.findOne({
+    const bookExists = await BooksCollection.findOneAsync({
       title: book.title,
       ownerId: currentUserId,
     });
@@ -105,23 +111,21 @@ Meteor.methods({
       xTimes: 0,
     };
 
-    const bookId = BooksCollection.insert(newBook, function (error, result) {
-      if (error) {
-        console.log('error!', error);
-        throw new Meteor.error(error);
-      } else {
-        return bookId;
-      }
-    });
+    try {
+      const bookId = await BooksCollection.insertAsync(newBook);
+      return bookId;
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
   },
 
-  insertBookManually: (book) => {
-    const user = Meteor.user();
+  insertBookManually: async (book) => {
+    const user = await Meteor.userAsync();
     if (!user) {
       return false;
     }
     const currentUserId = user._id;
-    const bookExists = BooksCollection.findOne({
+    const bookExists = await BooksCollection.findOneAsync({
       title: book.title,
       ownerId: currentUserId,
     });
@@ -140,26 +144,27 @@ Meteor.methods({
       dateAdded: new Date(),
     };
 
-    const bookId = BooksCollection.insert(newBook, function (error, result) {
-      if (error) {
-        console.log('error!', error);
-        throw new Meteor.error(error);
-      } else {
-        return bookId;
-      }
-    });
+    try {
+      const bookId = await BooksCollection.insertAsync(newBook);
+      return bookId;
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
   },
 
-  updateBook: (bookId, values) => {
-    if (!Meteor.userId()) {
-      return;
+  updateBook: async (bookId, values) => {
+    const user = await Meteor.userAsync();
+    if (!user) {
+      return false;
     }
-    const theBook = BooksCollection.findOne(bookId);
-    if (theBook.ownerId !== Meteor.userId()) {
+    const currentUserId = user._id;
+    const theBook = await BooksCollection.findOneAsync(bookId);
+    if (theBook.ownerId !== currentUserId) {
       throw new Meteor.Error('You are not the owner!');
     }
+
     try {
-      BooksCollection.update(
+      await BooksCollection.updateAsync(
         { _id: bookId },
         {
           $set: {
@@ -173,50 +178,50 @@ Meteor.methods({
     }
   },
 
-  removeBook: (bookId) => {
-    if (!Meteor.userId()) {
-      return;
+  removeBook: async (bookId) => {
+    const user = await Meteor.userAsync();
+    if (!user) {
+      return false;
     }
-    const theBook = BooksCollection.findOne(bookId);
-    if (theBook.ownerId !== Meteor.userId()) {
+    const currentUserId = user._id;
+    const theBook = await BooksCollection.findOneAsync(bookId);
+    if (theBook.ownerId !== currentUserId) {
       throw new Meteor.Error('You are not allowed');
     }
 
     try {
-      BooksCollection.remove({ _id: bookId });
+      await BooksCollection.removeAsync({ _id: bookId });
     } catch (error) {
       throw new Meteor.Error(error);
     }
   },
 
-  getAllBooks: () => {
-    const books = BooksCollection.find({
+  getAllBooks: async () => {
+    return await BooksCollection.find({
       isAvailable: true,
-    }).fetch();
-
-    return books;
+    }).fetchAsync();
   },
 
-  getBooksNearBy: () => {
-    const user = Meteor.user();
+  getBooksNearBy: async () => {
+    const user = await Meteor.userAsync();
     if (!user || !user.location) {
       return;
     }
 
     const radius = 100; //km
 
-    const allBooks = BooksCollection.find({
+    const allBooksRetrieved = await BooksCollection.find({
       ownerId: { $ne: user._id },
       isAvailable: true,
-    })
-      .fetch()
-      .map((b) => ({
-        ...b,
-        latitude: b.ownerLocation?.coords.latitude,
-        longitude: b.ownerLocation?.coords.longitude,
-      }));
+    }).fetchAsync();
 
-    const userLocationCoords = user.location.coords;
+    const allBooks = allBooksRetrieved.map((b) => ({
+      ...b,
+      latitude: b.ownerLocation?.coords.latitude,
+      longitude: b.ownerLocation?.coords.longitude,
+    }));
+
+    const userLocationCoords = user?.location?.coords;
 
     return getNearbyUsersOrBooks(
       userLocationCoords.latitude,

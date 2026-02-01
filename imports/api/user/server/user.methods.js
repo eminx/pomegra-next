@@ -6,13 +6,13 @@ import RequestsCollection from '../../requests/request';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
 Meteor.methods({
-  getCurrentUser: () => {
-    return Meteor.user();
+  getCurrentUser: async () => {
+    return await Meteor.userAsync();
   },
 
-  getUserProfile: (username) => {
+  getUserProfile: async (username) => {
     try {
-      const user = Meteor.users.findOne({ username });
+      const user = await Meteor.users.findOneAsync({ username });
       return {
         bio: user.bio,
         firstName: user.firstName,
@@ -26,25 +26,25 @@ Meteor.methods({
     }
   },
 
-  getUsers: () => {
-    const currentUser = Meteor.user();
+  getUsers: async () => {
+    const currentUser = await Meteor.userAsync();
     try {
       if (currentUser) {
-        return Meteor.users
+        return await Meteor.users
           .find({
             username: { $ne: currentUser.username },
           })
-          .fetch();
+          .fetchAsync();
       } else {
-        return Meteor.users.find().fetch();
+        return await Meteor.users.find().fetchAsync();
       }
     } catch (error) {
       throw new Meteor.Error(error);
     }
   },
 
-  registerUser: (user) => {
-    Accounts.createUser({
+  registerUser: async (user) => {
+    await Accounts.createUserAsync({
       bio: '',
       email: user.email,
       firstName: '',
@@ -57,17 +57,18 @@ Meteor.methods({
     });
   },
 
-  updateProfile: (values) => {
-    const currentUserId = Meteor.userId();
+  updateProfile: async (values) => {
+    const currentUser = await Meteor.userAsync();
+    const currentUserId = currentUser._id;
 
     try {
-      Meteor.users.update(currentUserId, {
+      await Meteor.users.updateAsync(currentUserId, {
         $set: {
           ...values,
         },
       });
       if (values.location) {
-        BooksCollection.update(
+        await BooksCollection.updateAsync(
           { ownerId: currentUserId },
           {
             $set: {
@@ -84,11 +85,11 @@ Meteor.methods({
     }
   },
 
-  updateLanguages: (languages) => {
-    const currentUser = Meteor.user();
+  updateLanguages: async (languages) => {
+    const currentUser = await Meteor.userAsync();
 
     try {
-      Meteor.users.update(currentUser._id, {
+      await Meteor.users.updateAsync(currentUser._id, {
         $set: {
           languages: languages,
         },
@@ -98,8 +99,8 @@ Meteor.methods({
     }
   },
 
-  createNotification: (contextName, contextId, unSeenIndex) => {
-    const currentUser = Meteor.user();
+  createNotification: async (contextName, contextId, unSeenIndex) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
@@ -107,12 +108,12 @@ Meteor.methods({
       if (contextName !== 'request') {
         return;
       }
-      const theRequest = RequestsCollection.findOne(contextId);
+      const theRequest = await RequestsCollection.findOneAsync(contextId);
       const theOthersId =
         theRequest.requesterId === currentUser._id
           ? theRequest.ownerId
           : theRequest.requesterId;
-      const theOther = Meteor.users.findOne(theOthersId);
+      const theOther = await Meteor.users.findOneAsync(theOthersId);
 
       const contextIdIndex = theOther.notifications?.findIndex(
         (notification) => {
@@ -132,13 +133,13 @@ Meteor.methods({
         }
         notifications[contextIdIndex]?.unSeenIndexes.push(unSeenIndex);
 
-        Meteor.users.update(theOthersId, {
+        await Meteor.users.updateAsync(theOthersId, {
           $set: {
             notifications: notifications,
           },
         });
       } else {
-        Meteor.users.update(theOthersId, {
+        await Meteor.users.updateAsync(theOthersId, {
           $push: {
             notifications: {
               title: theOther.username,
@@ -156,8 +157,8 @@ Meteor.methods({
     }
   },
 
-  removeAllNotifications: (contextId) => {
-    const currentUser = Meteor.user();
+  removeAllNotifications: async (contextId) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
@@ -182,7 +183,7 @@ Meteor.methods({
         (notification, index) => index !== notificationIndex
       );
 
-      Meteor.users.update(currentUser._id, {
+      await Meteor.users.updateAsync(currentUser._id, {
         $set: {
           notifications: newNotifications,
         },
@@ -193,8 +194,8 @@ Meteor.methods({
     }
   },
 
-  removeNotification: (contextId, messageIndex) => {
-    const currentUser = Meteor.user();
+  removeNotification: async (contextId, messageIndex) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
@@ -228,7 +229,7 @@ Meteor.methods({
         newNotifications = notifications;
       }
 
-      Meteor.users.update(currentUser._id, {
+      await Meteor.users.updateAsync(currentUser._id, {
         $set: {
           notifications: newNotifications,
         },
@@ -239,8 +240,8 @@ Meteor.methods({
     }
   },
 
-  setNewCoverImages: (newImageSet) => {
-    const currentUser = Meteor.user();
+  setNewCoverImages: async (newImageSet) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
@@ -248,7 +249,7 @@ Meteor.methods({
     const currentUserId = currentUser._id;
 
     try {
-      Meteor.users.update(currentUserId, {
+      await Meteor.users.updateAsync(currentUserId, {
         $set: {
           coverImages: newImageSet,
         },
@@ -259,9 +260,9 @@ Meteor.methods({
     }
   },
 
-  setProfileImage: (newImage) => {
+  setProfileImage: async (newImage) => {
     console.log(newImage);
-    const currentUser = Meteor.user();
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
@@ -269,13 +270,13 @@ Meteor.methods({
     const currentUserId = currentUser._id;
 
     try {
-      Meteor.users.update(currentUserId, {
+      await Meteor.users.updateAsync(currentUserId, {
         $set: {
           images: [newImage],
           previousImages: currentUser.images,
         },
       });
-      BooksCollection.update(
+      await BooksCollection.updateAsync(
         {
           ownerId: currentUserId,
         },
@@ -288,7 +289,7 @@ Meteor.methods({
           multi: true,
         }
       );
-      RequestsCollection.update(
+      await RequestsCollection.updateAsync(
         {
           ownerId: currentUserId,
         },
@@ -301,7 +302,7 @@ Meteor.methods({
           multi: true,
         }
       );
-      RequestsCollection.update(
+      await RequestsCollection.updateAsync(
         {
           requesterId: currentUserId,
         },
@@ -320,8 +321,8 @@ Meteor.methods({
     }
   },
 
-  setProfileImageEmpty: () => {
-    const currentUser = Meteor.user();
+  setProfileImageEmpty: async () => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
@@ -329,13 +330,13 @@ Meteor.methods({
     const currentUserId = currentUser._id;
 
     try {
-      Meteor.users.update(currentUserId, {
+      await Meteor.users.updateAsync(currentUserId, {
         $set: {
           images: null,
           previousImages: currentUser.images,
         },
       });
-      Books.update(
+      await BooksCollection.updateAsync(
         { ownerId: currentUserId },
         {
           $set: {
@@ -349,14 +350,14 @@ Meteor.methods({
     }
   },
 
-  setGeoLocationCoords: (coords) => {
-    const currentUser = Meteor.user();
+  setGeoLocationCoords: async (coords) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
 
     try {
-      Meteor.users.update(currentUser._id, {
+      await Meteor.users.updateAsync(currentUser._id, {
         $set: {
           geoLocationCoords: coords,
         },
@@ -367,14 +368,14 @@ Meteor.methods({
     }
   },
 
-  setIntroDone: () => {
-    const currentUser = Meteor.user();
+  setIntroDone: async () => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
 
     try {
-      Meteor.users.update(currentUser._id, {
+      await Meteor.users.updateAsync(currentUser._id, {
         $set: {
           isIntroDone: true,
         },
@@ -395,8 +396,8 @@ Meteor.methods({
     return Boolean(user);
   },
 
-  getAllUsers: () => {
-    const users = Meteor.users.find().fetch();
+  getAllUsers: async () => {
+    const users = await Meteor.users.find().fetchAsync();
     return users.map((u) => ({
       userId: u._id,
       username: u.username,
@@ -404,24 +405,24 @@ Meteor.methods({
     }));
   },
 
-  getUsersNearBy: () => {
-    const user = Meteor.user();
+  getUsersNearBy: async () => {
+    const user = await Meteor.userAsync();
     if (!user || !user.location) {
       return;
     }
 
     const radius = 100; //km
 
-    const allUsers = Meteor.users
+    const allUsers = await Meteor.users
       .find({ _id: { $ne: user._id } })
-      .fetch()
-      .map((u) => ({
-        userId: u._id,
-        username: u.username,
-        userImage: u.images && u.images[0],
-        latitude: u.location?.coords.latitude,
-        longitude: u.location?.coords.longitude,
-      }));
+      .fetchAsync();
+    const allUsersMapped = allUsers.map((u) => ({
+      userId: u._id,
+      username: u.username,
+      userImage: u.images && u.images[0],
+      latitude: u.location?.coords.latitude,
+      longitude: u.location?.coords.longitude,
+    }));
 
     const userLocationCoords = user.location.coords;
 
@@ -429,7 +430,7 @@ Meteor.methods({
       userLocationCoords.latitude,
       userLocationCoords.longitude,
       radius,
-      allUsers
+      allUsersMapped
     );
   },
 
@@ -438,42 +439,38 @@ Meteor.methods({
     Accounts.urls.resetPassword = function (token) {
       return `${url}reset-password/${token}`;
     };
-    Meteor.call('forgotPassword', { email }, (respond, error) => {
-      console.log(respond);
-      if (error) {
-        console.log(error);
-      }
-    });
+
+    Accounts.forgotPassword({ email });
   },
 
-  deleteAccount: () => {
-    const currentUser = Meteor.user();
+  deleteAccount: async () => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
     try {
-      BooksCollection.remove({ ownerId: currentUser._id });
-      Meteor.users.remove(currentUser._id);
+      await BooksCollection.removeAsync({ ownerId: currentUser._id });
+      await Meteor.users.removeAsync(currentUser._id);
     } catch (error) {
       console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
 
-  blockUser: (userId) => {
-    const currentUser = Meteor.user();
+  blockUser: async (userId) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
     }
     try {
       if (!currentUser.blockedUsers) {
-        Meteor.users.update(currentUser._id, {
+        await Meteor.users.updateAsync(currentUser._id, {
           $set: {
             blockedUsers: [userId],
           },
         });
       } else {
-        Meteor.users.update(currentUser._id, {
+        await Meteor.users.updateAsync(currentUser._id, {
           $addToSet: {
             blockedUsers: userId,
           },

@@ -4,56 +4,59 @@ import BooksCollection from '../../books/book';
 import RequestsCollection from '../request';
 
 Meteor.methods({
-  getMyRequests: () => {
-    const currentUserId = Meteor.userId();
-    if (!currentUserId) {
+  getMyRequests: async () => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
       throw new Meteor.Error('Please login');
     }
+    const currentUserId = currentUser._id;
+
     try {
-      return RequestsCollection.find({
+      return await RequestsCollection.find({
         $or: [{ requesterId: currentUserId }, { ownerId: currentUserId }],
-      }).fetch();
+      }).fetchAsync();
     } catch (error) {
-      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
 
-  getSingleRequest: (requestId) => {
-    const currentUserId = Meteor.userId();
-    if (!currentUserId) {
+  getSingleRequest: async (requestId) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
       throw new Meteor.Error('Please login');
     }
+    const currentUserId = currentUser._id;
+
     try {
-      return RequestsCollection.findOne({
+      return await RequestsCollection.findOneAsync({
         _id: requestId,
         $or: [{ requesterId: currentUserId }, { ownerId: currentUserId }],
       });
     } catch (error) {
-      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
 
-  makeRequest: (bookId) => {
-    const currentUser = Meteor.user();
+  makeRequest: async (bookId) => {
+    const currentUser = await Meteor.userAsync();
     if (!currentUser) {
-      return false;
+      throw new Meteor.Error('Please login');
     }
+    const currentUserId = currentUser._id;
 
     try {
-      const theBook = BooksCollection.findOne(bookId);
-      const owner = Meteor.users.findOne(theBook.ownerId);
+      const theBook = await BooksCollection.findOneAsync(bookId);
+      const owner = await Meteor.users.findOneAsync(theBook.ownerId);
 
       if (
-        RequestsCollection.findOne({
+        await RequestsCollection.findOneAsync({
           bookId: bookId,
-          requesterId: currentUser._id,
+          requesterId: currentUserId,
         })
       ) {
         throw new Meteor.Error('You have already requested this item');
       }
-      const requestId = RequestsCollection.insert({
+      const requestId = await RequestsCollection.insertAsync({
         bookAuthors: theBook.authors,
         bookCategories: theBook.categories,
         bookImage: theBook.imageUrl,
@@ -72,7 +75,7 @@ Meteor.methods({
         requesterUsername: currentUser.username,
       });
 
-      BooksCollection.update(bookId, {
+      await BooksCollection.updateAsync(bookId, {
         $set: {
           isAvailable: false,
           onRequest: true,
@@ -90,25 +93,24 @@ Meteor.methods({
       //   ' has requested to borrow a book from you. Please go ahead and reply at: https://app.pomegra.org/my-requests/';
       // Meteor.call('sendEmail', ownerId, subjectEmail, textEmail);
     } catch (error) {
-      console.log(error);
       throw new Meteor.Error(error);
     }
   },
 
-  acceptRequest: (requestId) => {
-    const currentUserId = Meteor.userId();
-
-    if (!currentUserId) {
-      throw new Meteor.Error('You are not logged in!');
+  acceptRequest: async (requestId) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
+      throw new Meteor.Error('Please login');
     }
+    const currentUserId = currentUser._id;
 
-    const request = RequestsCollection.findOne(requestId);
+    const request = await RequestsCollection.findOneAsync(requestId);
     if (!request || request.ownerId !== currentUserId) {
       throw new Meteor.Error('You are not the owner!');
     }
 
     try {
-      RequestsCollection.update(
+      await RequestsCollection.updateAsync(
         { _id: requestId },
         {
           $set: {
@@ -118,7 +120,7 @@ Meteor.methods({
         }
       );
 
-      BooksCollection.update(
+      await BooksCollection.updateAsync(
         { _id: request.bookId },
         {
           $set: {
@@ -128,7 +130,6 @@ Meteor.methods({
         }
       );
     } catch (error) {
-      console.log(error);
       throw new Meteor.Error(error);
     }
 
@@ -136,147 +137,160 @@ Meteor.methods({
 
     const subjectEmail = 'Your request has been accepted!';
     const textEmail = `Congratulations! One of your requests has been accepted. Check at: https://app.pomegra.org/request/${requestId}`;
-    Meteor.call('sendEmail', borrowerId, subjectEmail, textEmail);
+    await Meteor.callAsync('sendEmail', borrowerId, subjectEmail, textEmail);
   },
 
-  denyRequest: (requestId) => {
-    const currentUserId = Meteor.userId();
-
-    if (!currentUserId) {
-      throw new Meteor.Error('You are not logged in');
+  denyRequest: async (requestId) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
+      throw new Meteor.Error('Please login');
     }
-
-    const request = RequestsCollection.findOne(requestId);
-    if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error('You are not the owner!');
-    }
-
-    RequestsCollection.update(
-      { _id: requestId },
-      {
-        $set: {
-          isDenied: new Date(),
-        },
-      }
-    );
-
-    BooksCollection.update(
-      { _id: request.bookId },
-      {
-        $set: {
-          onRequest: false,
-          isAvailable: true,
-        },
-      }
-    );
-  },
-
-  setIsHanded: (requestId) => {
-    const currentUserId = Meteor.userId();
-
-    if (!currentUserId) {
-      throw new Meteor.Error('You are not logged in');
-    }
-
-    const request = RequestsCollection.findOne(requestId);
-    if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error('You are not the owner!');
-    }
-
-    RequestsCollection.update(
-      { _id: requestId },
-      {
-        $set: {
-          isHanded: new Date(),
-        },
-      }
-    );
-
-    BooksCollection.update(
-      { _id: request.bookId },
-      {
-        $set: {
-          onAcceptance: false,
-          onLend: true,
-        },
-      }
-    );
-  },
-
-  setIsReturned: (requestId) => {
-    const currentUserId = Meteor.userId();
-
-    if (!currentUserId) {
-      throw new Meteor.Error('You are not logged in');
-    }
-
-    const request = RequestsCollection.findOne(requestId);
-    if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error('You are not the owner!');
-    }
-
-    RequestsCollection.update(
-      { _id: requestId },
-      {
-        $set: {
-          isReturned: new Date(),
-        },
-      }
-    );
-
-    BooksCollection.update(
-      { _id: request.bookId },
-      {
-        $set: {
-          onLend: false,
-          returned: true,
-          isAvailable: true,
-        },
-        $inc: {
-          xTimes: 1,
-        },
-      }
-    );
-  },
-
-  abortRequest: (requestId) => {
-    const currentUserId = Meteor.userId();
-
-    if (!currentUserId) {
-      throw new Meteor.Error('You are not logged in');
-    }
-
-    const request = RequestsCollection.findOne(requestId);
-    if (request.ownerId !== currentUserId) {
-      throw new Meteor.Error('You are not the owner!');
-    }
-
-    RequestsCollection.update(
-      { _id: requestId },
-      {
-        $set: {
-          isAborted: true,
-        },
-      }
-    );
-
-    BooksCollection.update(
-      { _id: request.bookId },
-      {
-        $set: {
-          isAvailable: true,
-        },
-      }
-    );
-  },
-
-  addMessage: (requestId, message) => {
-    const currentUser = Meteor.user();
     const currentUserId = currentUser._id;
-    if (!currentUserId) {
-      throw new Meteor.Error('You are not logged in');
+    const request = await RequestsCollection.findOneAsync(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
     }
-    const theMessage = RequestsCollection.findOne({
+
+    try {
+      await RequestsCollection.updateAsync(
+        { _id: requestId },
+        {
+          $set: {
+            isDenied: new Date(),
+          },
+        }
+      );
+
+      await BooksCollection.updateAsync(
+        { _id: request.bookId },
+        {
+          $set: {
+            onRequest: false,
+            isAvailable: true,
+          },
+        }
+      );
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
+  setIsHanded: async (requestId) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
+      throw new Meteor.Error('Please login');
+    }
+    const currentUserId = currentUser._id;
+    const request = await RequestsCollection.findOneAsync(requestId);
+    if (request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
+    }
+
+    try {
+      await RequestsCollection.updateAsync(
+        { _id: requestId },
+        {
+          $set: {
+            isHanded: new Date(),
+          },
+        }
+      );
+
+      await BooksCollection.updateAsync(
+        { _id: request.bookId },
+        {
+          $set: {
+            onAcceptance: false,
+            onLend: true,
+          },
+        }
+      );
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
+  setIsReturned: async (requestId) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
+      throw new Meteor.Error('Please login');
+    }
+    const currentUserId = currentUser._id;
+
+    const request = await RequestsCollection.findOneAsync(requestId);
+    if (!request || request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
+    }
+
+    try {
+      await RequestsCollection.updateAsync(
+        { _id: requestId },
+        {
+          $set: {
+            isReturned: new Date(),
+          },
+        }
+      );
+
+      await BooksCollection.updateAsync(
+        { _id: request.bookId },
+        {
+          $set: {
+            onLend: false,
+            returned: true,
+            isAvailable: true,
+          },
+          $inc: {
+            xTimes: 1,
+          },
+        }
+      );
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
+  abortRequest: async (requestId) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
+      throw new Meteor.Error('Please login');
+    }
+    const currentUserId = currentUser._id;
+    const request = await RequestsCollection.findOneAsync(requestId);
+    if (!request || request.ownerId !== currentUserId) {
+      throw new Meteor.Error('You are not the owner!');
+    }
+
+    try {
+      await RequestsCollection.updateAsync(
+        { _id: requestId },
+        {
+          $set: {
+            isAborted: true,
+          },
+        }
+      );
+
+      await BooksCollection.updateAsync(
+        { _id: request.bookId },
+        {
+          $set: {
+            isAvailable: true,
+          },
+        }
+      );
+    } catch (error) {
+      throw new Meteor.Error(error);
+    }
+  },
+
+  addMessage: async (requestId, message) => {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
+      throw new Meteor.Error('Please login');
+    }
+    const currentUserId = currentUser._id;
+    const theMessage = await RequestsCollection.findOneAsync({
       _id: requestId,
     });
     if (
@@ -285,12 +299,13 @@ Meteor.methods({
     ) {
       return;
     }
-
-    const unSeenIndex = RequestsCollection.findOne({ _id: requestId })?.messages
-      ?.length;
+    const theRequest = await RequestsCollection.findOneAsync({
+      _id: requestId,
+    });
+    const unSeenIndex = theRequest?.messages?.length;
 
     try {
-      RequestsCollection.update(
+      await RequestsCollection.updateAsync(
         {
           _id: requestId,
         },
@@ -312,40 +327,48 @@ Meteor.methods({
         }
       );
 
-      Meteor.call('createNotification', 'request', requestId, unSeenIndex);
+      await Meteor.callAsync(
+        'createNotification',
+        'request',
+        requestId,
+        unSeenIndex
+      );
     } catch (error) {
-      console.log('error', error);
       throw new Meteor.Error(error);
     }
   },
 
-  reportContent: (contentId, context) => {
-    const currentUser = Meteor.user();
-    if (!currentUser) {
-      throw new Meteor.Error('Not allowed!');
+  reportContent: async (contentId, context) => {
+    const user = await Meteor.userAsync();
+    if (!user) {
+      throw new Meteor.Error('Please login');
     }
 
-    if (context === 'request') {
-      RequestsCollection.update(contentId, {
-        $set: {
-          isReported: true,
-        },
-      });
-    } else if (context === 'book') {
-      BooksCollection.update(contentId, {
-        $set: {
-          isReported: true,
-        },
-      });
-    } else if (context === 'user') {
-      Meteor.users.update(
-        { username: contentId },
-        {
+    try {
+      if (context === 'request') {
+        await RequestsCollection.updateAsync(contentId, {
           $set: {
             isReported: true,
           },
-        }
-      );
+        });
+      } else if (context === 'book') {
+        await BooksCollection.updateAsync(contentId, {
+          $set: {
+            isReported: true,
+          },
+        });
+      } else if (context === 'user') {
+        await Meteor.users.updateAsync(
+          { username: contentId },
+          {
+            $set: {
+              isReported: true,
+            },
+          }
+        );
+      }
+    } catch (error) {
+      throw new Meteor.Error(error);
     }
   },
 });
