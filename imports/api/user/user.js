@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
 import SimpleSchema from 'simpl-schema';
+import 'meteor/aldeed:collection2/static';
 
 const Users = Meteor.users;
 

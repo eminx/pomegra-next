@@ -82,11 +82,11 @@ function Book() {
 
   const isMyBook = currentUser?._id === book?.ownerId;
 
-  const handleButtonClick = () => {
+  const handleButtonClick = async () => {
     if (isMyBook) {
       setIsEditDialogOpen(true);
     } else {
-      makeRequest();
+      await makeRequest();
     }
   };
 
