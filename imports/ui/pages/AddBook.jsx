@@ -1,3 +1,4 @@
+import { Meteor } from 'meteor/meteor';
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, NavBar, Popup, SearchBar, Skeleton } from 'antd-mobile';
@@ -12,7 +13,8 @@ import AppTabBar from '../components/AppTabBar';
 import BookForm from '../components/BookForm';
 import { errorDialog, successDialog } from '../components/Toast';
 
-const googleApi = 'https://www.googleapis.com/books/v1/volumes?q=';
+const googleBooksApiKey = Meteor.settings.googleBooksApiKey;
+const googleApi = `https://www.googleapis.com/books/v1/volumes?key=${googleBooksApiKey}&q=`;
 
 const bookModel = {
   title: '',
