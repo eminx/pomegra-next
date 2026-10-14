@@ -261,6 +261,12 @@ Meteor.methods({
   getAllBooks: async () => {
     const currentUser = await Meteor.userAsync();
 
+    if (!currentUser) {
+      return await BooksCollection.find({
+        isAvailable: true,
+      }).fetchAsync();
+    }
+
     const allBooksAvailable = await BooksCollection.find({
       isAvailable: true,
       ownerUsername: {
@@ -268,7 +274,7 @@ Meteor.methods({
       },
     }).fetchAsync();
 
-    if (!currentUser || !currentUser.locationSearchEnabled) {
+    if (!currentUser.locationSearchEnabled) {
       return allBooksAvailable;
     }
 
