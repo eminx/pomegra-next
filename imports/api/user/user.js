@@ -21,7 +21,7 @@ Users.schema.AccountBase = {
 
 Users.schema.UserProfile = {
   bio: { type: String, defaultValue: '', optional: true },
-  blockedUsers: { type: Array, optional: true },
+  blockedUsers: { type: Array, optional: true, defaultValue: [] },
   'blockedUsers.$': { type: String },
   firstName: { type: String, defaultValue: '', optional: true },
   images: { type: Array, defaultValue: [], optional: true },
