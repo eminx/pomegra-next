@@ -1,6 +1,68 @@
 import { Meteor } from 'meteor/meteor';
+import { check } from 'meteor/check';
+
 import BooksCollection from '../../books/book';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
+
+const googleBooksApiKey = Meteor.settings.googleBooksApiKey;
+const googleApi = `https://www.googleapis.com/books/v1/volumes?key=${googleBooksApiKey}&q=`;
+
+const fetchBooks = async (query) => {
+  check(query, String);
+
+  if (query.trim().length < 3) {
+    throw new Meteor.Error(
+      'invalid-query',
+      'Query must be at least 3 characters.'
+    );
+  }
+
+  const url = googleApi + encodeURIComponent(query);
+
+  const maxRetries = 3;
+  let delay = 1000;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        if (
+          (response.status === 429 || response.status >= 500) &&
+          attempt < maxRetries
+        ) {
+          console.warn(
+            `[books.search] Status ${response.status}, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          delay *= 2;
+          continue;
+        }
+        throw new Meteor.Error(
+          'google-books-error',
+          `Google Books API responded with status ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      return (data?.items || []).map((item) => item.volumeInfo);
+    } catch (err) {
+      if (err instanceof Meteor.Error) throw err;
+
+      if (attempt >= maxRetries) {
+        console.error('[books.search] Failed after retries:', err);
+        throw new Meteor.Error(
+          'google-books-failed',
+          err.message || 'Search failed'
+        );
+      }
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      delay *= 2;
+    }
+  }
+
+  return [];
+};
 
 Meteor.methods({
   getUserBooks: async (username) => {
@@ -197,18 +259,14 @@ Meteor.methods({
   },
 
   getAllBooks: async () => {
-    return await BooksCollection.find({
-      isAvailable: true,
-    }).fetchAsync();
-  },
-
-  getBooksNearBy: async () => {
     const user = await Meteor.userAsync();
-    if (!user || !user.location) {
-      return;
+    if (!user || !user.locationSearchEnabled) {
+      return await BooksCollection.find({
+        isAvailable: true,
+      }).fetchAsync();
     }
 
-    const radius = 100; //km
+    const radius = user.locationSearchRadius || 100;
 
     const allBooksRetrieved = await BooksCollection.find({
       ownerId: { $ne: user._id },
@@ -229,5 +287,9 @@ Meteor.methods({
       radius,
       allBooks
     );
+  },
+
+  async 'books.search'(query) {
+    return fetchBooks(query);
   },
 });

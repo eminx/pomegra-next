@@ -14,6 +14,8 @@ Users.schema.AccountBase = {
   'emails.$.verified': { type: Boolean },
   username: { type: String, min: 3, max: 21 },
   createdAt: { type: Date },
+  locationSearchEnabled: { type: Boolean, defaultValue: false },
+  locationSearchRadius: { type: Number, defaultValue: 100 },
   services: { type: Object, blackbox: true },
 };
 

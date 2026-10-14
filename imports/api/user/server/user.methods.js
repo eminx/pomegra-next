@@ -397,21 +397,17 @@ Meteor.methods({
   },
 
   getAllUsers: async () => {
-    const users = await Meteor.users.find().fetchAsync();
-    return users.map((u) => ({
-      userId: u._id,
-      username: u.username,
-      userImage: u.images && u.images[0],
-    }));
-  },
-
-  getUsersNearBy: async () => {
     const user = await Meteor.userAsync();
-    if (!user || !user.location) {
-      return;
+    if (!user || !user.locationSearchEnabled) {
+      const users = await Meteor.users.find().fetchAsync();
+      return users.map((u) => ({
+        userId: u._id,
+        username: u.username,
+        userImage: u.images && u.images[0],
+      }));
     }
 
-    const radius = 100; //km
+    const radius = user.locationSearchRadius;
 
     const allUsers = await Meteor.users
       .find({ _id: { $ne: user._id } })
