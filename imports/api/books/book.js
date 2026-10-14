@@ -30,7 +30,6 @@ BooksCollection.schema = new SimpleSchema({
     }),
   },
   ISBN: { type: String, optional: true },
-  isReported: { type: Boolean, optional: true },
   language: { type: String, optional: true },
   onRequest: { type: Boolean, optional: true },
   ownerId: Schemas.Id,

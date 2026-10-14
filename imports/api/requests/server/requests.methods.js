@@ -337,38 +337,4 @@ Meteor.methods({
       throw new Meteor.Error(error);
     }
   },
-
-  reportContent: async (contentId, context) => {
-    const user = await Meteor.userAsync();
-    if (!user) {
-      throw new Meteor.Error('Please login');
-    }
-
-    try {
-      if (context === 'request') {
-        await RequestsCollection.updateAsync(contentId, {
-          $set: {
-            isReported: true,
-          },
-        });
-      } else if (context === 'book') {
-        await BooksCollection.updateAsync(contentId, {
-          $set: {
-            isReported: true,
-          },
-        });
-      } else if (context === 'user') {
-        await Meteor.users.updateAsync(
-          { username: contentId },
-          {
-            $set: {
-              isReported: true,
-            },
-          }
-        );
-      }
-    } catch (error) {
-      throw new Meteor.Error(error);
-    }
-  },
 });

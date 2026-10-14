@@ -24,14 +24,13 @@ Users.schema.UserProfile = {
   blockedUsers: { type: Array, optional: true },
   'blockedUsers.$': { type: String },
   firstName: { type: String, defaultValue: '', optional: true },
-  lastName: { type: String, defaultValue: '', optional: true },
   images: { type: Array, defaultValue: [], optional: true },
   'images.$': { type: String, optional: true },
-  isReported: { type: Boolean, optional: true },
   languages: { type: Array, optional: true },
   'languages.$': { type: Object },
   'languages.$.label': { type: String },
   'languages.$.value': { type: String },
+  lastName: { type: String, defaultValue: '', optional: true },
   location: {
     type: new SimpleSchema({
       coords: {

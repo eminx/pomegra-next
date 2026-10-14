@@ -259,7 +259,7 @@ Meteor.methods({
   },
 
   getAllBooks: async () => {
-    const currentUser = await Meteor.currentUserAsync();
+    const currentUser = await Meteor.userAsync();
     if (!currentUser || !currentUser.locationSearchEnabled) {
       return await BooksCollection.find({
         isAvailable: true,
