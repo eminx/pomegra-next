@@ -17,6 +17,7 @@ RequestsCollection.schema = new SimpleSchema({
   bookTitle: { type: String },
   dateRequested: { type: Date },
   isConfirmed: { type: Date, optional: true },
+  isDenied: { type: Date, optional: true },
   isHanded: { type: Date, optional: true },
   isNotificationOn: { type: Boolean, optional: true },
   isRepliedAndNotSeen: { type: Boolean, optional: true },
