@@ -260,22 +260,20 @@ Meteor.methods({
 
   getAllBooks: async () => {
     const currentUser = await Meteor.userAsync();
-    if (!currentUser || !currentUser.locationSearchEnabled) {
-      return await BooksCollection.find({
-        isAvailable: true,
-      }).fetchAsync();
-    }
 
-    const radius = currentUser.locationSearchRadius || 100;
-
-    const allBooksRetrieved = await BooksCollection.find({
+    const allBooksAvailable = await BooksCollection.find({
+      isAvailable: true,
       ownerUsername: {
         $nin: [...currentUser.blockedUsers, currentUser.username],
       },
-      isAvailable: true,
     }).fetchAsync();
 
-    const allBooks = allBooksRetrieved.map((b) => ({
+    if (!currentUser || !currentUser.locationSearchEnabled) {
+      return allBooksAvailable;
+    }
+
+    const radius = currentUser.locationSearchRadius || 100;
+    const allBooksAround = allBooksAvailable.map((b) => ({
       ...b,
       latitude: b.ownerLocation?.coords.latitude,
       longitude: b.ownerLocation?.coords.longitude,
@@ -287,7 +285,7 @@ Meteor.methods({
       userLocationCoords.latitude,
       userLocationCoords.longitude,
       radius,
-      allBooks
+      allBooksAround
     );
   },
 
