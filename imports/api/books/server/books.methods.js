@@ -259,17 +259,19 @@ Meteor.methods({
   },
 
   getAllBooks: async () => {
-    const user = await Meteor.userAsync();
-    if (!user || !user.locationSearchEnabled) {
+    const currentUser = await Meteor.currentUserAsync();
+    if (!currentUser || !currentUser.locationSearchEnabled) {
       return await BooksCollection.find({
         isAvailable: true,
       }).fetchAsync();
     }
 
-    const radius = user.locationSearchRadius || 100;
+    const radius = currentUser.locationSearchRadius || 100;
 
     const allBooksRetrieved = await BooksCollection.find({
-      ownerId: { $ne: user._id },
+      ownerUsername: {
+        $nin: [...currentUser.blockedUsers, currentUser.username],
+      },
       isAvailable: true,
     }).fetchAsync();
 
@@ -279,7 +281,7 @@ Meteor.methods({
       longitude: b.ownerLocation?.coords.longitude,
     }));
 
-    const userLocationCoords = user?.location?.coords;
+    const userLocationCoords = currentUser?.location?.coords;
 
     return getNearbyUsersOrBooks(
       userLocationCoords.latitude,

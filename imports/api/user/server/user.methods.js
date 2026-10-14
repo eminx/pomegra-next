@@ -29,15 +29,16 @@ Meteor.methods({
   getUsers: async () => {
     const currentUser = await Meteor.userAsync();
     try {
-      if (currentUser) {
-        return await Meteor.users
-          .find({
-            username: { $ne: currentUser.username },
-          })
-          .fetchAsync();
-      } else {
+      if (!currentUser) {
         return await Meteor.users.find().fetchAsync();
       }
+      return await Meteor.users
+        .find({
+          username: {
+            $nin: [...currentUser.blockedUsers, currentUser.username],
+          },
+        })
+        .fetchAsync();
     } catch (error) {
       throw new Meteor.Error(error);
     }
@@ -453,7 +454,7 @@ Meteor.methods({
     }
   },
 
-  blockUser: async (userId) => {
+  blockUser: async (username) => {
     const currentUser = await Meteor.userAsync();
     if (!currentUser) {
       throw new Meteor.Error('Not allowed!');
@@ -462,13 +463,13 @@ Meteor.methods({
       if (!currentUser.blockedUsers) {
         await Meteor.users.updateAsync(currentUser._id, {
           $set: {
-            blockedUsers: [userId],
+            blockedUsers: [username],
           },
         });
       } else {
         await Meteor.users.updateAsync(currentUser._id, {
           $addToSet: {
-            blockedUsers: userId,
+            blockedUsers: username,
           },
         });
       }
