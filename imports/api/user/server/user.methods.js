@@ -399,8 +399,24 @@ Meteor.methods({
 
   getAllUsers: async () => {
     const user = await Meteor.userAsync();
-    if (!user || !user.locationSearchEnabled) {
+    if (!user) {
       const users = await Meteor.users.find().fetchAsync();
+      return users.map((u) => ({
+        userId: u._id,
+        username: u.username,
+        userImage: u.images && u.images[0],
+      }));
+    }
+
+    if (!user.locationSearchEnabled) {
+      const users = await Meteor.users
+        .find({
+          username: {
+            $nin: [...user.blockedUsers, user.username],
+          },
+        })
+        .fetchAsync();
+
       return users.map((u) => ({
         userId: u._id,
         username: u.username,
