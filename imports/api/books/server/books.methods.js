@@ -4,8 +4,13 @@ import { check } from 'meteor/check';
 import BooksCollection from '../../books/book';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
-const googleBooksApiKey = Meteor.settings.googleBooksApiKey;
-const googleApi = `https://www.googleapis.com/books/v1/volumes?key=${googleBooksApiKey}&q=`;
+// const booksApiKey = Meteor.settings.booksApiKey;
+const booksApi = `https://openlibrary.org/search.json?q=`;
+const options = {
+  headers: {
+    'User-Agent': 'Librella (info@librella.app)',
+  },
+};
 
 const fetchBooks = async (query) => {
   check(query, String);
@@ -17,51 +22,21 @@ const fetchBooks = async (query) => {
     );
   }
 
-  const url = googleApi + encodeURIComponent(query);
+  const url = booksApi + encodeURIComponent(query);
 
-  const maxRetries = 3;
-  let delay = 1000;
+  try {
+    const response = await fetch(url, options);
 
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    try {
-      const response = await fetch(url);
-
-      if (!response.ok) {
-        if (
-          (response.status === 429 || response.status >= 500) &&
-          attempt < maxRetries
-        ) {
-          console.warn(
-            `[books.search] Status ${response.status}, retrying in ${delay}ms (attempt ${attempt + 1}/${maxRetries})`
-          );
-          await new Promise((resolve) => setTimeout(resolve, delay));
-          delay *= 2;
-          continue;
-        }
-        throw new Meteor.Error(
-          'google-books-error',
-          `Google Books API responded with status ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-      return (data?.items || []).map((item) => item.volumeInfo);
-    } catch (err) {
-      if (err instanceof Meteor.Error) throw err;
-
-      if (attempt >= maxRetries) {
-        console.error('[books.search] Failed after retries:', err);
-        throw new Meteor.Error(
-          'google-books-failed',
-          err.message || 'Search failed'
-        );
-      }
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      delay *= 2;
+    if (!response.ok) {
+      throw new Meteor.Error(
+        `Google Books API responded with status ${response.status}`
+      );
     }
+    const data = await response.json();
+    return (data?.docs || []).map((item) => item.volumeInfo);
+  } catch (err) {
+    if (err instanceof Meteor.Error) throw err;
   }
-
-  return [];
 };
 
 Meteor.methods({
@@ -296,7 +271,7 @@ Meteor.methods({
     );
   },
 
-  async 'books.search'(query) {
+  'books.search': async (query) => {
     return fetchBooks(query);
   },
 });
