@@ -4,6 +4,28 @@ import { check } from 'meteor/check';
 import BooksCollection from '../../books/book';
 import { getNearbyUsersOrBooks } from '../../_utils/functions';
 
+const fields = [
+  'key',
+  'title',
+  'subtitle',
+  'author_name',
+  'author_key',
+  'publisher',
+  'first_publish_year',
+  'number_of_pages_median',
+  'subject',
+  'language',
+  'first_sentence',
+  'isbn',
+  'cover_i',
+  'cover_edition_key',
+  'edition_count',
+  'ebook_access',
+  'ratings_average',
+  'ratings_count',
+  'want_to_read_count',
+].join(',');
+
 // const booksApiKey = Meteor.settings.booksApiKey;
 const booksApi = `https://openlibrary.org/search.json?q=`;
 const options = {
@@ -11,6 +33,7 @@ const options = {
     'User-Agent': 'Librella (info@librella.app)',
   },
 };
+const extraParams = `&limit=20&fields=${fields}`;
 
 const fetchBooks = async (query) => {
   check(query, String);
@@ -22,7 +45,7 @@ const fetchBooks = async (query) => {
     );
   }
 
-  const url = booksApi + encodeURIComponent(query);
+  const url = booksApi + encodeURIComponent(query) + extraParams;
 
   try {
     const response = await fetch(url, options);
@@ -33,7 +56,7 @@ const fetchBooks = async (query) => {
       );
     }
     const data = await response.json();
-    return (data?.docs || []).map((item) => item.volumeInfo);
+    return data?.docs || [];
   } catch (err) {
     if (err instanceof Meteor.Error) throw err;
   }
