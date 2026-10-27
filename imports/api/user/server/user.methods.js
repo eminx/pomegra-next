@@ -410,7 +410,7 @@ Meteor.methods({
 
     const blockedUsers = currentUser.blockedUsers ?? [];
 
-    if (!user.locationSearchEnabled) {
+    if (!currentUser.locationSearchEnabled) {
       const users = await Meteor.users
         .find({
           username: {
