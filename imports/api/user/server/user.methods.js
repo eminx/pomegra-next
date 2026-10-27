@@ -388,18 +388,18 @@ Meteor.methods({
   },
 
   isUsernameTaken: (username) => {
-    const user = Accounts.findUserByUsername(username);
-    return Boolean(user);
+    const currentUser = Accounts.findUserByUsername(username);
+    return Boolean(currentUser);
   },
 
   isEmailRegistered: (email) => {
-    const user = Accounts.findUserByEmail(email);
-    return Boolean(user);
+    const currentUser = Accounts.findUserByEmail(email);
+    return Boolean(currentUser);
   },
 
   getAllUsers: async () => {
-    const user = await Meteor.userAsync();
-    if (!user) {
+    const currentUser = await Meteor.userAsync();
+    if (!currentUser) {
       const users = await Meteor.users.find().fetchAsync();
       return users.map((u) => ({
         userId: u._id,
@@ -408,11 +408,13 @@ Meteor.methods({
       }));
     }
 
+    const blockedUsers = currentUser.blockedUsers ?? [];
+
     if (!user.locationSearchEnabled) {
       const users = await Meteor.users
         .find({
           username: {
-            $nin: [...user.blockedUsers, user.username],
+            $nin: [...blockedUsers, currentUser.username],
           },
         })
         .fetchAsync();
@@ -424,10 +426,10 @@ Meteor.methods({
       }));
     }
 
-    const radius = user.locationSearchRadius;
+    const radius = currentUser.locationSearchRadius;
 
     const allUsers = await Meteor.users
-      .find({ _id: { $ne: user._id } })
+      .find({ _id: { $ne: currentUser._id } })
       .fetchAsync();
     const allUsersMapped = allUsers.map((u) => ({
       userId: u._id,
@@ -437,7 +439,7 @@ Meteor.methods({
       longitude: u.location?.coords.longitude,
     }));
 
-    const userLocationCoords = user.location.coords;
+    const userLocationCoords = currentUser.location.coords;
 
     return getNearbyUsersOrBooks(
       userLocationCoords.latitude,
