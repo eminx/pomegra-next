@@ -8,6 +8,7 @@ const fields = [
   'key',
   'title',
   'subtitle',
+  'description',
   'author_name',
   'author_key',
   'publisher',
