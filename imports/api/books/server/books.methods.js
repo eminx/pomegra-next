@@ -35,10 +35,13 @@ const fields = [
 //     'User-Agent': 'Librella (info@librella.app)',
 //   },
 // };
+// const url = booksApi + encodeURIComponent(query) + extraParams;
 
 const googleBooksApiKey = Meteor.settings.googleBooksApiKey;
 const googleBooksEndpoint = `https://www.googleapis.com/books/v1/volumes?key=`;
 const googleBooksApi = googleBooksEndpoint + googleBooksApiKey;
+
+const MAX_RESULTS = 20;
 
 const fetchBooks = async (query) => {
   check(query, String);
@@ -50,20 +53,18 @@ const fetchBooks = async (query) => {
     );
   }
 
-  // const url = booksApi + encodeURIComponent(query) + extraParams;
-  const url = `${googleBooksApi}&q=${encodeURIComponent(query)}`;
+  const url = `${googleBooksApi}&q=${encodeURIComponent(query)}&maxResults=${MAX_RESULTS}`;
 
   try {
     const response = await fetch(url);
-
-    console.log('response:', response);
 
     if (!response.ok) {
       throw new Meteor.Error(
         `Google Books API responded with status ${response.status}`
       );
     }
-    const data = await response.body.json();
+    const data = await response.json();
+    console.log('data:', data);
     return data?.items || [];
   } catch (err) {
     if (err instanceof Meteor.Error) throw err;
