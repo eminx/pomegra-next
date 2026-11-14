@@ -51,10 +51,12 @@ const fetchBooks = async (query) => {
   }
 
   // const url = booksApi + encodeURIComponent(query) + extraParams;
-  const url = googleBooksApi;
+  const url = `${googleBooksApi}&q=${encodeURIComponent(query)}`;
 
   try {
     const response = await fetch(url);
+
+    console.log('response:', response);
 
     if (!response.ok) {
       throw new Meteor.Error(
