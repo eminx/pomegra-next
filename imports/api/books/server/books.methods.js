@@ -29,8 +29,10 @@ const fields = [
 
 const limit = 20;
 
-// const booksApiKey = Meteor.settings.booksApiKey;
+const booksApiKey = Meteor.settings.booksApiKey;
 const booksApi = `https://openlibrary.org/search.json?q=`;
+const googleBooksEndpoint = `https://www.googleapis.com/books/v1/volumes?key=`;
+const googleBooksApi = googleBooksEndpoint + booksApiKey;
 const options = {
   headers: {
     'User-Agent': 'Librella (info@librella.app)',
@@ -48,10 +50,11 @@ const fetchBooks = async (query) => {
     );
   }
 
-  const url = booksApi + encodeURIComponent(query) + extraParams;
+  // const url = booksApi + encodeURIComponent(query) + extraParams;
+  const url = googleBooksApi;
 
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(url);
 
     if (!response.ok) {
       throw new Meteor.Error(
@@ -59,7 +62,7 @@ const fetchBooks = async (query) => {
       );
     }
     const data = await response.json();
-    return data?.docs || [];
+    return data?.items || [];
   } catch (err) {
     if (err instanceof Meteor.Error) throw err;
   }
