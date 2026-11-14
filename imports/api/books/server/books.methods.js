@@ -26,19 +26,19 @@ const fields = [
   'ratings_count',
   'want_to_read_count',
 ].join(',');
+// const extraParams = `&limit=${limit}&fields=${fields}`;
+// const booksApi = `https://openlibrary.org/search.json?q=`;
+// const limit = 20;
+// const booksApiKey = Meteor.settings.booksApiKey;
+// const options = {
+//   headers: {
+//     'User-Agent': 'Librella (info@librella.app)',
+//   },
+// };
 
-const limit = 20;
-
-const booksApiKey = Meteor.settings.booksApiKey;
-const booksApi = `https://openlibrary.org/search.json?q=`;
+const googleBooksApiKey = Meteor.settings.googleBooksApiKey;
 const googleBooksEndpoint = `https://www.googleapis.com/books/v1/volumes?key=`;
-const googleBooksApi = googleBooksEndpoint + booksApiKey;
-const options = {
-  headers: {
-    'User-Agent': 'Librella (info@librella.app)',
-  },
-};
-const extraParams = `&limit=${limit}&fields=${fields}`;
+const googleBooksApi = googleBooksEndpoint + googleBooksApiKey;
 
 const fetchBooks = async (query) => {
   check(query, String);
