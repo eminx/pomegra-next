@@ -27,6 +27,8 @@ const fields = [
   'want_to_read_count',
 ].join(',');
 
+const limit = 20;
+
 // const booksApiKey = Meteor.settings.booksApiKey;
 const booksApi = `https://openlibrary.org/search.json?q=`;
 const options = {
@@ -34,7 +36,7 @@ const options = {
     'User-Agent': 'Librella (info@librella.app)',
   },
 };
-const extraParams = `&limit=20&fields=${fields}`;
+const extraParams = `&limit=${limit}&fields=${fields}`;
 
 const fetchBooks = async (query) => {
   check(query, String);
