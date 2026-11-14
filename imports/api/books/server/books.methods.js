@@ -63,7 +63,7 @@ const fetchBooks = async (query) => {
         `Google Books API responded with status ${response.status}`
       );
     }
-    const data = await response.json();
+    const data = await response.body.json();
     return data?.items || [];
   } catch (err) {
     if (err instanceof Meteor.Error) throw err;
